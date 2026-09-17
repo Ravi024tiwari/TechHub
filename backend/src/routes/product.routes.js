@@ -6,7 +6,9 @@ import {
   updateProduct,
   deleteProduct,
   updateProductStock,
-  getLowStockAlerts
+  getLowStockAlerts,
+  getSearchSuggestions,
+  getFilterMetadata
 } from "../controllers/product.controller.js";
 import { verifyJWT, authorizeRoles } from "../middlewares/auth.middleware.js";
 import { uploadMultiple } from "../middlewares/upload.middleware.js";
@@ -15,11 +17,17 @@ const productRouter = Router();
 
 productRouter.get("/", getAllProducts);
 
+// Fast search suggestions (optimized for debounced live search bar)
+productRouter.get("/search/suggestions", getSearchSuggestions);
+
+// Dynamic categories & brands filter counts for sidebar
+productRouter.get("/filters/meta", getFilterMetadata);
+
 // ==========================================
 // 🛡️ Admin Inventory Alerts
 // (Must precede /:idOrSlug route parameter)
 // ==========================================
-productRouter.get("/admin/low-stock",verifyJWT,authorizeRoles("admin"),getLowStockAlerts );
+productRouter.get("/admin/low-stock", verifyJWT, authorizeRoles("admin"), getLowStockAlerts);
 
 productRouter.get("/:idOrSlug", getProductByIdOrSlug);
 

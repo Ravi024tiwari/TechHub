@@ -191,14 +191,35 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   // Build query filter
   const filter = { isActive: true };
 
-  // Full-text search on title, brand, description
+  // Hybrid Search: matches title, brand, description, tags, or processor
   if (search) {
-    filter.$text = { $search: search.trim() };
+    const searchRegex = new RegExp(search.trim(), "i");
+    filter.$or = [
+      { title: searchRegex },
+      { brand: searchRegex },
+      { description: searchRegex },
+      { keyFeatures: searchRegex },
+      { "specifications.processor": searchRegex }
+    ];
   }
 
   // Category filter
   if (category) {
     filter.category = category.toLowerCase().trim();
+  }
+
+  // Dynamic Electronics Specifications Filters
+  if (req.query.ram) {
+    filter["specifications.ram"] = new RegExp(`^${req.query.ram.trim()}$`, "i");
+  }
+  if (req.query.storage) {
+    filter["specifications.storage"] = new RegExp(`^${req.query.storage.trim()}$`, "i");
+  }
+  if (req.query.processor) {
+    filter["specifications.processor"] = new RegExp(req.query.processor.trim(), "i");
+  }
+  if (req.query.wattage) {
+    filter["specifications.wattage"] = new RegExp(req.query.wattage.trim(), "i");
   }
 
   // Brand filter (Supports comma-separated brands: 'Apple,Samsung')
@@ -482,6 +503,87 @@ export const getLowStockAlerts = asyncHandler(async (req, res) => {
         products: lowStockProducts
       },
       "Low stock inventory alerts retrieved"
+    )
+  );
+});
+
+/**
+ * @desc    Live Search / Typeahead Auto-Suggestions (Optimized for Debounced Search Bars)
+ * @route   GET /api/v1/products/search/suggestions
+ * @access  Public
+ */
+export const getSearchSuggestions = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || q.trim().length < 2) {
+    return res.status(200).json(
+      new ApiResponse(200, [], "Query too short for suggestions")
+    );
+  }
+
+  const searchRegex = new RegExp(q.trim(), "i");
+
+  // Lightweight projection for fast response and minimal DB load
+  const suggestions = await Product.find({
+    isActive: true,
+    $or: [{ title: searchRegex }, { brand: searchRegex }]
+  })
+    .select("title slug brand category salePrice regularPrice images averageRating")
+    .limit(8)
+    .lean({ virtuals: true });
+
+  return res.status(200).json(
+    new ApiResponse(200, suggestions, "Search suggestions retrieved")
+  );
+});
+
+/**
+ * @desc    Get Filter Metadata (Brands, Categories, Price Range for Filter Sidebar)
+ * @route   GET /api/v1/products/filters/meta
+ * @access  Public
+ */
+export const getFilterMetadata = asyncHandler(async (req, res) => {
+  const { category } = req.query;
+
+  const matchFilter = { isActive: true };
+  if (category) {
+    matchFilter.category = category.toLowerCase().trim();
+  }
+
+  const [metadata] = await Product.aggregate([
+    { $match: matchFilter },
+    {
+      $facet: {
+        brands: [
+          { $group: { _id: "$brand", count: { $sum: 1 } } },
+          { $sort: { count: -1 } }
+        ],
+        categories: [
+          { $group: { _id: "$category", count: { $sum: 1 } } },
+          { $sort: { count: -1 } }
+        ],
+        priceRange: [
+          {
+            $group: {
+              _id: null,
+              minPrice: { $min: "$regularPrice" },
+              maxPrice: { $max: "$regularPrice" }
+            }
+          }
+        ]
+      }
+    }
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        brands: metadata?.brands || [],
+        categories: metadata?.categories || [],
+        priceRange: metadata?.priceRange?.[0] || { minPrice: 0, maxPrice: 0 }
+      },
+      "Filter metadata retrieved successfully"
     )
   );
 });
