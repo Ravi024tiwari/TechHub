@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { notFoundHandler, errorHandler } from "./middlewares/error.middleware.js";
 import { ApiResponse } from "./utils/ApiResponse.js";
+import apiRouter from "./routes/index.js";
 
 const app = express();
 
@@ -54,6 +55,9 @@ app.get("/api/v1/health", (req, res) => {
     }, "Electronics E-Commerce Backend Service is operational")
   );
 });
+
+// Primary API V1 Routes
+app.use("/api/v1", apiRouter);
 
 // 404 handler for unrecognized routes
 app.use(notFoundHandler);
