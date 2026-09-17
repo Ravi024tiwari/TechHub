@@ -8,10 +8,8 @@ import { ApiResponse } from "./utils/ApiResponse.js";
 
 const app = express();
 
-// Security HTTP headers
 app.use(helmet());
 
-// CORS configuration for client integration
 const allowedOrigins = [
   process.env.CLIENT_URL || "http://localhost:5173",
   "http://localhost:3000"
@@ -40,15 +38,12 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("combined"));
 }
 
-// Request parsers with size limit guards
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
-// Static uploads folder for fallbacks if needed
 app.use("/public", express.static("public"));
 
-// Base health check endpoint
 app.get("/api/v1/health", (req, res) => {
   return res.status(200).json(
     new ApiResponse(200, {
