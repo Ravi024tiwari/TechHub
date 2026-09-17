@@ -1,0 +1,33 @@
+import { ApiError } from "../utils/ApiError.js";
+
+/**
+ * 404 Not Found Middleware
+ */
+export const notFoundHandler = (req, res, next) => {
+  const error = new ApiError(404, `Endpoint not found: ${req.originalUrl}`);
+  next(error);
+};
+
+/**
+ * Global Error Handling Middleware
+ */
+export const errorHandler = (err, req, res, next) => {
+  let error = err;
+
+  // Normalize unknown errors to ApiError
+  if (!(error instanceof ApiError)) {
+    const statusCode = error.statusCode || 500;
+    const message = error.message || "Internal Server Error";
+    error = new ApiError(statusCode, message, error?.errors || [], err.stack);
+  }
+
+  const response = {
+    success: false,
+    statusCode: error.statusCode,
+    message: error.message,
+    errors: error.errors || [],
+    ...(process.env.NODE_ENV === "development" && { stack: error.stack })
+  };
+
+  return res.status(error.statusCode).json(response);
+};
