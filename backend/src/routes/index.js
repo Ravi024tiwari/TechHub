@@ -5,6 +5,7 @@ import wishlistRoutes from "./wishlist.routes.js";
 import cartRoutes from "./cart.routes.js";
 import couponRoutes from "./coupon.routes.js";
 import orderRoutes from "./order.routes.js";
+import reviewRoutes from "./review.routes.js";
 
 const apiRouter = Router();
 
@@ -14,6 +15,7 @@ apiRouter.use("/wishlist", wishlistRoutes);
 apiRouter.use("/cart", cartRoutes);
 apiRouter.use("/coupons", couponRoutes);
 apiRouter.use("/orders", orderRoutes);
+apiRouter.use("/reviews", reviewRoutes);
 
 export default apiRouter;
 
