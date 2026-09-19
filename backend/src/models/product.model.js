@@ -16,7 +16,47 @@ const productImageSchema = new mongoose.Schema(
       default: false
     }
   },
-  { _id: true }
+  { _id: false }
+);
+
+const colorVariantSchema = new mongoose.Schema(
+  {
+    colorName: {
+      type: String,
+      required: [true, "Color name is required"],
+      trim: true
+    },
+    colorCode: {
+      type: String,
+      required: [true, "Hex color code is required for UI swatch"],
+      trim: true
+    },
+    images: {
+      type: [productImageSchema],
+      default: []
+    },
+    stock: {
+      type: Number,
+      required: [true, "Variant stock is required"],
+      min: [0, "Stock cannot be negative"],
+      default: 0
+    },
+    sku: {
+      type: String,
+      trim: true,
+      uppercase: true
+    },
+    priceOverride: {
+      type: Number,
+      default: null,
+      min: [0, "Price override cannot be negative"]
+    },
+    isDefault: {
+      type: Boolean,
+      default: false
+    }
+  },
+  { _id: true, timestamps: true }
 );
 
 const productSchema = new mongoose.Schema(
@@ -36,27 +76,26 @@ const productSchema = new mongoose.Schema(
       index: true
     },
     brand: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
+      ref: "Brand",
       required: [true, "Product brand is required"],
+      index: true
+    },
+    brandName: {
+      type: String,
       trim: true,
       index: true
     },
     category: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
+      ref: "Category",
       required: [true, "Product category is required"],
-      enum: {
-        values: [
-          "smartphone",
-          "laptop",
-          "audio",
-          "charger",
-          "peripheral",
-          "wearable"
-        ],
-        message: "Category must be one of: smartphone, laptop, audio, charger, peripheral, wearable"
-      },
-      lowercase: true,
+      index: true
+    },
+    categoryName: {
+      type: String,
       trim: true,
+      lowercase: true,
       index: true
     },
     sku: {
@@ -160,7 +199,9 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
       index: true
-    }
+    },
+    // Multiple Color Variants with dedicated images and inventory
+    colors: [colorVariantSchema]
   },
   {
     timestamps: true,
@@ -184,9 +225,23 @@ productSchema.virtual("inStock").get(function () {
 
 // Virtual for primary image helper
 productSchema.virtual("thumbnail").get(function () {
-  if (!this.images || this.images.length === 0) return "";
+  if (!this.images || this.images.length === 0) {
+    const firstColorImage = this.colors?.find((c) => c.images?.length > 0)?.images?.[0]?.url;
+    return firstColorImage || "";
+  }
   const primary = this.images.find((img) => img.isPrimary);
   return primary ? primary.url : this.images[0].url;
+});
+
+// Virtual for variant check
+productSchema.virtual("hasVariants").get(function () {
+  return Array.isArray(this.colors) && this.colors.length > 0;
+});
+
+// Virtual for active default color variant
+productSchema.virtual("defaultColor").get(function () {
+  if (!this.colors || this.colors.length === 0) return null;
+  return this.colors.find((c) => c.isDefault) || this.colors[0];
 });
 
 

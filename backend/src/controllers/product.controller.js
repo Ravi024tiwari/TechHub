@@ -1,6 +1,8 @@
 import fs from "fs";
 import mongoose from "mongoose";
 import { Product } from "../models/product.model.js";
+import { Category } from "../models/category.model.js";
+import { Brand } from "../models/brand.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -131,11 +133,51 @@ export const createProduct = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Resolve Dynamic Category and Brand references
+    let resolvedCategory = category;
+    let resolvedCategoryName = typeof category === "string" ? category.toLowerCase().trim() : "";
+    let resolvedBrand = brand;
+    let resolvedBrandName = typeof brand === "string" ? brand.trim() : "";
+
+    if (mongoose.Types.ObjectId.isValid(category)) {
+      const catDoc = await Category.findById(category);
+      if (catDoc) {
+        resolvedCategory = catDoc._id;
+        resolvedCategoryName = catDoc.name;
+      }
+    } else if (typeof category === "string") {
+      const catDoc = await Category.findOne({
+        $or: [{ slug: category.toLowerCase().trim() }, { name: new RegExp(`^${category.trim()}$`, "i") }]
+      });
+      if (catDoc) {
+        resolvedCategory = catDoc._id;
+        resolvedCategoryName = catDoc.name;
+      }
+    }
+
+    if (mongoose.Types.ObjectId.isValid(brand)) {
+      const brandDoc = await Brand.findById(brand);
+      if (brandDoc) {
+        resolvedBrand = brandDoc._id;
+        resolvedBrandName = brandDoc.name;
+      }
+    } else if (typeof brand === "string") {
+      const brandDoc = await Brand.findOne({
+        $or: [{ slug: brand.toLowerCase().trim() }, { name: new RegExp(`^${brand.trim()}$`, "i") }]
+      });
+      if (brandDoc) {
+        resolvedBrand = brandDoc._id;
+        resolvedBrandName = brandDoc.name;
+      }
+    }
+
     // Create product in MongoDB
     const product = await Product.create({
       title: title.trim(),
-      brand: brand.trim(),
-      category: category.toLowerCase().trim(),
+      brand: resolvedBrand,
+      brandName: resolvedBrandName,
+      category: resolvedCategory,
+      categoryName: resolvedCategoryName,
       sku: finalSku,
       description: description.trim(),
       regularPrice: numRegularPrice,
@@ -203,9 +245,33 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     ];
   }
 
-  // Category filter
+  // Category filter (supports comma-separated slugs, names, or ObjectIds)
   if (category) {
-    filter.category = category.toLowerCase().trim();
+    const rawCategories = category.split(",").map((c) => c.trim()).filter(Boolean);
+    const categoryConditions = [];
+
+    for (const cat of rawCategories) {
+      if (mongoose.Types.ObjectId.isValid(cat)) {
+        categoryConditions.push({ category: new mongoose.Types.ObjectId(cat) });
+      } else {
+        const catDoc = await Category.findOne({
+          $or: [
+            { slug: cat.toLowerCase() },
+            { name: new RegExp(`^${cat}$`, "i") }
+          ]
+        });
+        if (catDoc) {
+          categoryConditions.push({ category: catDoc._id });
+        }
+        categoryConditions.push({ category: cat.toLowerCase() });
+        categoryConditions.push({ categoryName: new RegExp(`^${cat}$`, "i") });
+      }
+    }
+
+    if (categoryConditions.length > 0) {
+      filter.$and = filter.$and || [];
+      filter.$and.push({ $or: categoryConditions });
+    }
   }
 
   // Dynamic Electronics Specifications Filters
@@ -222,10 +288,39 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     filter["specifications.wattage"] = new RegExp(req.query.wattage.trim(), "i");
   }
 
-  // Brand filter (Supports comma-separated brands: 'Apple,Samsung')
+  // Color variant filter (supports comma-separated color names)
+  if (req.query.color) {
+    const colorsArray = req.query.color.split(",").map((c) => new RegExp(`^${c.trim()}$`, "i"));
+    filter["colors.colorName"] = { $in: colorsArray };
+  }
+
+  // Brand filter (supports comma-separated slugs, names, or ObjectIds)
   if (brand) {
-    const brandsArray = brand.split(",").map((b) => new RegExp(`^${b.trim()}$`, "i"));
-    filter.brand = { $in: brandsArray };
+    const rawBrands = brand.split(",").map((b) => b.trim()).filter(Boolean);
+    const brandConditions = [];
+
+    for (const b of rawBrands) {
+      if (mongoose.Types.ObjectId.isValid(b)) {
+        brandConditions.push({ brand: new mongoose.Types.ObjectId(b) });
+      } else {
+        const brandDoc = await Brand.findOne({
+          $or: [
+            { slug: b.toLowerCase() },
+            { name: new RegExp(`^${b}$`, "i") }
+          ]
+        });
+        if (brandDoc) {
+          brandConditions.push({ brand: brandDoc._id });
+        }
+        brandConditions.push({ brand: new RegExp(`^${b}$`, "i") });
+        brandConditions.push({ brandName: new RegExp(`^${b}$`, "i") });
+      }
+    }
+
+    if (brandConditions.length > 0) {
+      filter.$and = filter.$and || [];
+      filter.$and.push({ $or: brandConditions });
+    }
   }
 
   // Price range filter
@@ -264,6 +359,8 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 
   const [products, total] = await Promise.all([
     Product.find(filter)
+      .populate("category", "name slug icon")
+      .populate("brand", "name slug logo")
       .sort(sortOption)
       .skip(skip)
       .limit(limitNum)
@@ -301,11 +398,15 @@ export const getProductByIdOrSlug = asyncHandler(async (req, res) => {
   let product = null;
 
   if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-    product = await Product.findById(idOrSlug);
+    product = await Product.findById(idOrSlug)
+      .populate("category", "name slug icon specificationsTemplate parent")
+      .populate("brand", "name slug logo website");
   }
 
   if (!product) {
-    product = await Product.findOne({ slug: idOrSlug.toLowerCase() });
+    product = await Product.findOne({ slug: idOrSlug.toLowerCase() })
+      .populate("category", "name slug icon specificationsTemplate parent")
+      .populate("brand", "name slug logo website");
   }
 
   if (!product) {
@@ -538,27 +639,80 @@ export const getSearchSuggestions = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Get Filter Metadata (Brands, Categories, Price Range for Filter Sidebar)
- * @route   GET /api/v1/products/filters/meta
+ * @desc    Get Filter Facets & Metadata (Enriched Categories, Brands, Price Range, Specs, and Colors)
+ * @route   GET /api/v1/products/filters/meta and GET /api/v1/products/filters
  * @access  Public
  */
 export const getFilterMetadata = asyncHandler(async (req, res) => {
-  const { category } = req.query;
+  const { category, brand, search } = req.query;
 
   const matchFilter = { isActive: true };
+
+  // Contextual Search query scoping
+  if (search) {
+    const searchRegex = new RegExp(search.trim(), "i");
+    matchFilter.$or = [
+      { title: searchRegex },
+      { brand: searchRegex },
+      { description: searchRegex },
+      { keyFeatures: searchRegex },
+      { "specifications.processor": searchRegex }
+    ];
+  }
+
+  // Contextual Category scoping
   if (category) {
-    matchFilter.category = category.toLowerCase().trim();
+    const rawCategories = category.split(",").map((c) => c.trim()).filter(Boolean);
+    const categoryConditions = [];
+    for (const cat of rawCategories) {
+      if (mongoose.Types.ObjectId.isValid(cat)) {
+        categoryConditions.push({ category: new mongoose.Types.ObjectId(cat) });
+      } else {
+        const catDoc = await Category.findOne({
+          $or: [{ slug: cat.toLowerCase() }, { name: new RegExp(`^${cat}$`, "i") }]
+        });
+        if (catDoc) categoryConditions.push({ category: catDoc._id });
+        categoryConditions.push({ category: cat.toLowerCase() });
+        categoryConditions.push({ categoryName: new RegExp(`^${cat}$`, "i") });
+      }
+    }
+    if (categoryConditions.length > 0) {
+      matchFilter.$and = matchFilter.$and || [];
+      matchFilter.$and.push({ $or: categoryConditions });
+    }
+  }
+
+  // Contextual Brand scoping
+  if (brand) {
+    const rawBrands = brand.split(",").map((b) => b.trim()).filter(Boolean);
+    const brandConditions = [];
+    for (const b of rawBrands) {
+      if (mongoose.Types.ObjectId.isValid(b)) {
+        brandConditions.push({ brand: new mongoose.Types.ObjectId(b) });
+      } else {
+        const brandDoc = await Brand.findOne({
+          $or: [{ slug: b.toLowerCase() }, { name: new RegExp(`^${b}$`, "i") }]
+        });
+        if (brandDoc) brandConditions.push({ brand: brandDoc._id });
+        brandConditions.push({ brand: new RegExp(`^${b}$`, "i") });
+        brandConditions.push({ brandName: new RegExp(`^${b}$`, "i") });
+      }
+    }
+    if (brandConditions.length > 0) {
+      matchFilter.$and = matchFilter.$and || [];
+      matchFilter.$and.push({ $or: brandConditions });
+    }
   }
 
   const [metadata] = await Product.aggregate([
     { $match: matchFilter },
     {
       $facet: {
-        brands: [
+        rawBrands: [
           { $group: { _id: "$brand", count: { $sum: 1 } } },
           { $sort: { count: -1 } }
         ],
-        categories: [
+        rawCategories: [
           { $group: { _id: "$category", count: { $sum: 1 } } },
           { $sort: { count: -1 } }
         ],
@@ -570,20 +724,403 @@ export const getFilterMetadata = asyncHandler(async (req, res) => {
               maxPrice: { $max: "$regularPrice" }
             }
           }
+        ],
+        rams: [
+          { $match: { "specifications.ram": { $exists: true, $ne: "" } } },
+          { $group: { _id: "$specifications.ram", count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ],
+        storages: [
+          { $match: { "specifications.storage": { $exists: true, $ne: "" } } },
+          { $group: { _id: "$specifications.storage", count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ],
+        processors: [
+          { $match: { "specifications.processor": { $exists: true, $ne: "" } } },
+          { $group: { _id: "$specifications.processor", count: { $sum: 1 } } },
+          { $sort: { count: -1 } }
+        ],
+        colors: [
+          { $unwind: "$colors" },
+          {
+            $group: {
+              _id: {
+                colorName: "$colors.colorName",
+                colorCode: "$colors.colorCode"
+              },
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { count: -1 } }
         ]
       }
     }
   ]);
 
+  // Enrich Brands with relational document info
+  const rawBrandList = metadata?.rawBrands || [];
+  const brandObjectIds = rawBrandList
+    .filter((b) => b._id && mongoose.Types.ObjectId.isValid(b._id))
+    .map((b) => b._id);
+  const brandNames = rawBrandList
+    .filter((b) => b._id && !mongoose.Types.ObjectId.isValid(b._id))
+    .map((b) => b._id);
+
+  const brandDocs = await Brand.find({
+    $or: [{ _id: { $in: brandObjectIds } }, { name: { $in: brandNames } }]
+  }).select("name slug logo");
+
+  const brandDocMap = {};
+  for (const doc of brandDocs) {
+    brandDocMap[doc._id.toString()] = doc;
+    brandDocMap[doc.name.toLowerCase()] = doc;
+    brandDocMap[doc.slug.toLowerCase()] = doc;
+  }
+
+  const enrichedBrands = rawBrandList.map((item) => {
+    const key = item._id ? item._id.toString() : "";
+    const matchedDoc = brandDocMap[key] || brandDocMap[key.toLowerCase()];
+    return {
+      _id: matchedDoc?._id || item._id,
+      name: matchedDoc?.name || item._id,
+      slug: matchedDoc?.slug || (typeof item._id === "string" ? item._id.toLowerCase() : ""),
+      logo: matchedDoc?.logo?.url || null,
+      count: item.count
+    };
+  });
+
+  // Enrich Categories with relational document info
+  const rawCatList = metadata?.rawCategories || [];
+  const catObjectIds = rawCatList
+    .filter((c) => c._id && mongoose.Types.ObjectId.isValid(c._id))
+    .map((c) => c._id);
+  const catSlugs = rawCatList
+    .filter((c) => c._id && !mongoose.Types.ObjectId.isValid(c._id))
+    .map((c) => c._id);
+
+  const catDocs = await Category.find({
+    $or: [
+      { _id: { $in: catObjectIds } },
+      { slug: { $in: catSlugs } },
+      { name: { $in: catSlugs } }
+    ]
+  }).select("name slug icon");
+
+  const catDocMap = {};
+  for (const doc of catDocs) {
+    catDocMap[doc._id.toString()] = doc;
+    catDocMap[doc.slug.toLowerCase()] = doc;
+    catDocMap[doc.name.toLowerCase()] = doc;
+  }
+
+  const enrichedCategories = rawCatList.map((item) => {
+    const key = item._id ? item._id.toString() : "";
+    const matchedDoc = catDocMap[key] || catDocMap[key.toLowerCase()];
+    return {
+      _id: matchedDoc?._id || item._id,
+      name: matchedDoc?.name || item._id,
+      slug: matchedDoc?.slug || (typeof item._id === "string" ? item._id.toLowerCase() : ""),
+      icon: matchedDoc?.icon?.url || null,
+      count: item.count
+    };
+  });
+
+  // Format Colors
+  const formattedColors = (metadata?.colors || []).map((c) => ({
+    colorName: c._id?.colorName || "",
+    colorCode: c._id?.colorCode || "",
+    count: c.count
+  }));
+
+  // Format Dynamic Specifications
+  const availableSpecs = {
+    ram: (metadata?.rams || []).map((r) => r._id),
+    storage: (metadata?.storages || []).map((s) => s._id),
+    processors: (metadata?.processors || []).map((p) => p._id)
+  };
+
+  const priceRange = metadata?.priceRange?.[0]
+    ? {
+        minPrice: metadata.priceRange[0].minPrice || 0,
+        maxPrice: metadata.priceRange[0].maxPrice || 0
+      }
+    : { minPrice: 0, maxPrice: 0 };
+
   return res.status(200).json(
     new ApiResponse(
       200,
       {
-        brands: metadata?.brands || [],
-        categories: metadata?.categories || [],
-        priceRange: metadata?.priceRange?.[0] || { minPrice: 0, maxPrice: 0 }
+        categories: enrichedCategories,
+        brands: enrichedBrands,
+        priceRange,
+        availableSpecs,
+        colors: formattedColors
       },
-      "Filter metadata retrieved successfully"
+      "Filter facets metadata retrieved successfully"
+    )
+  );
+});
+
+// ==========================================
+// COLOR VARIANTS MANAGEMENT (OPTION B)
+// ==========================================
+
+const HEX_COLOR_REGEX = /^#([0-9A-F]{3}){1,2}$/i;
+
+/**
+ * @desc    Add a new color variant with its own images and stock to a product
+ * @route   POST /api/v1/products/:id/colors
+ * @access  Private (Admin only)
+ */
+export const addColorVariant = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const {
+    colorName,
+    colorCode,
+    stock = 0,
+    sku,
+    priceOverride,
+    isDefault = false
+  } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(400, "Invalid product ID format");
+  }
+
+  if (!colorName || !colorName.trim()) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(400, "Color name is required (e.g. 'Space Gray', 'Midnight Blue')");
+  }
+
+  if (!colorCode || !HEX_COLOR_REGEX.test(colorCode.trim())) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(400, "Valid Hex color code is required (e.g. '#1C2A39', '#FFFFFF')");
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(404, "Product not found");
+  }
+
+  // Prevent duplicate color names on the same product
+  const existingColor = (product.colors || []).find(
+    (c) => c.colorName.toLowerCase() === colorName.trim().toLowerCase()
+  );
+  if (existingColor) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(400, `Color variant '${colorName}' already exists on this product`);
+  }
+
+  // Upload color-specific images to Cloudinary
+  let variantImages = [];
+  if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+    try {
+      const uploadPromises = req.files.map((file, index) =>
+        uploadOnCloudinary(file.path, "electronicsshop/products/variants").then((res) => ({
+          url: res.url,
+          public_id: res.public_id,
+          isPrimary: index === 0
+        }))
+      );
+      variantImages = await Promise.all(uploadPromises);
+    } catch (uploadErr) {
+      cleanupLocalFiles(req.files);
+      throw new ApiError(500, `Failed to upload color variant images: ${uploadErr.message}`);
+    }
+  }
+
+  // Generate variant SKU if not provided
+  let variantSku = sku?.trim();
+  if (!variantSku) {
+    const colorCodeClean = colorName.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase();
+    variantSku = `${product.sku}-${colorCodeClean}`;
+  }
+
+  const shouldBeDefault =
+    product.colors.length === 0 ? true : Boolean(isDefault === true || isDefault === "true");
+
+  if (shouldBeDefault) {
+    product.colors.forEach((c) => {
+      c.isDefault = false;
+    });
+  }
+
+  const numStock = Math.max(0, Number(stock) || 0);
+  const numPriceOverride =
+    priceOverride !== undefined && priceOverride !== "" ? Number(priceOverride) : null;
+
+  product.colors.push({
+    colorName: colorName.trim(),
+    colorCode: colorCode.trim(),
+    images: variantImages,
+    stock: numStock,
+    sku: variantSku,
+    priceOverride: numPriceOverride,
+    isDefault: shouldBeDefault
+  });
+
+  // Re-sync overall product stock with sum of all variant stocks
+  product.stock = product.colors.reduce((sum, c) => sum + (c.stock || 0), 0);
+
+  await product.save();
+
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      product,
+      `Color variant '${colorName}' added successfully to product`
+    )
+  );
+});
+
+/**
+ * @desc    Update an existing color variant on a product
+ * @route   PUT /api/v1/products/:id/colors/:colorId
+ * @access  Private (Admin only)
+ */
+export const updateColorVariant = asyncHandler(async (req, res) => {
+  const { id, colorId } = req.params;
+  const {
+    colorName,
+    colorCode,
+    stock,
+    sku,
+    priceOverride,
+    isDefault
+  } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(colorId)) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(400, "Invalid product ID or color variant ID format");
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(404, "Product not found");
+  }
+
+  const variant = product.colors.id(colorId);
+  if (!variant) {
+    cleanupLocalFiles(req.files);
+    throw new ApiError(404, "Color variant not found on this product");
+  }
+
+  if (colorName !== undefined) {
+    const trimmed = colorName.trim();
+    if (!trimmed) throw new ApiError(400, "Color name cannot be empty");
+    variant.colorName = trimmed;
+  }
+
+  if (colorCode !== undefined) {
+    const trimmedHex = colorCode.trim();
+    if (!HEX_COLOR_REGEX.test(trimmedHex)) {
+      throw new ApiError(400, "Valid Hex color code is required");
+    }
+    variant.colorCode = trimmedHex;
+  }
+
+  if (stock !== undefined) {
+    variant.stock = Math.max(0, Number(stock) || 0);
+  }
+
+  if (sku !== undefined) {
+    variant.sku = sku.trim();
+  }
+
+  if (priceOverride !== undefined) {
+    variant.priceOverride = priceOverride === null || priceOverride === "" ? null : Number(priceOverride);
+  }
+
+  if (isDefault === true || isDefault === "true") {
+    product.colors.forEach((c) => {
+      c.isDefault = c._id.toString() === colorId.toString();
+    });
+  }
+
+  // If new images uploaded, append them to this variant's image gallery
+  if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+    try {
+      const uploadPromises = req.files.map((file) =>
+        uploadOnCloudinary(file.path, "electronicsshop/products/variants").then((res) => ({
+          url: res.url,
+          public_id: res.public_id,
+          isPrimary: false
+        }))
+      );
+      const newImages = await Promise.all(uploadPromises);
+      variant.images.push(...newImages);
+    } catch (uploadErr) {
+      cleanupLocalFiles(req.files);
+      throw new ApiError(500, `Failed to upload new variant images: ${uploadErr.message}`);
+    }
+  }
+
+  // Recalculate total product stock
+  product.stock = product.colors.reduce((sum, c) => sum + (c.stock || 0), 0);
+
+  await product.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, product, "Color variant updated successfully")
+  );
+});
+
+/**
+ * @desc    Delete a color variant and clean up its Cloudinary images
+ * @route   DELETE /api/v1/products/:id/colors/:colorId
+ * @access  Private (Admin only)
+ */
+export const deleteColorVariant = asyncHandler(async (req, res) => {
+  const { id, colorId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(colorId)) {
+    throw new ApiError(400, "Invalid product ID or color variant ID format");
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+
+  const variant = product.colors.id(colorId);
+  if (!variant) {
+    throw new ApiError(404, "Color variant not found on this product");
+  }
+
+  const wasDefault = variant.isDefault;
+
+  // Clean up all Cloudinary assets associated with this variant
+  for (const img of variant.images || []) {
+    if (img.public_id) {
+      await deleteFromCloudinary(img.public_id);
+    }
+  }
+
+  // Remove subdocument
+  product.colors.pull({ _id: colorId });
+
+  // If deleted variant was default and remaining variants exist, promote the first remaining
+  if (wasDefault && product.colors.length > 0) {
+    product.colors[0].isDefault = true;
+  }
+
+  // Recalculate total product stock
+  product.stock = product.colors.reduce((sum, c) => sum + (c.stock || 0), 0);
+
+  await product.save();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        deletedVariantId: colorId,
+        remainingVariantsCount: product.colors.length,
+        product
+      },
+      "Color variant deleted successfully"
     )
   );
 });

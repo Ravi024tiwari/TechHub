@@ -5,16 +5,59 @@ import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
 import { Coupon } from "../models/coupon.model.js";
 import { User } from "../models/user.model.js";
+import { FlashDeal } from "../models/flashDeal.model.js";
 import { razorpayInstance } from "../config/razorpay.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 /**
+ * Helper: Atomically increment claimedCount for products enrolled in an active flash deal
+ */
+const incrementFlashDealClaims = async (orderItems) => {
+  const now = new Date();
+  for (const item of orderItems) {
+    const productId = item.product?._id || item.product;
+    if (productId) {
+      await FlashDeal.findOneAndUpdate(
+        {
+          status: "ACTIVE",
+          startTime: { $lte: now },
+          endTime: { $gte: now },
+          "products.product": productId
+        },
+        {
+          $inc: { "products.$.claimedCount": item.quantity }
+        }
+      );
+    }
+  }
+};
+
+/**
+ * Helper: Atomically decrement claimedCount when order is cancelled
+ */
+const rollbackFlashDealClaims = async (orderItems) => {
+  for (const item of orderItems) {
+    const productId = item.product?._id || item.product;
+    if (productId) {
+      await FlashDeal.findOneAndUpdate(
+        {
+          "products.product": productId
+        },
+        {
+          $inc: { "products.$.claimedCount": -item.quantity }
+        }
+      );
+    }
+  }
+};
+
+/**
  * Standard product fields populated from cart
  */
 const CART_POPULATE_FIELDS =
-  "title slug brand category regularPrice salePrice stock images isActive thumbnail";
+  "title slug brand category regularPrice salePrice stock images isActive thumbnail colors";
 
 
 
@@ -84,39 +127,100 @@ const atomicallyReserveStock = async (cartItems) => {
   for (const item of cartItems) {
     const productId = item.product._id || item.product;
     const qtyToDeduct = item.quantity;
+    const chosenColor = item.selectedSpecs?.color;
 
-    // Atomic conditional decrement: Only succeeds if current stock >= quantity and product is active
-    const updatedProduct = await Product.findOneAndUpdate(
-      {
-        _id: productId,
-        stock: { $gte: qtyToDeduct },
-        isActive: true
-      },
-      {
-        $inc: { stock: -qtyToDeduct }
-      },
-      { new: true }
-    );
+    let updatedProduct = null;
+
+    // 1. If item has a chosen color variant, attempt atomic variant-level deduction
+    if (chosenColor) {
+      const prodCheck = await Product.findById(productId);
+      const hasMatchingVariant = prodCheck?.colors?.some(
+        (c) => c.colorName.toLowerCase() === chosenColor.toLowerCase()
+      );
+
+      if (hasMatchingVariant) {
+        updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: productId,
+            isActive: true,
+            colors: {
+              $elemMatch: {
+                colorName: new RegExp(`^${chosenColor.trim()}$`, "i"),
+                stock: { $gte: qtyToDeduct }
+              }
+            },
+            stock: { $gte: qtyToDeduct }
+          },
+          {
+            $inc: {
+              "colors.$.stock": -qtyToDeduct,
+              stock: -qtyToDeduct
+            }
+          },
+          { new: true }
+        );
+
+        if (updatedProduct) {
+          successfullyDecremented.push({
+            productId,
+            quantity: qtyToDeduct,
+            color: chosenColor.trim()
+          });
+        }
+      }
+    }
+
+    // 2. Base product inventory deduction (if no variant specified or variant not tracked)
+    if (!updatedProduct && (!chosenColor || !successfullyDecremented.some(d => d.productId.toString() === productId.toString() && d.color === chosenColor.trim()))) {
+      updatedProduct = await Product.findOneAndUpdate(
+        {
+          _id: productId,
+          stock: { $gte: qtyToDeduct },
+          isActive: true
+        },
+        {
+          $inc: { stock: -qtyToDeduct }
+        },
+        { new: true }
+      );
+
+      if (updatedProduct) {
+        successfullyDecremented.push({ productId, quantity: qtyToDeduct });
+      }
+    }
 
     if (!updatedProduct) {
       // Roll back any products that were already decremented in this batch
       for (const dec of successfullyDecremented) {
-        await Product.findByIdAndUpdate(dec.productId, {
-          $inc: { stock: dec.quantity }
-        });
+        if (dec.color) {
+          await Product.findOneAndUpdate(
+            {
+              _id: dec.productId,
+              "colors.colorName": new RegExp(`^${dec.color}$`, "i")
+            },
+            {
+              $inc: {
+                "colors.$.stock": dec.quantity,
+                stock: dec.quantity
+              }
+            }
+          );
+        } else {
+          await Product.findByIdAndUpdate(dec.productId, {
+            $inc: { stock: dec.quantity }
+          });
+        }
       }
 
       const productInfo = await Product.findById(productId);
       const productName = productInfo ? productInfo.title : "Product";
-      const availableStock = productInfo ? productInfo.stock : 0;
+      const colorSuffix = chosenColor ? ` (${chosenColor})` : "";
 
       throw new ApiError(
         400,
-        `Insufficient inventory for '${productName}'. Only ${availableStock} unit(s) available in stock.`
+        `Insufficient inventory for '${productName}'${colorSuffix}. Only remaining stock could not fulfill ${qtyToDeduct} unit(s).`
       );
     }
-
-    successfullyDecremented.push({ productId, quantity: qtyToDeduct });
   }
 
   return successfullyDecremented;
@@ -126,6 +230,29 @@ const atomicallyReserveStock = async (cartItems) => {
 const restockOrderProducts = async (orderItems) => {
   for (const item of orderItems) {
     if (item.product) {
+      const chosenColor = item.selectedSpecs?.color;
+      if (chosenColor) {
+        const prod = await Product.findById(item.product);
+        const hasVariant = prod?.colors?.some(
+          (c) => c.colorName.toLowerCase() === chosenColor.toLowerCase()
+        );
+        if (hasVariant) {
+          await Product.findOneAndUpdate(
+            {
+              _id: item.product,
+              "colors.colorName": new RegExp(`^${chosenColor.trim()}$`, "i")
+            },
+            {
+              $inc: {
+                "colors.$.stock": item.quantity,
+                stock: item.quantity
+              }
+            }
+          );
+          continue;
+        }
+      }
+
       await Product.findByIdAndUpdate(item.product, {
         $inc: { stock: item.quantity }
       });
@@ -193,10 +320,28 @@ const rollbackCouponUsage = async (couponSnapshot, userId) => {
 const buildOrderItemSnapshots = (cartItems) => {
   return cartItems.map((item) => {
     const product = item.product;
-    const thumbnailImage =
-      (product.images && product.images.length > 0
-        ? product.images.find((img) => img.isPrimary)?.url || product.images[0].url
-        : "") || "";
+    const chosenColor = item.selectedSpecs?.color;
+
+    // Check if there is a color-specific image gallery
+    let thumbnailImage = "";
+    if (chosenColor && product.colors && product.colors.length > 0) {
+      const variant = product.colors.find(
+        (c) => c.colorName.toLowerCase() === chosenColor.toLowerCase()
+      );
+      if (variant && variant.images && variant.images.length > 0) {
+        thumbnailImage =
+          variant.images.find((img) => img.isPrimary)?.url ||
+          variant.images[0].url;
+      }
+    }
+
+    // Fallback to base product primary image
+    if (!thumbnailImage) {
+      thumbnailImage =
+        (product.images && product.images.length > 0
+          ? product.images.find((img) => img.isPrimary)?.url || product.images[0].url
+          : "") || "";
+    }
 
     return {
       product: product._id,
@@ -240,7 +385,26 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
         `One or more items in your cart are no longer available. Please review your cart.`
       );
     }
-    if (item.product.stock < item.quantity) {
+
+    const chosenColor = item.selectedSpecs?.color;
+    if (chosenColor && item.product.colors && item.product.colors.length > 0) {
+      const variant = item.product.colors.find(
+        (c) => c.colorName.toLowerCase() === chosenColor.toLowerCase()
+      );
+      if (variant) {
+        if (variant.stock < item.quantity) {
+          throw new ApiError(
+            400,
+            `Insufficient stock for '${item.product.title}' (${chosenColor}). Only ${variant.stock} unit(s) available in this color.`
+          );
+        }
+      } else if (item.product.stock < item.quantity) {
+        throw new ApiError(
+          400,
+          `Insufficient stock for '${item.product.title}'. Only ${item.product.stock} available.`
+        );
+      }
+    } else if (item.product.stock < item.quantity) {
       throw new ApiError(
         400,
         `Insufficient stock for '${item.product.title}'. Only ${item.product.stock} available.`
@@ -383,6 +547,9 @@ export const verifyPaymentAndPlaceOrder = asyncHandler(async (req, res) => {
     await commitCouponUsage(couponSnapshot, req.user._id);
   }
 
+  // Increment Flash Deal claimed quota if any item is enrolled
+  await incrementFlashDealClaims(newOrder.orderItems);
+
   // Clear customer cart
   cart.items = [];
   cart.coupon = { couponId: null, code: null, discountAmount: 0 };
@@ -462,6 +629,9 @@ export const placeCodOrder = asyncHandler(async (req, res) => {
   if (couponSnapshot.couponId) {
     await commitCouponUsage(couponSnapshot, req.user._id);
   }
+
+  // Increment Flash Deal claimed quota if any item is enrolled
+  await incrementFlashDealClaims(newOrder.orderItems);
 
   // Clear customer cart
   cart.items = [];
@@ -591,7 +761,10 @@ export const cancelOrder = asyncHandler(async (req, res) => {
     await rollbackCouponUsage(order.coupon, req.user._id);
   }
 
-  // 3. Update order status and append to timeline
+  // 3. Roll back Flash Deal claimed quota
+  await rollbackFlashDealClaims(order.orderItems);
+
+  // 4. Update order status and append to timeline
   order.orderStatus = "CANCELLED";
   order.cancellation = {
     reason: reason.trim(),
@@ -834,6 +1007,9 @@ export const cancelOrderAdmin = asyncHandler(async (req, res) => {
   if (order.coupon?.couponId) {
     await rollbackCouponUsage(order.coupon, order.user);
   }
+
+  // 3. Roll back Flash Deal claimed quota
+  await rollbackFlashDealClaims(order.orderItems);
 
   order.orderStatus = "CANCELLED";
   order.cancellation = {

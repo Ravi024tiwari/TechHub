@@ -8,7 +8,10 @@ import {
   updateProductStock,
   getLowStockAlerts,
   getSearchSuggestions,
-  getFilterMetadata
+  getFilterMetadata,
+  addColorVariant,
+  updateColorVariant,
+  deleteColorVariant
 } from "../controllers/product.controller.js";
 import { verifyJWT, authorizeRoles } from "../middlewares/auth.middleware.js";
 import { uploadMultiple } from "../middlewares/upload.middleware.js";
@@ -21,6 +24,7 @@ productRouter.get("/", getAllProducts);
 productRouter.get("/search/suggestions", getSearchSuggestions);
 
 // Dynamic categories & brands filter counts for sidebar
+productRouter.get("/filters", getFilterMetadata);
 productRouter.get("/filters/meta", getFilterMetadata);
 
 // ==========================================
@@ -31,12 +35,19 @@ productRouter.get("/admin/low-stock", verifyJWT, authorizeRoles("admin"), getLow
 
 productRouter.get("/:idOrSlug", getProductByIdOrSlug);
 
-productRouter.post("/",verifyJWT,authorizeRoles("admin"),uploadMultiple("images", 6),createProduct );
+productRouter.post("/", verifyJWT, authorizeRoles("admin"), uploadMultiple("images", 6), createProduct);
 
-productRouter.patch("/:id",verifyJWT,authorizeRoles("admin"),uploadMultiple("images", 6),updateProduct );
+productRouter.patch("/:id", verifyJWT, authorizeRoles("admin"), uploadMultiple("images", 6), updateProduct);
 
-productRouter.patch("/:id/stock",verifyJWT,authorizeRoles("admin"),updateProductStock );
+productRouter.patch("/:id/stock", verifyJWT, authorizeRoles("admin"), updateProductStock);
 
-productRouter.delete("/:id",verifyJWT,authorizeRoles("admin"),deleteProduct );
+productRouter.delete("/:id", verifyJWT, authorizeRoles("admin"), deleteProduct);
+
+// ==========================================
+// 🎨 Product Color Variants (Option B)
+// ==========================================
+productRouter.post("/:id/colors", verifyJWT, authorizeRoles("admin"), uploadMultiple("images", 6), addColorVariant);
+productRouter.put("/:id/colors/:colorId", verifyJWT, authorizeRoles("admin"), uploadMultiple("images", 6), updateColorVariant);
+productRouter.delete("/:id/colors/:colorId", verifyJWT, authorizeRoles("admin"), deleteColorVariant);
 
 export default productRouter;

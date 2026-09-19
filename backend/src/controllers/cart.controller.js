@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
 import { Coupon } from "../models/coupon.model.js";
+import { FlashDeal } from "../models/flashDeal.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -32,6 +33,35 @@ const getActiveProductPrice = (product) => {
   return product.salePrice && product.salePrice < product.regularPrice
     ? product.salePrice
     : product.regularPrice;
+};
+
+/**
+ * Helper to check if a product is enrolled in a live Flash Deal with remaining stock quota
+ */
+const getActiveFlashDealPrice = async (productId) => {
+  const now = new Date();
+  const activeDeal = await FlashDeal.findOne({
+    status: "ACTIVE",
+    startTime: { $lte: now },
+    endTime: { $gte: now },
+    "products.product": productId
+  });
+
+  if (!activeDeal) return null;
+
+  const dealItem = activeDeal.products.find(
+    (p) => p.product.toString() === productId.toString()
+  );
+
+  if (dealItem && dealItem.claimedCount < dealItem.dealStock) {
+    return {
+      dealPrice: dealItem.dealPrice,
+      dealId: activeDeal._id,
+      discountPercentage: dealItem.discountPercentage
+    };
+  }
+
+  return null;
 };
 
 /**
@@ -90,7 +120,8 @@ export const getCart = asyncHandler(async (req, res) => {
       continue;
     }
 
-    const currentActivePrice = getActiveProductPrice(item.product);
+    const flashDeal = await getActiveFlashDealPrice(item.product._id);
+    const currentActivePrice = flashDeal ? flashDeal.dealPrice : getActiveProductPrice(item.product);
     if (item.price !== currentActivePrice) {
       item.price = currentActivePrice;
       isModified = true;
@@ -160,6 +191,32 @@ export const addToCart = asyncHandler(async (req, res) => {
     ram: (selectedSpecs?.ram || "").trim()
   };
 
+  // Color variant stock & pricing resolution
+  let availableStock = product.stock;
+  let activePrice = getActiveProductPrice(product);
+
+  if (normalizedSpecs.color && product.colors && product.colors.length > 0) {
+    const matchedVariant = product.colors.find(
+      (c) => c.colorName.toLowerCase() === normalizedSpecs.color.toLowerCase()
+    );
+    if (!matchedVariant) {
+      throw new ApiError(
+        400,
+        `Selected color '${normalizedSpecs.color}' is not available for this product`
+      );
+    }
+    availableStock = matchedVariant.stock;
+    if (matchedVariant.priceOverride) {
+      activePrice = matchedVariant.priceOverride;
+    }
+  }
+
+  // Check if product is part of a live Flash Deal with remaining dealStock
+  const flashDeal = await getActiveFlashDealPrice(product._id);
+  if (flashDeal) {
+    activePrice = flashDeal.dealPrice;
+  }
+
   // Find matching item by product ID AND matching specifications
   const existingItemIndex = cart.items.findIndex((item) => {
     const isSameProduct = item.product.toString() === productId.toString();
@@ -168,8 +225,6 @@ export const addToCart = asyncHandler(async (req, res) => {
     const isSameRam = (item.selectedSpecs?.ram || "") === normalizedSpecs.ram;
     return isSameProduct && isSameColor && isSameStorage && isSameRam;
   });
-
-  const activePrice = getActiveProductPrice(product);
 
   if (existingItemIndex > -1) {
     const existingItem = cart.items[existingItemIndex];
@@ -184,10 +239,11 @@ export const addToCart = asyncHandler(async (req, res) => {
     }
 
     // Enforce real-time inventory limit
-    if (targetQuantity > product.stock) {
+    if (targetQuantity > availableStock) {
+      const colorMsg = normalizedSpecs.color ? ` for color '${normalizedSpecs.color}'` : "";
       throw new ApiError(
         400,
-        `Only ${product.stock} units available in stock. You currently have ${existingItem.quantity} in your cart.`
+        `Only ${availableStock} units available in stock${colorMsg}. You currently have ${existingItem.quantity} in your cart.`
       );
     }
 
@@ -198,10 +254,11 @@ export const addToCart = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Maximum allowed quantity is 5 units per item");
     }
 
-    if (parsedQty > product.stock) {
+    if (parsedQty > availableStock) {
+      const colorMsg = normalizedSpecs.color ? ` for color '${normalizedSpecs.color}'` : "";
       throw new ApiError(
         400,
-        `Only ${product.stock} units available in stock for this product`
+        `Only ${availableStock} units available in stock${colorMsg} for this product`
       );
     }
 
