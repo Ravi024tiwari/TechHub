@@ -10,6 +10,7 @@ import dashboardRoutes from "./dashboard.routes.js";
 import webhookRoutes from "./webhook.routes.js";
 import addressRoutes from "./address.routes.js";
 import userRoutes from "./user.routes.js";
+import returnRoutes from "./return.routes.js";
 
 const apiRouter = Router();
 
@@ -25,6 +26,7 @@ apiRouter.use("/webhooks", webhookRoutes);
 apiRouter.use("/addresses", addressRoutes);
 apiRouter.use("/users/addresses", addressRoutes); // Alias for RESTful convention
 apiRouter.use("/users", userRoutes);
+apiRouter.use("/returns", returnRoutes);
 
 export default apiRouter;
 
