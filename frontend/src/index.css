@@ -1,1 +1,329 @@
 @import "tailwindcss";
+
+/* ==========================================================================
+   🚀 TECHHAVEN DESIGN SYSTEM: Space Titanium & Modern Electronics Theme
+   ========================================================================== */
+
+@theme {
+  /* Typography Families */
+  --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-tech: "JetBrains Mono", monospace;
+
+  /* Color Palette Tokens */
+  --color-space-950: #050507;
+  --color-space-900: #08090a;
+  --color-space-850: #0e0f13;
+  --color-space-800: #121316;
+  --color-space-750: #18191e;
+  --color-space-700: #22242b;
+
+  --color-silver-100: #ffffff;
+  --color-silver-200: #f1f5f9;
+  --color-silver-300: #e2e8f0;
+  --color-silver-400: #cbd5e1;
+  --color-silver-500: #94a3b8;
+  --color-silver-600: #64748b;
+  --color-silver-700: #475569;
+}
+
+/* CSS Variables for Global Access */
+:root {
+  --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-tech: "JetBrains Mono", monospace;
+
+  --bg-space: #08090a;
+  --bg-surface: #121316;
+  --bg-surface-elevated: #18191e;
+  --bg-surface-hover: #22242b;
+
+  --border-metallic: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(255, 255, 255, 0.2);
+  --border-active: rgba(255, 255, 255, 0.4);
+
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-silver: #e2e8f0;
+}
+
+/* Base Document Reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-space);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  selection-background-color: rgba(255, 255, 255, 0.2);
+  selection-color: #ffffff;
+}
+
+/* ==========================================================================
+   📐 Typography Hierarchy (Consistent Across All Pages)
+   ========================================================================== */
+
+h1, h2, h3, h4, h5, h6,
+.font-heading {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em; /* Apple-style tight tracking */
+  color: var(--text-primary);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Technical Specs, Prices, Model Numbers, SKU */
+.font-tech,
+.font-mono,
+code,
+kbd,
+samp {
+  font-family: var(--font-tech);
+  font-feature-settings: "tnum" 1; /* Tabular numbers ensure clean vertical alignment */
+}
+
+/* Flagship Metallic Heading Gradient */
+.text-gradient-silver {
+  background: linear-gradient(180deg, #ffffff 30%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Subtle Titanium Glow for Key Highlights */
+.text-gradient-titanium {
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #64748b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==========================================================================
+   🔮 Surface & Glassmorphism Components
+   ========================================================================== */
+
+/* Standard Elevated Glass Card (Product cards, feature blocks) */
+.glass-card {
+  background: rgba(18, 19, 22, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-metallic);
+  border-radius: 1rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: var(--border-glow);
+  background: rgba(24, 25, 30, 0.85);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8),
+              0 0 20px 0 rgba(255, 255, 255, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Floating Navigation / Header Panel */
+.glass-panel {
+  background: rgba(8, 9, 10, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-metallic);
+}
+
+/* ==========================================================================
+   🔘 Metallic Interactive Buttons & Pills
+   ========================================================================== */
+
+/* Primary Action: Crisp Pure White Pill */
+.btn-pill-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  color: #050507;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid #ffffff;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-pill-primary:hover {
+  background-color: #f1f5f9;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
+}
+
+.btn-pill-primary:active {
+  transform: scale(0.98);
+}
+
+/* Secondary Action: Dark Frosted Pill with Subtle Chrome Border */
+.btn-pill-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-metallic);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-pill-secondary:hover {
+  border-color: var(--border-active);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
+  transform: scale(1.02);
+}
+
+.btn-pill-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   🏷️ Badges & Tech Chips
+   ========================================================================== */
+
+/* Specs Chip (RAM, Storage, 5K, M3) */
+.badge-tech {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-tech);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-silver);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-metallic);
+  border-radius: 9999px;
+}
+
+/* Category / Sale Highlight Badge */
+.badge-highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid var(--border-glow);
+  border-radius: 9999px;
+}
+
+/* ==========================================================================
+   🌌 Ambient Lighting & Background Effects
+   ========================================================================== */
+
+.ambient-glow-top {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(8, 9, 10, 0) 100%
+  );
+}
+
+.ambient-glow-center {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 70%
+  );
+}
+
+/* Custom Minimalist Dark Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08090a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2127;
+  border-radius: 4px;
+  border: 2px solid #08090a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333640;
+}
+
+/* ==========================================================================
+   ✨ Silver Atmospheric Keyframes & Shadow Effects
+   ========================================================================== */
+
+@keyframes silverTwinkle {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes silverPulse {
+  0%, 100% {
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+/* Enhanced Metallic Glass Card with Silver Backlight Shadow */
+.glass-card-silver {
+  background: rgba(18, 19, 22, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  box-shadow: 
+    0 25px 60px -15px rgba(0, 0, 0, 0.9),
+    0 0 50px -10px rgba(226, 232, 240, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-silver:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 30px 70px -15px rgba(0, 0, 0, 0.95),
+    0 0 65px -8px rgba(226, 232, 240, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
