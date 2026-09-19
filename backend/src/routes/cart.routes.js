@@ -11,6 +11,7 @@ import {
   syncCart
 } from "../controllers/cart.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { couponLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 const cartRouter = Router();
 
@@ -27,9 +28,9 @@ cartRouter.delete("/clear", clearCart);
 // Guest to customer cart synchronization
 cartRouter.post("/sync", syncCart);
 
-// Promotional coupon operations
+// Promotional coupon operations (Protected by Coupon Brute-Force Limiter)
 cartRouter.get("/coupons", getAvailableCoupons);
-cartRouter.post("/coupon/apply", applyCoupon);
+cartRouter.post("/coupon/apply", couponLimiter, applyCoupon);
 cartRouter.delete("/coupon/remove", removeCoupon);
 
 export default cartRouter;

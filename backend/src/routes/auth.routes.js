@@ -11,12 +11,13 @@ import {
 } from "../controllers/auth.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { uploadSingle } from "../middlewares/upload.middleware.js";
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 const authRouter = Router();
 
-// Public Authentication Routes
-authRouter.post("/register", uploadSingle("avatar"), registerUser);   
-authRouter.post("/login", loginUser);
+// Public Authentication Routes (Protected by Auth Rate Limiter)
+authRouter.post("/register", authLimiter, uploadSingle("avatar"), registerUser);   
+authRouter.post("/login", authLimiter, loginUser);
 authRouter.post("/refresh-token", refreshAccessToken);
 
 // Protected Authentication & Profile Routes (Require valid JWT Access Token)
@@ -30,6 +31,6 @@ authRouter.patch("/update-profile", verifyJWT, uploadSingle("avatar"), updateUse
 authRouter.delete("/avatar", verifyJWT, removeUserAvatar);
 
 // Password Management
-authRouter.patch("/change-password", verifyJWT, changePassword);
+authRouter.patch("/change-password", verifyJWT, authLimiter, changePassword);
 
 export default authRouter;

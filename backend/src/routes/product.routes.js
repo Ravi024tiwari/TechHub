@@ -15,13 +15,14 @@ import {
 } from "../controllers/product.controller.js";
 import { verifyJWT, authorizeRoles } from "../middlewares/auth.middleware.js";
 import { uploadMultiple } from "../middlewares/upload.middleware.js";
+import { searchLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 const productRouter = Router();
 
 productRouter.get("/", getAllProducts);
 
-// Fast search suggestions (optimized for debounced live search bar)
-productRouter.get("/search/suggestions", getSearchSuggestions);
+// Fast search suggestions (Protected by Search Rate Limiter for debounced typing)
+productRouter.get("/search/suggestions", searchLimiter, getSearchSuggestions);
 
 // Dynamic categories & brands filter counts for sidebar
 productRouter.get("/filters", getFilterMetadata);

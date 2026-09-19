@@ -4,10 +4,14 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { notFoundHandler, errorHandler } from "./middlewares/error.middleware.js";
+import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
 import { ApiResponse } from "./utils/ApiResponse.js";
 import apiRouter from "./routes/index.js";
 
 const app = express();
+
+// Trust reverse proxy (Render, Nginx, AWS ELB, Cloudflare) for accurate client IP detection
+app.set("trust proxy", 1);
 
 app.use(helmet());
 
@@ -64,8 +68,8 @@ app.get("/api/v1/health", (req, res) => {
   );
 });
 
-// Primary API V1 Routes
-app.use("/api/v1", apiRouter);
+// Primary API V1 Routes (Protected by Global Rate Limiter)
+app.use("/api/v1", globalLimiter, apiRouter);
 
 // 404 handler for unrecognized routes
 app.use(notFoundHandler);
