@@ -325,23 +325,58 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 
 /**
  * @desc    Update current user profile info & avatar
- * @route   PATCH /api/v1/auth/update-profile
+ * @route   PATCH /api/v1/auth/profile or /api/v1/auth/update-profile
  * @access  Private (Protected by verifyJWT)
  */
 export const updateUserProfile = asyncHandler(async (req, res) => {
-  const { name, phone } = req.body;
+  const { name, phone, email, removeAvatar } = req.body;
   const user = await User.findById(req.user._id);
 
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
-  if (name) user.name = name.trim();
-  if (phone !== undefined) user.phone = phone.trim();
+  // Security check: Email is strictly immutable
+  if (email && email.toLowerCase().trim() !== user.email.toLowerCase()) {
+    throw new ApiError(
+      400,
+      "Email address is permanent and cannot be modified for account security"
+    );
+  }
 
-  // Handle avatar update
+  // Validate and update Name
+  if (name !== undefined) {
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 60) {
+      throw new ApiError(400, "Name must be between 2 and 60 characters long");
+    }
+    user.name = trimmedName;
+  }
+
+  // Validate and update Phone number
+  if (phone !== undefined) {
+    const trimmedPhone = phone.trim();
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (trimmedPhone && !phoneRegex.test(trimmedPhone)) {
+      throw new ApiError(
+        400,
+        "Please provide a valid 10-digit mobile number starting with 6-9"
+      );
+    }
+    user.phone = trimmedPhone;
+  }
+
+  // Handle avatar removal request
+  if (removeAvatar === true || removeAvatar === "true") {
+    if (user.avatar?.public_id) {
+      await deleteFromCloudinary(user.avatar.public_id);
+    }
+    user.avatar = { url: "", public_id: "" };
+  }
+
+  // Handle avatar upload replacement
   if (req.file?.path) {
-    // Delete old avatar from Cloudinary if exists
+    // Delete old avatar from Cloudinary if one already exists
     if (user.avatar?.public_id) {
       await deleteFromCloudinary(user.avatar.public_id);
     }
@@ -372,19 +407,60 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Change user password
+ * @desc    Remove user profile avatar
+ * @route   DELETE /api/v1/auth/avatar
+ * @access  Private (Protected by verifyJWT)
+ */
+export const removeUserAvatar = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.avatar?.public_id) {
+    await deleteFromCloudinary(user.avatar.public_id);
+  }
+
+  user.avatar = { url: "", public_id: "" };
+  await user.save({ validateBeforeSave: false });
+
+  const updatedUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { user: updatedUser }, "Profile avatar removed successfully")
+    );
+});
+
+/**
+ * @desc    Change user password with session rotation
  * @route   PATCH /api/v1/auth/change-password
  * @access  Private (Protected by verifyJWT)
  */
 export const changePassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
 
   if (!oldPassword || !newPassword) {
     throw new ApiError(400, "Old password and new password are required");
   }
 
+  if (confirmPassword && newPassword !== confirmPassword) {
+    throw new ApiError(400, "New password and confirm password do not match");
+  }
+
   if (newPassword.length < 6) {
     throw new ApiError(400, "New password must be at least 6 characters long");
+  }
+
+  if (oldPassword === newPassword) {
+    throw new ApiError(
+      400,
+      "New password cannot be identical to your current password"
+    );
   }
 
   const user = await User.findById(req.user._id).select("+password");
@@ -398,9 +474,9 @@ export const changePassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
-  await user.save(); // Triggers bcrypt hashing in pre-save hook
+  await user.save(); // Triggers bcrypt hashing and passwordChangedAt update in pre-save hook
 
-  // Issue new tokens after password change
+  // Issue new refreshed tokens after password change
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
@@ -421,7 +497,7 @@ export const changePassword = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { accessToken, refreshToken },
-        "Password changed successfully! Sessions updated."
+        "Password changed successfully! Active sessions refreshed."
       )
     );
 });

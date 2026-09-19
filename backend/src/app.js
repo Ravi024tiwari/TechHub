@@ -39,7 +39,15 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("combined"));
 }
 
-app.use(express.json({ limit: "16kb" }));
+app.use(
+  express.json({
+    limit: "16kb",
+    verify: (req, res, buf) => {
+      // Store the raw byte stream buffer as a string for webhook signature verification
+      req.rawBody = buf.toString();
+    }
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 

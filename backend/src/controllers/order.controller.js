@@ -221,6 +221,8 @@ const buildOrderItemSnapshots = (cartItems) => {
 
 
 export const createRazorpayOrder = asyncHandler(async (req, res) => {
+  const { shippingAddressId } = req.body;
+
   const cart = await Cart.findOne({ user: req.user._id }).populate({
     path: "items.product",
     select: CART_POPULATE_FIELDS
@@ -261,6 +263,7 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
     receipt,
     notes: {
       userId: req.user._id.toString(),
+      shippingAddressId: shippingAddressId ? shippingAddressId.toString() : "",
       totalItems: cart.pricing.totalItems.toString()
     }
   };

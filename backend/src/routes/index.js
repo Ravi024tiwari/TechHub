@@ -6,6 +6,10 @@ import cartRoutes from "./cart.routes.js";
 import couponRoutes from "./coupon.routes.js";
 import orderRoutes from "./order.routes.js";
 import reviewRoutes from "./review.routes.js";
+import dashboardRoutes from "./dashboard.routes.js";
+import webhookRoutes from "./webhook.routes.js";
+import addressRoutes from "./address.routes.js";
+import userRoutes from "./user.routes.js";
 
 const apiRouter = Router();
 
@@ -16,6 +20,11 @@ apiRouter.use("/cart", cartRoutes);
 apiRouter.use("/coupons", couponRoutes);
 apiRouter.use("/orders", orderRoutes);
 apiRouter.use("/reviews", reviewRoutes);
+apiRouter.use("/dashboard", dashboardRoutes);
+apiRouter.use("/webhooks", webhookRoutes);
+apiRouter.use("/addresses", addressRoutes);
+apiRouter.use("/users/addresses", addressRoutes); // Alias for RESTful convention
+apiRouter.use("/users", userRoutes);
 
 export default apiRouter;
 
