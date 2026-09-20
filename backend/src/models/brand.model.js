@@ -59,7 +59,7 @@ const brandSchema = new mongoose.Schema(
 );
 
 // Auto-generate SEO slug before validation
-brandSchema.pre("validate", function (next) {
+brandSchema.pre("validate", function () {
   if (this.name && (this.isModified("name") || !this.slug)) {
     this.slug = slugify(this.name, {
       lower: true,
@@ -67,7 +67,6 @@ brandSchema.pre("validate", function (next) {
       trim: true
     });
   }
-  next();
 });
 
 export const Brand = mongoose.model("Brand", brandSchema);

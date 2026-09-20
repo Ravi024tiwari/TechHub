@@ -12,10 +12,9 @@ import {
   Loader2,
   AlertCircle,
   ShieldCheck,
-  CheckCircle2,
-  Sparkles
 } from "lucide-react";
 import AuthBackground from "@/components/common/AuthBackground";
+import { useLoginMutation } from "@/hooks/useAuth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,8 +25,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // TanStack Query Login Mutation
+  const loginMutation = useLoginMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,40 +39,27 @@ export default function Login() {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+    loginMutation.mutate(
+      {
+        email: email.trim().toLowerCase(),
+        password,
+      },
+      {
+        onSuccess: () => {
+          navigate(redirectPath, { replace: true });
         },
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          password
-        })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Invalid credentials. Please verify.");
+        onError: (err) => {
+          setErrorMsg(
+            err.userMessage ||
+              err.message ||
+              "Invalid credentials. Please verify."
+          );
+        },
       }
-
-      // Store user and tokens
-      if (result.data?.user) {
-        localStorage.setItem("techhaven_user", JSON.stringify(result.data.user));
-        localStorage.setItem("techhaven_token", result.data.accessToken);
-      }
-
-      // Navigate to intended destination
-      navigate(redirectPath, { replace: true });
-    } catch (err) {
-      setErrorMsg(err.message || "Failed to authenticate. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    );
   };
+
+  const isLoading = loginMutation.isPending;
 
   return (
     <div className="relative min-h-screen w-full bg-[#07080a] text-white flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden">

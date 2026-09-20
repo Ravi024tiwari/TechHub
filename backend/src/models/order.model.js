@@ -227,7 +227,7 @@ const orderSchema = new mongoose.Schema(
 );
 
 // Auto-generate human-friendly unique order number before validation
-orderSchema.pre("validate", function (next) {
+orderSchema.pre("validate", function () {
   if (!this.orderNumber) {
     const timestamp = Date.now().toString().slice(-6);
     const randomDigits = Math.floor(1000 + Math.random() * 9000);
@@ -244,8 +244,6 @@ orderSchema.pre("validate", function (next) {
       }
     ];
   }
-
-  next();
 });
 
 // Production Indexes for customer order history and admin dispatch management

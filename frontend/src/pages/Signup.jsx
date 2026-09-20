@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -21,8 +21,12 @@ import {
   Cpu
 } from "lucide-react";
 import AuthBackground from "@/components/common/AuthBackground";
+import { useRegisterMutation } from "@/hooks/useAuth";
 
 export default function Signup() {
+  const navigate = useNavigate();
+  const registerMutation = useRegisterMutation();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,9 +38,10 @@ export default function Signup() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
+  const isLoading = registerMutation.isPending;
 
   // Handle Form Change
   const handleChange = (e) => {
@@ -90,34 +95,33 @@ export default function Signup() {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+    registerMutation.mutate(
+      {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        phone: formData.phone.trim() || undefined,
+      },
+      {
+        onSuccess: (response) => {
+          setSuccessMsg(
+            response.message ||
+              "Welcome to TechHaven! Your account has been initialized successfully."
+          );
+          // Seamlessly redirect to home/storefront after showing success badge
+          setTimeout(() => {
+            navigate("/", { replace: true });
+          }, 1200);
         },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password,
-          phone: formData.phone.trim() || undefined
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create account. Please try again.");
+        onError: (err) => {
+          setErrorMsg(
+            err.userMessage ||
+              err.message ||
+              "Something went wrong during registration."
+          );
+        },
       }
-
-      setSuccessMsg("Welcome to TechHaven! Your account has been initialized successfully.");
-    } catch (err) {
-      setErrorMsg(err.message || "Something went wrong during registration.");
-    } finally {
-      setIsLoading(false);
-    }
+    );
   };
 
   return (

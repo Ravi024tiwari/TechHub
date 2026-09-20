@@ -246,7 +246,7 @@ productSchema.virtual("defaultColor").get(function () {
 
 
 // Auto-generate SEO slug before validation
-productSchema.pre("validate", function (next) {
+productSchema.pre("validate", function () {
   if (this.title && (this.isModified("title") || !this.slug)) {
     this.slug = slugify(this.title, {
       lower: true,
@@ -254,7 +254,6 @@ productSchema.pre("validate", function (next) {
       trim: true
     });
   }
-  next();
 });
 
 // Production Indexes for Instant Searching, Catalog Filtering, and Admin Sorting

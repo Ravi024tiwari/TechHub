@@ -197,7 +197,7 @@ const returnSchema = new mongoose.Schema(
 );
 
 // Auto-generate unique human-friendly return tracking number
-returnSchema.pre("validate", function (next) {
+returnSchema.pre("validate", function () {
   if (!this.returnNumber) {
     const timestamp = Date.now().toString().slice(-6);
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -213,8 +213,6 @@ returnSchema.pre("validate", function (next) {
       }
     ];
   }
-
-  next();
 });
 
 // Production Indexes

@@ -130,9 +130,8 @@ cartSchema.methods.recalculateTotals = function () {
 };
 
 // Auto-run total calculations before saving cart
-cartSchema.pre("save", function (next) {
+cartSchema.pre("save", function () {
   this.recalculateTotals();
-  next();
 });
 
 export const Cart = mongoose.model("Cart", cartSchema);

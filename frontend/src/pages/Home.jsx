@@ -1,9 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Cpu, ArrowRight, ShieldCheck, Zap, Sparkles } from "lucide-react";
+import { Cpu, ArrowRight, ShieldCheck, Zap, Sparkles, LogOut, User } from "lucide-react";
 import AuthBackground from "@/components/common/AuthBackground";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useLogoutMutation } from "@/hooks/useAuth";
 
 export default function Home() {
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logoutMutation = useLogoutMutation();
+
   return (
     <div className="min-h-screen w-full bg-[#07080a] text-white flex flex-col selection:bg-white/20 selection:text-white relative overflow-hidden">
       {/* Interactive Silver Keynote Background */}
@@ -22,18 +28,42 @@ export default function Home() {
 
         {/* Navigation Links & Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <Link
-            to="/login"
-            className="text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/signup"
-            className="btn-pill-primary text-xs sm:text-sm !py-2 !px-4"
-          >
-            Join TechHaven
-          </Link>
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-xs font-medium">
+                <User className="h-3.5 w-3.5 text-white/70" />
+                <span className="text-slate-200">
+                  {user.name}
+                </span>
+                <span className="text-[10px] uppercase font-tech px-1.5 py-0.5 rounded bg-white/10 text-slate-400">
+                  {user.role}
+                </span>
+              </div>
+              <button
+                onClick={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 transition-colors disabled:opacity-50"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="btn-pill-primary text-xs sm:text-sm !py-2 !px-4"
+              >
+                Join TechHaven
+              </Link>
+            </>
+          )}
         </div>
       </header>
 

@@ -1,29 +1,27 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "../../store/useAuthStore";
 
 /**
  * Production-Grade Protected Route Wrapper:
- * - Checks user authentication from localStorage / auth context
+ * - Checks reactive user authentication directly from Zustand store
+ * - Rehydrates instantly (0ms) from localStorage on refresh
  * - Preserves requested URL in query param `?redirect=` for post-login redirection
  * - Checks optional `requiredRole` (e.g. "admin") and redirects unauthorized users
  */
 export default function ProtectedRoute({ children, requiredRole }) {
   const location = useLocation();
-
-  // In production, user data is checked from localStorage or central auth store
-  let user = null;
-  try {
-    const storedUser = localStorage.getItem("techhaven_user");
-    if (storedUser) {
-      user = JSON.parse(storedUser);
-    }
-  } catch (err) {
-    user = null;
-  }
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // Not logged in -> redirect to login with return path
-  if (!user) {
-    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  if (!isAuthenticated || !user) {
+    return (
+      <Navigate
+        to={`/login?redirect=${encodeURIComponent(location.pathname)}`}
+        replace
+      />
+    );
   }
 
   // Role verification (e.g. customer trying to access admin dashboard)

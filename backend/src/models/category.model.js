@@ -68,7 +68,7 @@ categorySchema.virtual("children", {
 });
 
 // Auto-generate SEO slug before validation
-categorySchema.pre("validate", function (next) {
+categorySchema.pre("validate", function () {
   if (this.name && (this.isModified("name") || !this.slug)) {
     this.slug = slugify(this.name, {
       lower: true,
@@ -76,7 +76,6 @@ categorySchema.pre("validate", function (next) {
       trim: true
     });
   }
-  next();
 });
 
 export const Category = mongoose.model("Category", categorySchema);
