@@ -11,7 +11,11 @@ try {
 
 async function updateLowStock() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_URL;
+    if (!mongoUri) {
+      throw new Error("MONGODB_URI or MONGODB_URL is missing in environment variables");
+    }
+    await mongoose.connect(mongoUri);
     console.log("Connected to DB");
 
     await Product.updateOne({ title: /Odyssey/i }, { $set: { stock: 2 } });

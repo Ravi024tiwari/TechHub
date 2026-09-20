@@ -370,9 +370,10 @@ const productsData = [
 
 async function seedDatabase() {
   try {
-    const mongoUri =
-      process.env.MONGODB_URI ||
-      "mongodb+srv://raviashoktiwari9559_db_user:pdmN2DnTtORlCypC@cluster0.9o0nhec.mongodb.net/TechHaven";
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_URL;
+    if (!mongoUri) {
+      throw new Error("MONGODB_URI or MONGODB_URL is not defined in .env environment variables");
+    }
 
     console.log("Connecting to MongoDB Atlas...");
     await mongoose.connect(mongoUri);
