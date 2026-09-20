@@ -29,6 +29,6 @@ export const queryClient = new QueryClient({
  */
 export const persister = createSyncStoragePersister({
   storage: typeof window !== "undefined" ? window.localStorage : undefined,
-  key: "TECHHAVEN_REACT_QUERY_OFFLINE_CACHE",
+  key: "shop_query_cache",
   throttleTime: 1000, // Debounce storage writes to avoid UI thread lag
 });

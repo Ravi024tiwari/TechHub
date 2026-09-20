@@ -40,7 +40,7 @@ export const useAuthStore = create(
       },
     }),
     {
-      name: "techhaven_auth_session", // Key in localStorage
+      name: "shop_auth", // Key in localStorage
       storage: createJSONStorage(() => localStorage),
       // Only persist user, token, and isAuthenticated
       partialize: (state) => ({

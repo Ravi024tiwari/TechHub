@@ -340,6 +340,13 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     filter.stock = { $gt: 0 };
   }
 
+  // Critical Low Stock Filter (e.g. stock <= 5 units)
+  if (req.query.maxStock) {
+    filter.stock = { $gt: 0, $lte: Number(req.query.maxStock) };
+  } else if (req.query.lowStock === "true" || req.query.lowStock === true) {
+    filter.stock = { $gt: 0, $lte: 5 };
+  }
+
   // Featured electronics showcase
   if (isFeatured === "true" || isFeatured === true) {
     filter.isFeatured = true;
@@ -351,6 +358,9 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   if (sort === "price_desc") sortOption = { regularPrice: -1 };
   if (sort === "rating") sortOption = { averageRating: -1 };
   if (sort === "popular") sortOption = { numReviews: -1, averageRating: -1 };
+  if (sort === "stock_asc" || (req.query.maxStock && !sort) || (req.query.lowStock && !sort)) {
+    sortOption = { stock: 1, createdAt: -1 };
+  }
 
   // Pagination
   const pageNum = Math.max(1, parseInt(page, 10));
@@ -614,9 +624,9 @@ export const getLowStockAlerts = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const getSearchSuggestions = asyncHandler(async (req, res) => {
-  const { q } = req.query;
+  const q = req.query.q || req.query.query || req.query.search;
 
-  if (!q || q.trim().length < 2) {
+  if (!q || q.trim().length < 1) {
     return res.status(200).json(
       new ApiResponse(200, [], "Query too short for suggestions")
     );

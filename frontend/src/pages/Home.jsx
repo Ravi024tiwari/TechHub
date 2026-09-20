@@ -1,144 +1,94 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Cpu, ArrowRight, ShieldCheck, Zap, Sparkles, LogOut, User } from "lucide-react";
-import AuthBackground from "@/components/common/AuthBackground";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useLogoutMutation } from "@/hooks/useAuth";
+import React, { useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import CategoryRail from "@/components/home/CategoryRail";
+import HeroBannerCarousel from "@/components/home/HeroBannerCarousel";
+import TrustBadges from "@/components/home/TrustBadges";
+import BrandMarqueeRail from "@/components/home/BrandMarqueeRail";
+import OffersSpotlightBanner from "@/components/home/OffersSpotlightBanner";
+import ProductShelf from "@/components/home/ProductShelf";
+import StockAlertSection from "@/components/home/StockAlertSection";
+import Footer from "@/components/layout/Footer";
+import { useProductsQuery } from "@/hooks/useProducts";
 
 export default function Home() {
-  const user = useAuthStore((state) => state.user);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const logoutMutation = useLogoutMutation();
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  // Query 1: Filtered / Featured products based on active category
+  const { data: mainData, isLoading: isMainLoading } = useProductsQuery({
+    category: activeCategory !== "all" ? activeCategory : undefined,
+    isFeatured: activeCategory === "all" ? true : undefined,
+    limit: 8,
+  });
+
+  // Query 2: Laptops / Flagship Computing rail
+  const { data: laptopsData, isLoading: isLaptopsLoading } = useProductsQuery({
+    category: "laptops",
+    limit: 4,
+  });
+
+  const mainProducts = mainData?.products || [];
+  const laptopProducts = laptopsData?.products || [];
 
   return (
-    <div className="min-h-screen w-full bg-[#07080a] text-white flex flex-col selection:bg-white/20 selection:text-white relative overflow-hidden">
-      {/* Interactive Silver Keynote Background */}
-      <AuthBackground watermarkLines={["TECH", "HAVEN"]} />
+    <div className="min-h-screen w-full bg-[#050608] text-white flex flex-col selection:bg-white/20 selection:text-white relative overflow-x-clip">
+      {/* Universal Desktop & Mobile Header */}
+      <Navbar />
 
-      {/* Modern Glass Navbar */}
-      <header className="glass-panel sticky top-0 z-50 px-6 sm:px-12 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/20 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-            <Cpu className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-heading font-extrabold text-xl tracking-tight text-white">
-            TECHHAVEN
-          </span>
-        </Link>
+      {/* Iconic Quick Category Strip (Flipkart / Meesho pattern) */}
+      <CategoryRail
+        activeCategory={activeCategory}
+        onSelectCategory={(catId) => setActiveCategory(catId)}
+      />
 
-        {/* Navigation Links & Actions */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-xs font-medium">
-                <User className="h-3.5 w-3.5 text-white/70" />
-                <span className="text-slate-200">
-                  {user.name}
-                </span>
-                <span className="text-[10px] uppercase font-tech px-1.5 py-0.5 rounded bg-white/10 text-slate-400">
-                  {user.role}
-                </span>
-              </div>
-              <button
-                onClick={() => logoutMutation.mutate()}
-                disabled={logoutMutation.isPending}
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 transition-colors disabled:opacity-50"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/signup"
-                className="btn-pill-primary text-xs sm:text-sm !py-2 !px-4"
-              >
-                Join TechHaven
-              </Link>
-            </>
-          )}
-        </div>
-      </header>
+      <main className="flex-1 w-full space-y-6 sm:space-y-10 z-10 pb-16">
+        {/* 1. Promotional Hero Deals Carousel */}
+        <HeroBannerCarousel />
 
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16 sm:py-24 relative z-10 max-w-4xl mx-auto space-y-8">
-        {/* Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-tech text-slate-300">
-          <Sparkles className="h-3.5 w-3.5 text-slate-300" />
-          <span>PRO HARDWARE · 2026 ARCHITECTURE READY</span>
-        </div>
+        {/* 2. 4 Trust Pillars (Delivery, Warranty, Return, Genuine) */}
+        <TrustBadges />
 
-        {/* Hero Title */}
-        <div className="space-y-4">
-          <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08]">
-            The Precision Standard in{" "}
-            <span className="text-gradient-silver">Modern Electronics.</span>
-          </h1>
-          <p className="font-body text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Studio displays, high-performance computing, audiophile hardware, and next-gen gadgets — engineered with uncompromising craftsmanship.
-          </p>
-        </div>
+        {/* 3. Official OEM Brand Partners Scrolling Marquee */}
+        <BrandMarqueeRail />
 
-        {/* CTA Actions */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full justify-center">
-          <Link
-            to="/signup"
-            className="btn-pill-primary w-full sm:w-auto text-base !py-3 !px-8 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-          >
-            <span>Create Member Account</span>
-            <ArrowRight className="h-4 w-4 text-black" />
-          </Link>
-          <Link
-            to="/login"
-            className="btn-pill-secondary w-full sm:w-auto text-base !py-3 !px-8"
-          >
-            Existing Member Sign In
-          </Link>
-        </div>
+        {/* 4. Active Offers & Flash Deals Spotlight Banner (Click navigates to /deals) */}
+        <OffersSpotlightBanner />
 
-        {/* Feature Highlights Grid with Silver Backlight Shadow */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-12 w-full text-left">
-          <div className="glass-card-silver p-5">
-            <Zap className="h-5 w-5 text-amber-300 mb-3" />
-            <h3 className="font-heading font-semibold text-white text-sm mb-1">
-              Flash Deal Engine
-            </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Real-time stock quota reservation and exclusive 2-hour early access drops.
-            </p>
-          </div>
-          <div className="glass-card-silver p-5">
-            <ShieldCheck className="h-5 w-5 text-cyan-300 mb-3" />
-            <h3 className="font-heading font-semibold text-white text-sm mb-1">
-              Digital Warranty Vault
-            </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Auto-registered serial numbers with 1-click doorstep hardware replacement.
-            </p>
-          </div>
-          <div className="glass-card-silver p-5">
-            <Cpu className="h-5 w-5 text-purple-300 mb-3" />
-            <h3 className="font-heading font-semibold text-white text-sm mb-1">
-              Razorpay Secured
-            </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              HMAC-SHA256 cryptographically verified payments and Cash on Delivery.
-            </p>
-          </div>
-        </div>
+        {/* 5. Product Shelf 1: Active Category / Featured Deals */}
+        <ProductShelf
+          title={
+            activeCategory === "all"
+              ? "Top Featured Flagships"
+              : `Explore ${activeCategory.toUpperCase()}`
+          }
+          subtitle="Studio workstations, high-end mobile computing, and audiophile gear"
+          badgeText={activeCategory === "all" ? "BESTSELLERS" : "CATEGORY SPOTLIGHT"}
+          showAllLink={`/products${activeCategory !== "all" ? `?category=${activeCategory}` : ""}`}
+          products={mainProducts}
+          isLoading={isMainLoading}
+          limit={8}
+          hasCountdown={true}
+        />
+
+        {/* 6. Product Shelf 2: Dedicated Computing & Laptops Section */}
+        {activeCategory === "all" && (
+          <ProductShelf
+            title="High-Performance Computing"
+            subtitle="Studio displays, workstations, and high-performance gaming rigs"
+            badgeText="PRO HARDWARE"
+            showAllLink="/products?category=laptops"
+            products={laptopProducts}
+            isLoading={isLaptopsLoading}
+            limit={4}
+            hasCountdown={false}
+          />
+        )}
+
+        {/* 7. VIP Stock Drop & Launch Alert Section */}
+        <StockAlertSection />
       </main>
 
-      {/* Simple Clean Footer */}
-      <footer className="border-t border-white/[0.06] py-6 px-6 text-center text-xs text-slate-500 font-tech">
-        TechHaven Hardware & Systems Architecture © 2026. All rights reserved.
-      </footer>
+      {/* Universal Enterprise Footer */}
+      <Footer />
     </div>
   );
 }

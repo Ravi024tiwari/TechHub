@@ -66,7 +66,7 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
   selection-background-color: rgba(255, 255, 255, 0.2);
   selection-color: #ffffff;
 }
@@ -326,4 +326,48 @@ samp {
     0 30px 70px -15px rgba(0, 0, 0, 0.95),
     0 0 65px -8px rgba(226, 232, 240, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   Continuous Smooth Automatic Marquee (Right to Left & Left to Right)
+   - Pauses immediately on hover for customer interaction
+   ========================================================================== */
+@keyframes marquee-scroll-rtl {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-rtl {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll-rtl 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-rtl:hover {
+  animation-play-state: paused !important;
+}
+
+@keyframes marquee-scroll-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll-ltr 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-ltr:hover {
+  animation-play-state: paused !important;
 }
