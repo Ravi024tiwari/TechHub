@@ -126,7 +126,7 @@ export default function ProductCard({ product }) {
             type="button"
             onClick={handleToggleWishlist}
             aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-            className={`absolute top-3.5 right-3.5 z-10 h-8 w-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 active:scale-90 ${
+            className={`absolute top-3.5 right-3.5 z-10 h-8 w-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 active:scale-90 cursor-pointer ${
               isInWishlist
                 ? "bg-red-500/30 border-red-500/60 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.5)] scale-105"
                 : "bg-black/60 border-white/20 text-slate-200 hover:text-white hover:bg-white/20 hover:scale-105"
@@ -242,8 +242,8 @@ export default function ProductCard({ product }) {
                 product.stock === 0
                   ? "bg-white/5 text-slate-500 cursor-not-allowed border border-white/5"
                   : isAdded
-                  ? "bg-emerald-500 text-black border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-                  : "bg-white text-black hover:bg-slate-200 shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                  ? "bg-emerald-500 text-black border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)] cursor-pointer"
+                  : "bg-white text-black hover:bg-slate-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] cursor-pointer"
               }`}
             >
               {product.stock === 0 ? (

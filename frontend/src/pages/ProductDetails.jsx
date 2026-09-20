@@ -309,9 +309,11 @@ export default function ProductDetails() {
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
                   className={`h-12 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 ${
-                    isAdded
-                      ? "bg-emerald-500 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-                      : "bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                    product.stock === 0
+                      ? "bg-white/5 text-slate-500 cursor-not-allowed"
+                      : isAdded
+                      ? "bg-emerald-500 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)] cursor-pointer"
+                      : "bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer"
                   }`}
                 >
                   {isAdded ? (
@@ -331,7 +333,9 @@ export default function ProductDetails() {
                   type="button"
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
-                  className="h-12 rounded-xl text-sm font-semibold bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white flex items-center justify-center gap-2 transition-all active:scale-95"
+                  className={`h-12 rounded-xl text-sm font-semibold bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white flex items-center justify-center gap-2 transition-all active:scale-95 ${
+                    product.stock === 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                  }`}
                 >
                   <Zap className="h-4 w-4 text-cyan-300" />
                   <span>Buy Now</span>
