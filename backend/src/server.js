@@ -5,6 +5,7 @@ import { connectDB } from "./config/db.js";
 // Load environment variables early
 dotenv.config();
 
+// Active server port (reloaded with updated DB credentials)
 const PORT = process.env.PORT || 5000;
 
 let server;
