@@ -5,6 +5,7 @@ import {
   Heart,
   ShieldCheck,
   Settings,
+  User,
   LogOut,
   ChevronDown,
   Sparkles,
@@ -89,8 +90,12 @@ export default function NavUserMenu() {
             {user.name}
           </span>
           <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <span className="h-1 w-1 rounded-full bg-cyan-400" />
-            <span>TechHub Pro</span>
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                user.role === "admin" ? "bg-purple-400 animate-pulse" : "bg-cyan-400"
+              }`}
+            />
+            <span>{user.role === "admin" ? "Admin Console" : "TechHub Pro"}</span>
           </span>
         </div>
 
@@ -122,9 +127,15 @@ export default function NavUserMenu() {
                 <p className="text-[11px] text-slate-400 truncate mt-0.5 font-mono">
                   {user.email}
                 </p>
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[9px] font-mono font-bold mt-1.5 uppercase">
+                <div
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold mt-1.5 uppercase ${
+                    user.role === "admin"
+                      ? "bg-purple-500/15 border-purple-500/30 text-purple-300"
+                      : "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+                  }`}
+                >
                   <Sparkles className="h-2.5 w-2.5" />
-                  <span>Verified Member</span>
+                  <span>{user.role === "admin" ? "Master Admin" : "Verified Member"}</span>
                 </div>
               </div>
             </div>
@@ -134,7 +145,7 @@ export default function NavUserMenu() {
               <Link
                 to="/orders"
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-all text-center group"
+                className="p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-all text-center group cursor-pointer"
               >
                 <span className="text-[10px] text-slate-400 block">Active Orders</span>
                 <span className="text-xs font-bold text-white font-mono group-hover:text-cyan-300">
@@ -144,7 +155,7 @@ export default function NavUserMenu() {
               <Link
                 to="/wishlist"
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-all text-center group"
+                className="p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-all text-center group cursor-pointer"
               >
                 <span className="text-[10px] text-slate-400 block">Wishlist</span>
                 <span className="text-xs font-bold text-white font-mono group-hover:text-red-300">
@@ -156,10 +167,59 @@ export default function NavUserMenu() {
 
           {/* Navigation Links */}
           <div className="space-y-0.5 py-1">
+            {/* 1. Primary Profile & Account Settings Link */}
+            <Link
+              to="/profile"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors group cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 group-hover:scale-105 transition-all">
+                  <User className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block font-semibold text-white">Profile & Account</span>
+                  <span className="text-[10px] text-slate-500 group-hover:text-slate-400 block font-mono">
+                    {user.role === "admin"
+                      ? "Admin profile & credentials"
+                      : "Personal details, address & password"}
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] text-slate-500 font-mono group-hover:text-cyan-300">
+                Manage →
+              </span>
+            </Link>
+
+            {/* 2. Admin Management Link (Only if user.role === 'admin') */}
+            {user.role === "admin" && (
+              <Link
+                to="/admin/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/15 border border-purple-500/25 text-xs font-medium text-purple-200 hover:text-white transition-colors group cursor-pointer my-1"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300 group-hover:scale-105 transition-all">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="block font-bold text-white">Admin Management Portal</span>
+                    <span className="text-[10px] text-purple-300/70 block font-mono">
+                      Products, inventory & metrics
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-purple-500/30 text-purple-200 uppercase font-bold">
+                  Admin
+                </span>
+              </Link>
+            )}
+
+            {/* 3. Orders Link */}
             <Link
               to="/orders"
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors group"
+              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors group cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <div className="p-1.5 rounded-lg bg-white/[0.04] text-slate-400 group-hover:text-white group-hover:bg-white/10">
@@ -172,10 +232,11 @@ export default function NavUserMenu() {
               </span>
             </Link>
 
+            {/* 4. Wishlist Link */}
             <Link
               to="/wishlist"
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors group"
+              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors group cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <div className="p-1.5 rounded-lg bg-white/[0.04] text-slate-400 group-hover:text-red-400 group-hover:bg-white/10">
@@ -190,6 +251,7 @@ export default function NavUserMenu() {
               )}
             </Link>
 
+            {/* 5. Warranty Vault Link */}
             <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.06] text-xs font-medium text-slate-300 hover:text-white transition-colors group cursor-pointer">
               <div className="flex items-center gap-2.5">
                 <div className="p-1.5 rounded-lg bg-white/[0.04] text-slate-400 group-hover:text-emerald-400 group-hover:bg-white/10">
