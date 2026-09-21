@@ -230,8 +230,16 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     limit = 12
   } = req.query;
 
-  // Build query filter
-  const filter = { isActive: true };
+  // Build query filter (defaults to active products for public storefront, allows all for admin)
+  const filter = {};
+  if (req.query.includeInactive === "true" || req.query.all === "true") {
+    if (req.query.status === "active") filter.isActive = true;
+    else if (req.query.status === "inactive") filter.isActive = false;
+  } else if (req.query.status === "inactive") {
+    filter.isActive = false;
+  } else {
+    filter.isActive = true;
+  }
 
   // Hybrid Search: matches title, brand, description, tags, or processor
   if (search) {
@@ -340,9 +348,11 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     filter.stock = { $gt: 0 };
   }
 
-  // Critical Low Stock Filter (e.g. stock <= 5 units)
-  if (req.query.maxStock) {
-    filter.stock = { $gt: 0, $lte: Number(req.query.maxStock) };
+  // Out of stock filter
+  if (req.query.outOfStock === "true" || req.query.outOfStock === true) {
+    filter.stock = { $lte: 0 };
+  } else if (req.query.maxStock !== undefined && req.query.maxStock !== "") {
+    filter.stock = { $lte: Number(req.query.maxStock) };
   } else if (req.query.lowStock === "true" || req.query.lowStock === true) {
     filter.stock = { $gt: 0, $lte: 5 };
   }
