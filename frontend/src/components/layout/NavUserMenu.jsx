@@ -194,7 +194,7 @@ export default function NavUserMenu() {
             {/* 2. Admin Management Link (Only if user.role === 'admin') */}
             {user.role === "admin" && (
               <Link
-                to="/admin/dashboard"
+                to="/admin"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/15 border border-purple-500/25 text-xs font-medium text-purple-200 hover:text-white transition-colors group cursor-pointer my-1"
               >

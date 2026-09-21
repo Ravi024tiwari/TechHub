@@ -184,7 +184,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, {
       ...cookieOptions,
-      maxAge: 15 * 60 * 1000 // 15 minutes
+      maxAge: 2 * 60 * 60 * 1000 // 2 hours
     })
     .cookie("refreshToken", refreshToken, {
       ...cookieOptions,
@@ -250,7 +250,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       .status(200)
       .cookie("accessToken", accessToken, {
         ...cookieOptions,
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        maxAge: 2 * 60 * 60 * 1000 // 2 hours
       })
       .cookie("refreshToken", newRefreshToken, {
         ...cookieOptions,

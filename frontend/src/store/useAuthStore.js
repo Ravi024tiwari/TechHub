@@ -4,7 +4,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 /**
  * Industrial-Grade Zustand Auth Store:
  * - Backed by localStorage via `persist` middleware for 0ms rehydration on page refresh.
- * - Stores user profile and accessToken synchronously.
+ * - Stores user profile, accessToken, and refreshToken synchronously.
  * - Central single source of truth for client authentication state.
  */
 export const useAuthStore = create(
@@ -12,15 +12,17 @@ export const useAuthStore = create(
     (set) => ({
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
 
-      // Set credentials on successful login / registration
-      setCredentials: ({ user, accessToken }) => {
-        set({
-          user: user || null,
+      // Set credentials on successful login / registration / refresh
+      setCredentials: ({ user, accessToken, refreshToken }) => {
+        set((state) => ({
+          user: user !== undefined ? user : state.user,
           token: accessToken || null,
-          isAuthenticated: Boolean(accessToken && user),
-        });
+          refreshToken: refreshToken || state.refreshToken || null,
+          isAuthenticated: Boolean(accessToken && (user || state.user)),
+        }));
       },
 
       // Update user profile in place (e.g. after profile edit or background /me fetch)
@@ -35,6 +37,7 @@ export const useAuthStore = create(
         set({
           user: null,
           token: null,
+          refreshToken: null,
           isAuthenticated: false,
         });
       },
@@ -42,10 +45,11 @@ export const useAuthStore = create(
     {
       name: "shop_auth", // Key in localStorage
       storage: createJSONStorage(() => localStorage),
-      // Only persist user, token, and isAuthenticated
+      // Persist user, token, refreshToken, and isAuthenticated
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
     }

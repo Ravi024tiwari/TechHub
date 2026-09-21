@@ -12,7 +12,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
  * @access  Public
  */
 export const getAllBrands = asyncHandler(async (req, res) => {
-  const { isFeatured, includeInactive } = req.query;
+  const { isFeatured, includeInactive, search, page, limit } = req.query;
 
   const query = {};
   if (isFeatured === "true") {
@@ -21,8 +21,14 @@ export const getAllBrands = asyncHandler(async (req, res) => {
   if (includeInactive !== "true") {
     query.isActive = true;
   }
-
-  const brands = await Brand.find(query).sort({ name: 1 }).lean();
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), "i");
+    query.$or = [
+      { name: searchRegex },
+      { slug: searchRegex },
+      { description: searchRegex }
+    ];
+  }
 
   // Aggregate product count per brand
   const productCounts = await Product.aggregate([
@@ -38,6 +44,42 @@ export const getAllBrands = asyncHandler(async (req, res) => {
     if (curr._id) acc[curr._id.toString()] = curr.count;
     return acc;
   }, {});
+
+  // Pagination support
+  if (page) {
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [brands, total] = await Promise.all([
+      Brand.find(query).sort({ name: 1 }).skip(skip).limit(limitNum).lean(),
+      Brand.countDocuments(query)
+    ]);
+
+    const formattedBrands = brands.map((b) => ({
+      ...b,
+      productCount: countMap[b._id.toString()] || 0
+    }));
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          brands: formattedBrands,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total,
+            totalPages: Math.ceil(total / limitNum) || 1,
+            hasNextPage: skip + brands.length < total
+          }
+        },
+        "Brands retrieved successfully"
+      )
+    );
+  }
+
+  const brands = await Brand.find(query).sort({ name: 1 }).lean();
 
   const formattedBrands = brands.map((b) => ({
     ...b,
@@ -117,17 +159,13 @@ export const createBrand = asyncHandler(async (req, res) => {
     throw new ApiError(400, `Brand with name '${name}' already exists`);
   }
 
-  // Logo is required
-  if (!req.files?.logo?.[0]?.path) {
-    throw new ApiError(400, "Brand logo image is required");
-  }
-
-  const logoUpload = await uploadOnCloudinary(
-    req.files.logo[0].path,
-    "electronicsshop/brands/logos"
-  );
-  if (!logoUpload) {
-    throw new ApiError(500, "Failed to upload brand logo to Cloudinary");
+  let logoData = { url: "", public_id: "" };
+  if (req.files?.logo?.[0]?.path) {
+    const logoUpload = await uploadOnCloudinary(
+      req.files.logo[0].path,
+      "electronicsshop/brands/logos"
+    );
+    if (logoUpload) logoData = logoUpload;
   }
 
   let bannerData = { url: "", public_id: "" };
@@ -143,7 +181,7 @@ export const createBrand = asyncHandler(async (req, res) => {
     name: name.trim(),
     description: description.trim(),
     website: website.trim(),
-    logo: logoUpload,
+    logo: logoData,
     banner: bannerData,
     isFeatured: Boolean(isFeatured === true || isFeatured === "true"),
     isActive: Boolean(isActive)

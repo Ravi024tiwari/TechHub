@@ -23,9 +23,9 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: loginUserApi,
     onSuccess: (response) => {
-      const { user, accessToken } = response.data || {};
+      const { user, accessToken, refreshToken } = response.data || {};
       if (user && accessToken) {
-        setCredentials({ user, accessToken });
+        setCredentials({ user, accessToken, refreshToken });
         queryClient.setQueryData(AUTH_KEYS.currentUser, user);
       }
     },
@@ -44,9 +44,9 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: registerUserApi,
     onSuccess: (response) => {
-      const { user, accessToken } = response.data || {};
+      const { user, accessToken, refreshToken } = response.data || {};
       if (user && accessToken) {
-        setCredentials({ user, accessToken });
+        setCredentials({ user, accessToken, refreshToken });
         queryClient.setQueryData(AUTH_KEYS.currentUser, user);
       }
     },

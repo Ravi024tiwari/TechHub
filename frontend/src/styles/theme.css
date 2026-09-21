@@ -12,20 +12,36 @@
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-.font-tech {
+.font-tech,
+.font-mono {
   font-family: 'JetBrains Mono', monospace !important;
   font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Headings Default */
+/* Headings Default across all pages */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.025em;
 }
 
-/* Tabular numbers for price alignment */
-.tabular-nums {
+/* Global Body font standard */
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Form & interactive controls font inheritance */
+input, button, select, textarea {
+  font-family: inherit;
+}
+
+/* Tabular numbers for price alignment & monetary alignment */
+.tabular-nums,
+.font-price,
+.price-value {
+  font-family: 'JetBrains Mono', monospace !important;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 /* ==========================================================================

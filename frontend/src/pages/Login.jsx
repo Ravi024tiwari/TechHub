@@ -45,8 +45,15 @@ export default function Login() {
         password,
       },
       {
-        onSuccess: () => {
-          navigate(redirectPath, { replace: true });
+        onSuccess: (response) => {
+          const loggedInUser = response?.data?.user;
+          if (redirectPath && redirectPath !== "/") {
+            navigate(redirectPath, { replace: true });
+          } else if (loggedInUser?.role === "admin") {
+            navigate("/admin", { replace: true });
+          } else {
+            navigate("/", { replace: true });
+          }
         },
         onError: (err) => {
           setErrorMsg(

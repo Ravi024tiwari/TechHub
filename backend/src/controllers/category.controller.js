@@ -38,7 +38,7 @@ export const getCategoryTree = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const getAllCategories = asyncHandler(async (req, res) => {
-  const { rootsOnly, includeInactive } = req.query;
+  const { rootsOnly, includeInactive, search, page, limit } = req.query;
 
   const query = {};
   if (rootsOnly === "true") {
@@ -47,11 +47,14 @@ export const getAllCategories = asyncHandler(async (req, res) => {
   if (includeInactive !== "true") {
     query.isActive = true;
   }
-
-  const categories = await Category.find(query)
-    .populate("parent", "name slug")
-    .sort({ displayOrder: 1, name: 1 })
-    .lean();
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), "i");
+    query.$or = [
+      { name: searchRegex },
+      { slug: searchRegex },
+      { description: searchRegex }
+    ];
+  }
 
   // Get product counts per category in a single aggregation pass
   const productCounts = await Product.aggregate([
@@ -67,6 +70,50 @@ export const getAllCategories = asyncHandler(async (req, res) => {
     if (curr._id) acc[curr._id.toString()] = curr.count;
     return acc;
   }, {});
+
+  // Pagination support
+  if (page) {
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [categories, total] = await Promise.all([
+      Category.find(query)
+        .populate("parent", "name slug")
+        .sort({ displayOrder: 1, name: 1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Category.countDocuments(query)
+    ]);
+
+    const formattedCategories = categories.map((cat) => ({
+      ...cat,
+      productCount: countMap[cat._id.toString()] || 0
+    }));
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          categories: formattedCategories,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total,
+            totalPages: Math.ceil(total / limitNum) || 1,
+            hasNextPage: skip + categories.length < total
+          }
+        },
+        "Categories retrieved successfully"
+      )
+    );
+  }
+
+  const categories = await Category.find(query)
+    .populate("parent", "name slug")
+    .sort({ displayOrder: 1, name: 1 })
+    .lean();
 
   const formattedCategories = categories.map((cat) => ({
     ...cat,

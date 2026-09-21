@@ -26,11 +26,11 @@ const brandSchema = new mongoose.Schema(
     logo: {
       url: {
         type: String,
-        required: [true, "Brand logo image URL is required"]
+        default: ""
       },
       public_id: {
         type: String,
-        required: [true, "Brand logo public_id is required"]
+        default: ""
       }
     },
     banner: {
