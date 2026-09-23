@@ -289,13 +289,13 @@ export default function ProductShelf({
           PRODUCT GRID
           ========================================================= */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-2 min-[540px]:grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
           {Array.from({ length: 4 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
         </div>
       ) : filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-2 min-[540px]:grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
           {filteredProducts.map((product) => (
             <ProductCard key={product._id || product.slug} product={product} />
           ))}

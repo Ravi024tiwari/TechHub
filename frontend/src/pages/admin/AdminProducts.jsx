@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import {
   Plus,
   Search,
   Filter,
+  SlidersHorizontal,
   LayoutGrid,
   List,
   ArrowUpDown,
@@ -31,6 +32,10 @@ import QuickStockModal from "../../components/admin/product/QuickStockModal";
 import DeleteConfirmModal from "../../components/admin/product/DeleteConfirmModal";
 
 export default function AdminProducts() {
+  const navigate = useNavigate();
+  const outletContext = useOutletContext();
+  const isNavCollapsed = outletContext?.isCollapsed ?? false;
+
   // State: Filter parameters
   const [filters, setFilters] = useState({
     search: "",
@@ -55,6 +60,9 @@ export default function AdminProducts() {
   // State: Mobile Filter Drawer
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
+  // State: Desktop Filter Sidebar Toggle (Independent collapsible panel)
+  const [showDesktopFilters, setShowDesktopFilters] = useState(true);
+
   // State: Filter metadata (categories and brands)
   const [filterMeta, setFilterMeta] = useState({ categories: [], brands: [] });
 
@@ -71,8 +79,9 @@ export default function AdminProducts() {
   const [stockModalProduct, setStockModalProduct] = useState(null);
   const [deleteModalProduct, setDeleteModalProduct] = useState(null);
 
-  // Observer sentinel reference for infinite scrolling
+  // Sentinel & independent scroll container references
   const sentinelRef = useRef(null);
+  const productsScrollRef = useRef(null);
 
   // Debounce search input
   useEffect(() => {
@@ -159,10 +168,11 @@ export default function AdminProducts() {
     loadProducts(1, false);
   }, [loadProducts]);
 
-  // Infinite Scroll IntersectionObserver
+  // Infinite Scroll IntersectionObserver (bound to products independent scroll container)
   useEffect(() => {
     if (!sentinelRef.current) return;
 
+    const scrollContainer = productsScrollRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
@@ -170,7 +180,11 @@ export default function AdminProducts() {
           loadProducts(page + 1, true);
         }
       },
-      { threshold: 0.1, rootMargin: "250px" }
+      {
+        root: window.innerWidth >= 1024 ? scrollContainer : null,
+        threshold: 0.1,
+        rootMargin: "250px",
+      }
     );
 
     observer.observe(sentinelRef.current);
@@ -232,13 +246,20 @@ export default function AdminProducts() {
       maximumFractionDigits: 0,
     }).format(val);
 
+  // Dynamic responsive grid columns:
+  // 4 cards per row on collapse, 3 cards on open on desktop; 2-3 cards on small devices for modern mobile density
+  const isSidebarCollapsed = isNavCollapsed || !showDesktopFilters;
+  const gridColumnsClass = isSidebarCollapsed
+    ? "grid-cols-2 min-[540px]:grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4"
+    : "grid-cols-2 min-[540px]:grid-cols-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3";
+
   return (
-    <div className="space-y-6">
+    <div className="flex-1 flex flex-col min-h-0 space-y-3 h-full overflow-hidden">
       {/* Top Title & Primary Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/10">
+      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-heading font-extrabold text-white tracking-tight">
               Products Inventory
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white/10 text-slate-200 border border-white/15">
@@ -250,7 +271,27 @@ export default function AdminProducts() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Desktop Filter Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setShowDesktopFilters((prev) => !prev)}
+            className={`hidden lg:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono font-medium transition-all border ${
+              showDesktopFilters
+                ? "bg-white/[0.08] hover:bg-white/[0.12] text-white border-white/20 shadow-sm"
+                : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border-white/10"
+            }`}
+            title={showDesktopFilters ? "Hide Filter Sidebar" : "Show Filter Sidebar"}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-sky-400" />
+            <span>{showDesktopFilters ? "Hide Filters" : "Show Filters"}</span>
+            {activeFiltersCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-sky-500 text-black font-bold text-[10px] flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+
           {/* View Mode Toggle */}
           <div className="hidden sm:flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/10">
             <button
@@ -282,7 +323,7 @@ export default function AdminProducts() {
           {/* Add Product CTA */}
           <Link
             to="/admin/products/new"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-slate-200 transition-all shadow-md shadow-white/10"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-slate-200 transition-all shadow-md shadow-white/10"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -290,9 +331,186 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* Main Layout: Filters Sidebar + Products Display */}
-      <div className="flex items-start gap-6">
-        {/* Desktop Filter Sidebar */}
+      {/* Controls Bar: Search, Mobile Filter Toggle, Sort Dropdown */}
+      <div className="shrink-0 glass-card p-2.5 sm:p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search products by title, brand, SKU, processor..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-9 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Mobile Filter Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileFilterOpen(true)}
+            className="lg:hidden flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-medium text-slate-200"
+          >
+            <Filter className="w-3.5 h-3.5 text-sky-400" />
+            <span>Filters</span>
+            {activeFiltersCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-sky-500 text-black font-bold text-[10px] flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-1.5 flex-1 sm:flex-initial">
+            <select
+              value={filters.sort}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, sort: e.target.value }))
+              }
+              className="w-full sm:w-auto px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono font-medium text-slate-200 focus:outline-none cursor-pointer"
+            >
+              <option value="newest" className="bg-[#121316] text-white">Newest First</option>
+              <option value="price_asc" className="bg-[#121316] text-white">Price: Low to High</option>
+              <option value="price_desc" className="bg-[#121316] text-white">Price: High to Low</option>
+              <option value="stock_asc" className="bg-[#121316] text-white">Stock: Restock First</option>
+              <option value="rating" className="bg-[#121316] text-white">Top Rated</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Active Filter Badges */}
+      {activeFiltersCount > 0 && (
+        <div className="shrink-0 flex flex-wrap items-center gap-2 pt-0.5">
+          <span className="text-[11px] font-mono text-slate-500">Active Filters:</span>
+
+          {filters.stockStatus && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-white/[0.06] border border-white/10 text-white">
+              Stock: {filters.stockStatus}
+              <button
+                onClick={() => setFilters((prev) => ({ ...prev, stockStatus: "" }))}
+                className="hover:text-rose-400"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.category &&
+            filters.category.split(",").map((c) => (
+              <span
+                key={c}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300"
+              >
+                {c}
+                <button
+                  onClick={() => {
+                    const updated = filters.category
+                      .split(",")
+                      .filter((item) => item !== c);
+                    setFilters((prev) => ({ ...prev, category: updated.join(",") }));
+                  }}
+                  className="hover:text-white"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+
+          {filters.brand &&
+            filters.brand.split(",").map((b) => (
+              <span
+                key={b}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-purple-500/10 border border-purple-500/20 text-purple-300"
+              >
+                {b}
+                <button
+                  onClick={() => {
+                    const updated = filters.brand
+                      .split(",")
+                      .filter((item) => item !== b);
+                    setFilters((prev) => ({ ...prev, brand: updated.join(",") }));
+                  }}
+                  className="hover:text-white"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+
+          {(filters.minPrice || filters.maxPrice) && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-amber-500/10 border border-amber-500/20 text-amber-300">
+              ₹{filters.minPrice || 0} - ₹{filters.maxPrice || "Max"}
+              <button
+                onClick={() =>
+                  setFilters((prev) => ({ ...prev, minPrice: "", maxPrice: "" }))
+                }
+                className="hover:text-white"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.rating && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-yellow-500/10 border border-yellow-500/20 text-yellow-300">
+              Rating: {filters.rating}★+
+              <button
+                onClick={() => setFilters((prev) => ({ ...prev, rating: "" }))}
+                className="hover:text-white"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.ram && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+              RAM: {filters.ram}
+              <button
+                onClick={() => setFilters((prev) => ({ ...prev, ram: "" }))}
+                className="hover:text-white"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {filters.storage && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
+              SSD: {filters.storage}
+              <button
+                onClick={() => setFilters((prev) => ({ ...prev, storage: "" }))}
+                className="hover:text-white"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="text-[11px] font-mono text-slate-400 hover:text-white underline underline-offset-2 ml-1"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* Main Workspace: Filters Sidebar + Dynamic Product Stream */}
+      <div className="flex-1 min-h-0 flex items-stretch gap-5 lg:gap-6 overflow-hidden">
+        {/* Desktop & Mobile Filter Sidebar */}
         <ProductFiltersSidebar
           filters={filters}
           setFilters={setFilters}
@@ -302,195 +520,34 @@ export default function AdminProducts() {
           setIsOpenMobile={setIsMobileFilterOpen}
           onReset={handleResetFilters}
           totalResults={totalCount}
+          onCloseDesktop={() => setShowDesktopFilters(false)}
+          showDesktop={showDesktopFilters}
         />
 
-        {/* Right Section: Controls Bar & Dynamic Product Stream */}
-        <div className="flex-1 min-w-0 space-y-5">
-          {/* Controls Bar: Search, Mobile Filter Toggle, Sort Dropdown */}
-          <div className="glass-card p-3 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search products by title, brand, SKU, processor..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-9 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Mobile Filter Button */}
-              <button
-                type="button"
-                onClick={() => setIsMobileFilterOpen(true)}
-                className="lg:hidden flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-medium text-slate-200"
-              >
-                <Filter className="w-3.5 h-3.5 text-sky-400" />
-                <span>Filters</span>
-                {activeFiltersCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-sky-500 text-black font-bold text-[10px] flex items-center justify-center">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Sort Dropdown */}
-              <div className="flex items-center gap-1.5 flex-1 sm:flex-initial">
-                <select
-                  value={filters.sort}
-                  onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, sort: e.target.value }))
-                  }
-                  className="w-full sm:w-auto px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono font-medium text-slate-200 focus:outline-none cursor-pointer"
-                >
-                  <option value="newest" className="bg-[#121316] text-white">Newest First</option>
-                  <option value="price_asc" className="bg-[#121316] text-white">Price: Low to High</option>
-                  <option value="price_desc" className="bg-[#121316] text-white">Price: High to Low</option>
-                  <option value="stock_asc" className="bg-[#121316] text-white">Stock: Restock First</option>
-                  <option value="rating" className="bg-[#121316] text-white">Top Rated</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Filter Badges */}
-          {activeFiltersCount > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-[11px] font-mono text-slate-500">Active Filters:</span>
-
-              {filters.stockStatus && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-white/[0.06] border border-white/10 text-white">
-                  Stock: {filters.stockStatus}
-                  <button
-                    onClick={() => setFilters((prev) => ({ ...prev, stockStatus: "" }))}
-                    className="hover:text-rose-400"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              {filters.category &&
-                filters.category.split(",").map((c) => (
-                  <span
-                    key={c}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300"
-                  >
-                    {c}
-                    <button
-                      onClick={() => {
-                        const updated = filters.category
-                          .split(",")
-                          .filter((item) => item !== c);
-                        setFilters((prev) => ({ ...prev, category: updated.join(",") }));
-                      }}
-                      className="hover:text-white"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-
-              {filters.brand &&
-                filters.brand.split(",").map((b) => (
-                  <span
-                    key={b}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-purple-500/10 border border-purple-500/20 text-purple-300"
-                  >
-                    {b}
-                    <button
-                      onClick={() => {
-                        const updated = filters.brand
-                          .split(",")
-                          .filter((item) => item !== b);
-                        setFilters((prev) => ({ ...prev, brand: updated.join(",") }));
-                      }}
-                      className="hover:text-white"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-
-              {(filters.minPrice || filters.maxPrice) && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-amber-500/10 border border-amber-500/20 text-amber-300">
-                  ₹{filters.minPrice || 0} - ₹{filters.maxPrice || "Max"}
-                  <button
-                    onClick={() =>
-                      setFilters((prev) => ({ ...prev, minPrice: "", maxPrice: "" }))
-                    }
-                    className="hover:text-white"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              {filters.rating && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-yellow-500/10 border border-yellow-500/20 text-yellow-300">
-                  Rating: {filters.rating}★+
-                  <button
-                    onClick={() => setFilters((prev) => ({ ...prev, rating: "" }))}
-                    className="hover:text-white"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              {filters.ram && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
-                  RAM: {filters.ram}
-                  <button
-                    onClick={() => setFilters((prev) => ({ ...prev, ram: "" }))}
-                    className="hover:text-white"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              {filters.storage && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
-                  SSD: {filters.storage}
-                  <button
-                    onClick={() => setFilters((prev) => ({ ...prev, storage: "" }))}
-                    className="hover:text-white"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="text-[11px] font-mono text-slate-400 hover:text-white underline underline-offset-2 ml-1"
-              >
-                Clear all
-              </button>
-            </div>
-          )}
+        {/* Right Section: Dynamic Product Stream with Independent Scrollbar */}
+        <div
+          ref={productsScrollRef}
+          className="flex-1 min-w-0 h-full min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-16 lg:pb-6 space-y-4 sm:space-y-5 touch-pan-y"
+        >
 
           {/* Initial Loading Skeleton */}
           {loadingInitial ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 animate-pulse">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div className={`grid ${gridColumnsClass} gap-2.5 sm:gap-4 lg:gap-5 animate-pulse`}>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <div
                   key={i}
-                  className="h-80 bg-[#121316] rounded-2xl border border-white/10"
-                />
+                  className="rounded-xl sm:rounded-2xl border-2 border-white/20 sm:border-white/10 bg-[#0e1017] p-2.5 sm:p-4 space-y-2 sm:space-y-3"
+                >
+                  <div className="w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-52 bg-white/5 rounded-lg sm:rounded-xl" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-16 bg-white/5 rounded" />
+                    <div className="h-3.5 w-full bg-white/5 rounded" />
+                  </div>
+                  <div className="pt-2 border-t border-white/5 flex justify-between items-center">
+                    <div className="h-4 w-20 bg-white/5 rounded" />
+                    <div className="h-3 w-10 bg-white/5 rounded" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : products.length === 0 ? (
@@ -516,9 +573,9 @@ export default function AdminProducts() {
             </div>
           ) : viewMode === "grid" ? (
             /* =========================================================
-               1. GRID VIEW (Product Cards with Edge-to-Edge Visuals)
+               1. GRID VIEW (Dynamic Reflow: 4 Cards on Collapse, 3 Cards on Open)
                ========================================================= */
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className={`grid ${gridColumnsClass} gap-2.5 sm:gap-4 lg:gap-5 transition-all duration-300`}>
               {products.map((product) => (
                 <AdminProductCard
                   key={product._id}
@@ -530,126 +587,153 @@ export default function AdminProducts() {
             </div>
           ) : (
             /* =========================================================
-               2. TABLE VIEW (Compact Spreadsheet Inventory Table)
+               2. LIST / TABLE VIEW (Floating Card Rows with White Border & Gaps)
                ========================================================= */
-            <div className="glass-card overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-white/10 text-slate-400 font-mono text-[11px] uppercase tracking-wider bg-white/[0.02]">
-                      <th className="py-3 px-4">Product</th>
-                      <th className="py-3 px-3">Category</th>
-                      <th className="py-3 px-3">SKU</th>
-                      <th className="py-3 px-3">Price</th>
-                      <th className="py-3 px-3">Stock Units</th>
-                      <th className="py-3 px-3">Status</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {products.map((product) => {
-                      const stock = product.stock ?? 0;
-                      const isLow = stock > 0 && stock <= (product.lowStockThreshold || 5);
-                      return (
-                        <tr
-                          key={product._id}
-                          onClick={() => navigate(`/admin/products/edit/${product._id}`)}
-                          className="hover:bg-white/[0.04] transition-colors cursor-pointer group"
-                        >
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-3 max-w-[240px]">
-                              <img
-                                src={product.images?.[0]?.url || product.image || ""}
-                                alt={product.title}
-                                className="w-10 h-10 rounded-lg object-cover bg-slate-800 shrink-0 border border-white/10 group-hover:scale-105 transition-transform"
-                              />
-                              <div className="truncate">
-                                <p className="font-semibold text-white truncate text-xs group-hover:text-sky-300 transition-colors">
-                                  {product.title}
-                                </p>
-                                <p className="text-[10px] text-slate-400 font-mono">
+            <div className="overflow-x-auto custom-scrollbar -mx-1 px-1 pb-3">
+              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 min-w-[760px]">
+                <thead>
+                  <tr className="text-slate-400 font-mono text-[11px] uppercase tracking-wider">
+                    <th className="pb-1 pt-0 px-4 font-medium">Product</th>
+                    <th className="pb-1 pt-0 px-3 font-medium">Category</th>
+                    <th className="pb-1 pt-0 px-3 font-medium">SKU</th>
+                    <th className="pb-1 pt-0 px-3 font-medium">Price</th>
+                    <th className="pb-1 pt-0 px-3 font-medium">Stock Units</th>
+                    <th className="pb-1 pt-0 px-3 font-medium">Status</th>
+                    <th className="pb-1 pt-0 px-4 text-right font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((product) => {
+                    const stock = product.stock ?? 0;
+                    const isLow = stock > 0 && stock <= (product.lowStockThreshold || 5);
+                    return (
+                      <tr
+                        key={product._id}
+                        onClick={() => navigate(`/admin/products/edit/${product._id}`)}
+                        className="group transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
+                      >
+                        {/* 1. Product Title, Brand & Image */}
+                        <td className="py-3 px-4 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-l border-white/15 group-hover:border-white/35 rounded-l-2xl transition-all duration-200 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+                          <div className="flex items-center gap-3 max-w-[250px]">
+                            <img
+                              src={product.images?.[0]?.url || product.image || ""}
+                              alt={product.title}
+                              className="w-11 h-11 rounded-xl object-cover bg-slate-800 shrink-0 border border-white/15 group-hover:border-white/35 group-hover:scale-105 transition-all shadow-sm"
+                            />
+                            <div className="truncate">
+                              <p className="font-semibold text-white truncate text-xs group-hover:text-sky-300 transition-colors">
+                                {product.title}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[10px] text-slate-400 font-mono">
                                   {product.brandName || "Brand"}
-                                </p>
+                                </span>
+                                {product.isFeatured && (
+                                  <span className="text-[9px] px-1.5 py-0.2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded font-semibold">
+                                    Featured
+                                  </span>
+                                )}
                               </div>
                             </div>
-                          </td>
-                          <td className="py-3 px-3 text-slate-300 font-mono text-xs">
+                          </div>
+                        </td>
+
+                        {/* 2. Category */}
+                        <td className="py-3 px-3 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-white/15 group-hover:border-white/35 text-slate-300 font-mono text-xs transition-all duration-200">
+                          <span className="inline-block px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-[11px] text-slate-300">
                             {product.categoryName || "General"}
-                          </td>
-                          <td className="py-3 px-3 font-mono text-slate-500 text-[11px]">
-                            {product.sku || "N/A"}
-                          </td>
-                          <td className="py-3 px-3 font-mono font-bold text-white whitespace-nowrap">
+                          </span>
+                        </td>
+
+                        {/* 3. SKU */}
+                        <td className="py-3 px-3 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-white/15 group-hover:border-white/35 font-mono text-slate-400 text-[11px] transition-all duration-200">
+                          {product.sku || "N/A"}
+                        </td>
+
+                        {/* 4. Price */}
+                        <td className="py-3 px-3 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-white/15 group-hover:border-white/35 font-mono font-bold text-white whitespace-nowrap transition-all duration-200">
+                          <span className="text-sm font-semibold tracking-tight">
                             {formatINR(product.salePrice ?? product.regularPrice)}
-                          </td>
-                          <td className="py-3 px-3">
+                          </span>
+                          {product.salePrice && product.regularPrice > product.salePrice && (
+                            <span className="block text-[10px] text-slate-500 line-through font-normal">
+                              {formatINR(product.regularPrice)}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* 5. Stock Units */}
+                        <td className="py-3 px-3 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-white/15 group-hover:border-white/35 transition-all duration-200">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setStockModalProduct(product);
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold border transition-all hover:scale-105 cursor-pointer shadow-sm ${
+                              stock === 0
+                                ? "bg-rose-500/15 text-rose-300 border-rose-500/30 hover:bg-rose-500/25"
+                                : isLow
+                                ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
+                                : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
+                            }`}
+                          >
+                            {stock} units ✎
+                          </button>
+                        </td>
+
+                        {/* 6. Status */}
+                        <td className="py-3 px-3 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-white/15 group-hover:border-white/35 transition-all duration-200">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-semibold border ${
+                              product.isActive !== false
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                            }`}
+                          >
+                            {product.isActive !== false ? "Active" : "Draft"}
+                          </span>
+                        </td>
+
+                        {/* 7. Actions */}
+                        <td className="py-3 px-4 bg-[#0e1118]/90 group-hover:bg-[#151924] border-y border-r border-white/15 group-hover:border-white/35 rounded-r-2xl text-right whitespace-nowrap transition-all duration-200">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Link
+                              to={`/product/${product.slug || product._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                              title="View in Store"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Link>
+                            <Link
+                              to={`/admin/products/edit/${product._id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-sky-400 hover:bg-sky-500/15 transition-colors"
+                              title="Edit Product"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Link>
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setStockModalProduct(product);
+                                setDeleteModalProduct(product);
                               }}
-                              className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border transition-transform hover:scale-105 cursor-pointer ${
-                                stock === 0
-                                  ? "bg-rose-500/20 text-rose-300 border-rose-500/30"
-                                  : isLow
-                                  ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                                  : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                              }`}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/15 transition-colors"
+                              title="Delete Product"
                             >
-                              {stock} units ✎
+                              <Trash2 className="w-4 h-4" />
                             </button>
-                          </td>
-                          <td className="py-3 px-3">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase ${
-                                product.isActive !== false
-                                  ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-slate-500/10 text-slate-400"
-                              }`}
-                            >
-                              {product.isActive !== false ? "Active" : "Draft"}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <Link
-                                to={`/product/${product.slug || product._id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5"
-                                title="View in Store"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </Link>
-                              <Link
-                                to={`/admin/products/edit/${product._id}`}
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-sky-400 hover:bg-sky-500/10"
-                                title="Edit Product"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </Link>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteModalProduct(product);
-                                }}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
-                                title="Delete Product"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 

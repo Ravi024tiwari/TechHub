@@ -375,7 +375,7 @@ samp {
 }
 
 /* ==========================================================================
-   Smooth Inertia Horizontal Scrollbar Hide Helper
+   Smooth Inertia Horizontal Scrollbar Hide Helper & Custom Scrollbar
    ========================================================================== */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -383,4 +383,24 @@ samp {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+

@@ -83,12 +83,12 @@ export default function ProductCard({ product }) {
   return (
     <div
       onClick={handleCardClick}
-      className="group relative rounded-2xl border-2 border-slate-400/40 hover:border-slate-200 bg-gradient-to-b from-[#141824] via-[#0d1017] to-[#080a0e] shadow-[0_4px_25px_rgba(0,0,0,0.8),_0_0_15px_rgba(255,255,255,0.08)] hover:shadow-[0_16px_45px_-10px_rgba(0,0,0,0.9),_0_0_30px_rgba(255,255,255,0.22)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer select-none"
+      className="group relative rounded-xl sm:rounded-2xl border-2 border-white/25 sm:border-slate-400/40 hover:border-white/60 active:border-white/70 bg-gradient-to-b from-[#141824] via-[#0d1017] to-[#080a0e] shadow-[0_4px_25px_rgba(0,0,0,0.8),_0_0_15px_rgba(255,255,255,0.08)] hover:shadow-[0_16px_45px_-10px_rgba(0,0,0,0.9),_0_0_30px_rgba(255,255,255,0.22)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer select-none"
     >
       {/* =========================================================================
           TOP SECTION: Full-Width Edge-to-Edge Image Showcase
           ========================================================================= */}
-      <div className="relative w-full h-64 sm:h-72 overflow-hidden bg-[#0c0f16] border-b border-slate-400/30">
+      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-64 lg:h-72 overflow-hidden bg-[#0c0f16] border-b border-slate-400/30">
           {/* Product Image - Full Width & Height Cover */}
           <img
             src={mainImage}
@@ -101,21 +101,21 @@ export default function ProductCard({ product }) {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0d1017] pointer-events-none" />
 
           {/* Floating Badges (Top-Left) */}
-          <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 pointer-events-none">
+          <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 z-10 flex items-center gap-1 sm:gap-1.5 pointer-events-none max-w-[70%]">
             {/* Low Stock Alert Badge (stock <= 5) */}
             {(product.stock ?? 1) > 0 && (product.stock ?? 1) <= 5 && (
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black tracking-wide uppercase bg-red-600/90 text-white border border-red-400/80 shadow-[0_0_12px_rgba(239,68,68,0.7)] backdrop-blur-md flex items-center gap-1 animate-pulse">
-                <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
+              <span className="px-1.5 sm:px-2.5 py-0.5 rounded-full text-[8.5px] sm:text-[10px] font-mono font-black tracking-wide uppercase bg-red-600/90 text-white border border-red-400/80 shadow-[0_0_12px_rgba(239,68,68,0.7)] backdrop-blur-md flex items-center gap-1 animate-pulse truncate">
+                <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping shrink-0" />
                 <span>ONLY {product.stock} LEFT!</span>
               </span>
             )}
             {discountPercent > 0 && (
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-sm">
+              <span className="px-1.5 sm:px-2.5 py-0.5 rounded-full text-[8.5px] sm:text-[10px] font-extrabold tracking-wide uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-sm shrink-0">
                 {discountPercent}% OFF
               </span>
             )}
             {product.isFeatured && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-white/20 text-white border border-white/30 backdrop-blur-md hidden sm:inline-block">
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[8.5px] sm:text-[10px] font-bold tracking-wide uppercase bg-white/20 text-white border border-white/30 backdrop-blur-md hidden sm:inline-block">
                 KEYNOTE
               </span>
             )}
@@ -126,21 +126,21 @@ export default function ProductCard({ product }) {
             type="button"
             onClick={handleToggleWishlist}
             aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-            className={`absolute top-3.5 right-3.5 z-10 h-8 w-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 active:scale-90 cursor-pointer ${
+            className={`absolute top-2 right-2 sm:top-3.5 sm:right-3.5 z-10 h-7 w-7 sm:h-8 sm:w-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all duration-200 active:scale-90 cursor-pointer ${
               isInWishlist
                 ? "bg-red-500/30 border-red-500/60 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.5)] scale-105"
                 : "bg-black/60 border-white/20 text-slate-200 hover:text-white hover:bg-white/20 hover:scale-105"
             }`}
           >
             <Heart
-              className={`h-4 w-4 transition-transform ${
+              className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform ${
                 isInWishlist ? "fill-red-400 scale-110" : ""
               }`}
             />
           </button>
 
           {/* Quick View Floating Hint Bar on Hover */}
-          <div className="absolute inset-x-3 bottom-3 py-1.5 px-3 rounded-lg bg-black/80 backdrop-blur-md border border-white/15 text-[11px] text-white font-medium flex items-center justify-center gap-1.5 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
+          <div className="absolute inset-x-3 bottom-3 py-1.5 px-3 rounded-lg bg-black/80 backdrop-blur-md border border-white/15 text-[11px] text-white font-medium hidden sm:flex items-center justify-center gap-1.5 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
             <Eye className="h-3.5 w-3.5 text-slate-300" />
             <span>Click for Full Technical Specs</span>
           </div>
@@ -149,15 +149,15 @@ export default function ProductCard({ product }) {
         {/* =========================================================================
             BOTTOM SECTION: Metadata, Amazon Delivery Signal, Price & Action CTA
             ========================================================================= */}
-        <div className="p-4 sm:p-5 flex flex-col flex-1">
+        <div className="p-2.5 sm:p-4 md:p-5 flex flex-col flex-1">
           {/* Brand & Stock Pill */}
-          <div className="flex items-center justify-between gap-2 mb-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
+          <div className="flex items-center justify-between gap-1.5 mb-1 sm:mb-1.5">
+            <span className="text-[9.5px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
               {product.brandName || product.brand?.name || "AUTHENTIC"}
             </span>
 
             <span
-              className={`text-[10px] font-semibold flex items-center gap-1 shrink-0 ${
+              className={`text-[9px] sm:text-[10px] font-semibold flex items-center gap-1 shrink-0 ${
                 (product.stock ?? 1) <= 0
                   ? "text-red-400 font-bold"
                   : (product.stock ?? 1) <= 5
@@ -174,7 +174,7 @@ export default function ProductCard({ product }) {
                     : "bg-emerald-400"
                 }`}
               />
-              <span>
+              <span className="hidden xs:inline">
                 {(product.stock ?? 1) <= 0
                   ? "Sold Out"
                   : (product.stock ?? 1) <= 5
@@ -186,49 +186,49 @@ export default function ProductCard({ product }) {
 
           {/* Product Title */}
           <h3
-            className="font-heading font-semibold text-sm sm:text-base text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug mb-2 min-h-[2.6rem]"
+            className="font-heading font-semibold text-xs sm:text-sm md:text-base text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight sm:leading-snug mb-1.5 sm:mb-2 min-h-[2rem] sm:min-h-[2.6rem]"
             title={product.title}
           >
             {product.title}
           </h3>
 
           {/* Ratings & Reviews */}
-          <div className="flex items-center gap-1.5 mb-3 text-xs">
+          <div className="flex items-center gap-1.5 mb-2 sm:mb-3 text-xs">
             <div className="flex items-center text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
-              <Star className="h-3 w-3 fill-amber-400 mr-1" />
-              <span className="font-bold text-[11px] text-amber-300">
+              <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-amber-400 mr-1" />
+              <span className="font-bold text-[10px] sm:text-[11px] text-amber-300">
                 {product.rating ? Number(product.rating).toFixed(1) : "4.9"}
               </span>
             </div>
-            <span className="text-slate-500">
-              ({product.numReviews || "150+"} reviews)
+            <span className="text-slate-500 text-[10px] sm:text-xs truncate">
+              ({product.numReviews || "150+"})
             </span>
           </div>
 
           {/* Amazon-Style Delivery Signal */}
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-300 mb-4 bg-white/[0.03] px-2.5 py-1 rounded-lg border border-white/5 w-fit">
-            <Truck className="h-3.5 w-3.5 text-cyan-300" />
+          <div className="hidden xs:flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300 mb-2.5 sm:mb-4 bg-white/[0.03] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-white/5 w-fit">
+            <Truck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-300" />
             <span>
-              <strong className="text-white font-medium">Next-Day Dispatch</strong> · Insured
+              <strong className="text-white font-medium">Fast Dispatch</strong> · Insured
             </span>
           </div>
 
           {/* Price Block & Action Button */}
-          <div className="mt-auto pt-3 border-t border-white/[0.08] space-y-3">
-            <div className="flex items-baseline justify-between gap-2">
-              <div>
-                <span className="font-heading font-black text-lg sm:text-xl text-white tracking-tight">
+          <div className="mt-auto pt-2 sm:pt-3 border-t border-white/[0.08] space-y-2 sm:space-y-3">
+            <div className="flex items-baseline justify-between gap-1">
+              <div className="truncate">
+                <span className="font-heading font-black text-sm sm:text-base md:text-xl text-white tracking-tight">
                   {formatINR(salePrice)}
                 </span>
                 {regularPrice > salePrice && (
-                  <span className="ml-2 text-xs text-slate-500 line-through">
+                  <span className="ml-1.5 text-[10px] sm:text-xs text-slate-500 line-through">
                     {formatINR(regularPrice)}
                   </span>
                 )}
               </div>
 
               {/* Monthly EMI pill */}
-              <span className="text-[10px] text-slate-400 font-tech">
+              <span className="text-[9px] sm:text-[10px] text-slate-400 font-tech hidden xs:inline shrink-0">
                 or {formatINR(monthlyEmi)}/mo
               </span>
             </div>
@@ -238,7 +238,7 @@ export default function ProductCard({ product }) {
               type="button"
               onClick={handleAddToCart}
               disabled={product.stock === 0}
-              className={`w-full h-10 rounded-xl text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 transition-all duration-200 active:scale-98 shadow-md ${
+              className={`w-full h-8 sm:h-10 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 active:scale-98 shadow-md ${
                 product.stock === 0
                   ? "bg-white/5 text-slate-500 cursor-not-allowed border border-white/5"
                   : isAdded
@@ -250,12 +250,12 @@ export default function ProductCard({ product }) {
                 <span>Out of Stock</span>
               ) : isAdded ? (
                 <>
-                  <Check className="h-4 w-4 stroke-[3]" />
-                  <span>Added to Cart</span>
+                  <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[3]" />
+                  <span>Added</span>
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="h-3.5 w-3.5 text-black" />
+                  <ShoppingBag className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-black" />
                   <span>Add to Cart</span>
                 </>
               )}

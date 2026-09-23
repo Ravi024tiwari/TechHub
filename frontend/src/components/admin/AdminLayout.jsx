@@ -32,8 +32,8 @@ export default function AdminLayout() {
         />
 
         {/* Dynamic Nested Page Content with bottom padding on mobile/tablet for BottomNav */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
-          <Outlet />
+        <main className="flex-1 w-full px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-4 pb-24 lg:pb-4 transition-all duration-300 flex flex-col min-h-0 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
+          <Outlet context={{ isCollapsed, setIsCollapsed }} />
         </main>
 
         {/* Mobile & Tablet App-style Bottom Navigation Dock */}
