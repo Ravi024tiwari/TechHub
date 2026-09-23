@@ -53,7 +53,7 @@ export default function ProductDetails() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#07080a] text-white flex flex-col">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#07080a] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
         <Navbar />
         <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-16 flex-1 flex items-center justify-center">
           <div className="space-y-4 text-center">
@@ -70,7 +70,7 @@ export default function ProductDetails() {
 
   if (isError || !product) {
     return (
-      <div className="min-h-screen bg-[#07080a] text-white flex flex-col">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#07080a] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
         <Navbar />
         <div className="max-w-xl mx-auto px-4 py-24 flex-1 flex flex-col items-center justify-center text-center space-y-6">
           <div className="h-16 w-16 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
@@ -128,7 +128,7 @@ export default function ProductDetails() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050608] text-white flex flex-col selection:bg-white/20 selection:text-white relative">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#050608] text-slate-900 dark:text-white flex flex-col transition-colors duration-300 relative">
       <Navbar />
 
       <main className="flex-1 w-full py-6 sm:py-10 z-10">

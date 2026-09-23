@@ -81,6 +81,50 @@ export const deleteProduct = async (id) => {
   return response.data?.data;
 };
 
+// Fetch single product by ID or Slug for Admin Edit
+export const fetchAdminProductById = async (idOrSlug) => {
+  const response = await apiClient.get(`/products/${idOrSlug}`);
+  return response.data?.data;
+};
+
+// Create a new product with multipart/form-data
+export const createAdminProduct = async (formData) => {
+  const response = await apiClient.post("/products", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data?.data;
+};
+
+// Update existing product with multipart/form-data
+export const updateAdminProduct = async (id, formData) => {
+  const response = await apiClient.patch(`/products/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data?.data;
+};
+
+// Add color variant with images to an existing product
+export const addAdminColorVariant = async (productId, formData) => {
+  const response = await apiClient.post(`/products/${productId}/colors`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data?.data;
+};
+
+// Update color variant
+export const updateAdminColorVariant = async (productId, colorId, formData) => {
+  const response = await apiClient.put(`/products/${productId}/colors/${colorId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data?.data;
+};
+
+// Delete color variant
+export const deleteAdminColorVariant = async (productId, colorId) => {
+  const response = await apiClient.delete(`/products/${productId}/colors/${colorId}`);
+  return response.data?.data;
+};
+
 // ==========================================
 // 📂 Categories Management APIs
 // ==========================================

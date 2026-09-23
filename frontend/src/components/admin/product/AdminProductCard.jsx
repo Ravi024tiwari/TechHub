@@ -50,12 +50,12 @@ export default function AdminProductCard({
   return (
     <div
       onClick={() => navigate(`/admin/products/edit/${product._id}`)}
-      className="group relative rounded-xl sm:rounded-2xl border-2 border-white/25 sm:border-white/15 hover:border-white/50 active:border-white/60 bg-gradient-to-b from-[#141824] via-[#0d1017] to-[#080a0e] shadow-[0_4px_20px_rgba(0,0,0,0.7),_0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),_0_0_25px_rgba(255,255,255,0.18)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer touch-pan-y"
+      className="group relative rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-slate-400 bg-white shadow-sm hover:shadow-lg dark:border-white/25 dark:sm:border-white/15 dark:hover:border-white/50 dark:active:border-white/60 dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7),_0_0_10px_rgba(255,255,255,0.05)] dark:hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),_0_0_25px_rgba(255,255,255,0.18)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer touch-pan-y"
     >
       {/* =========================================================================
           TOP SECTION: Full-Width Image Showcase with Floating Admin Actions
           ========================================================================= */}
-      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-52 lg:h-56 overflow-hidden bg-[#0c0f16] border-b border-white/15 sm:border-white/10">
+      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-52 lg:h-56 overflow-hidden bg-slate-100 dark:bg-[#0c0f16] border-b border-slate-200 dark:border-white/15 sm:dark:border-white/10">
         {/* Product Image */}
         <img
           src={mainImage}
@@ -167,15 +167,15 @@ export default function AdminProductCard({
       {/* =========================================================================
           BOTTOM SECTION: Product Details, Pricing, & SKU
           ========================================================================= */}
-      <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
+      <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3 bg-white dark:bg-transparent">
         <div>
           {/* Brand & SKU */}
-          <div className="flex items-center justify-between text-[9.5px] sm:text-[11px] font-mono text-slate-400 mb-1 gap-1">
-            <span className="font-semibold text-slate-300 truncate">
+          <div className="flex items-center justify-between text-[9.5px] sm:text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-1 gap-1">
+            <span className="font-semibold text-slate-700 dark:text-slate-300 truncate">
               {product.brandName || product.brand?.name || "Brand"}
             </span>
             {product.sku && (
-              <span className="text-slate-500 text-[9px] sm:text-[10px] truncate max-w-[70px] sm:max-w-[100px]">
+              <span className="text-slate-400 dark:text-slate-500 text-[9px] sm:text-[10px] truncate max-w-[70px] sm:max-w-[100px]">
                 {product.sku}
               </span>
             )}
@@ -184,7 +184,7 @@ export default function AdminProductCard({
           {/* Product Title */}
           <h3
             onClick={() => navigate(`/admin/products/edit/${product._id}`)}
-            className="text-xs sm:text-sm font-heading font-bold text-white leading-tight sm:leading-snug line-clamp-2 hover:text-sky-300 transition-colors cursor-pointer min-h-[2rem] sm:min-h-[2.5rem]"
+            className="text-xs sm:text-sm font-heading font-bold text-slate-900 dark:text-white leading-tight sm:leading-snug line-clamp-2 hover:text-sky-600 dark:hover:text-sky-300 transition-colors cursor-pointer min-h-[2rem] sm:min-h-[2.5rem]"
             title={product.title}
           >
             {product.title}
@@ -192,13 +192,13 @@ export default function AdminProductCard({
         </div>
 
         {/* Price Row */}
-        <div className="pt-1.5 sm:pt-2 border-t border-white/10 flex items-baseline justify-between gap-1">
+        <div className="pt-1.5 sm:pt-2 border-t border-slate-200 dark:border-white/10 flex items-baseline justify-between gap-1">
           <div className="flex items-baseline gap-1.5 sm:gap-2 truncate">
-            <span className="text-sm sm:text-base lg:text-lg font-heading font-extrabold text-white font-mono truncate">
+            <span className="text-sm sm:text-base lg:text-lg font-heading font-extrabold text-slate-900 dark:text-white font-mono truncate">
               {formatINR(salePrice)}
             </span>
             {regularPrice > salePrice && (
-              <span className="text-[10px] sm:text-xs text-slate-500 line-through font-mono shrink-0">
+              <span className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 line-through font-mono shrink-0">
                 {formatINR(regularPrice)}
               </span>
             )}
@@ -208,7 +208,7 @@ export default function AdminProductCard({
           <Link
             to={`/admin/products/edit/${product._id}`}
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs font-mono text-slate-400 hover:text-white group/btn shrink-0"
+            className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs font-mono text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white group/btn shrink-0"
           >
             <span>Edit</span>
             <span className="text-[9px] sm:text-[10px] transition-transform group-hover/btn:translate-x-0.5">→</span>

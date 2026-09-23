@@ -9,7 +9,7 @@ export default function AdminLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-white flex">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#08090a] text-slate-900 dark:text-white flex transition-colors duration-300">
       {/* Sidebar (Desktop & Mobile Drawer) */}
       <AdminSidebar
         isMobileOpen={isMobileOpen}

@@ -2,8 +2,11 @@
 @import "./styles/theme.css";
 
 /* ==========================================================================
-   🚀 TECHHAVEN DESIGN SYSTEM: Space Titanium & Modern Electronics Theme
+   🚀 TECHHAVEN DESIGN SYSTEM: Dark & Bright Theme Dual Architecture
    ========================================================================== */
+
+/* Register Tailwind v4 Custom Dark Variant */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* Typography Families */
@@ -29,12 +32,29 @@
   --color-silver-700: #475569;
 }
 
-/* CSS Variables for Global Access */
+/* Bright / Light Mode Tokens (Default) */
 :root {
   --font-heading: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-tech: "JetBrains Mono", monospace;
 
+  --bg-space: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-surface-hover: #e2e8f0;
+
+  --border-metallic: rgba(15, 23, 42, 0.08);
+  --border-glow: rgba(15, 23, 42, 0.16);
+  --border-active: rgba(15, 23, 42, 0.35);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-silver: #334155;
+}
+
+/* Dark Mode Tokens */
+.dark {
   --bg-space: #08090a;
   --bg-surface: #121316;
   --bg-surface-elevated: #18191e;
@@ -56,8 +76,17 @@
 }
 
 html {
-  color-scheme: dark;
   scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.light,
+html:not(.dark) {
+  color-scheme: light;
 }
 
 body {
@@ -69,8 +98,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
-  selection-background-color: rgba(255, 255, 255, 0.2);
-  selection-color: #ffffff;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ==========================================================================
@@ -393,14 +421,24 @@ samp {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.18);
   border-radius: 9999px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(15, 23, 42, 0.35);
 }
 .custom-scrollbar {
   scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.2) transparent;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+.dark .custom-scrollbar {
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 

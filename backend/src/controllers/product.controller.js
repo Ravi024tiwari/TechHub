@@ -613,8 +613,10 @@ export const getLowStockAlerts = asyncHandler(async (req, res) => {
   const lowStockProducts = await Product.find({
     $expr: { $lte: ["$stock", "$lowStockThreshold"] }
   })
+    .populate("category", "name slug icon")
+    .populate("brand", "name slug logo")
     .sort({ stock: 1 })
-    .select("title brand category sku stock lowStockThreshold images regularPrice");
+    .lean({ virtuals: true });
 
   return res.status(200).json(
     new ApiResponse(

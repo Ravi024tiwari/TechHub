@@ -256,17 +256,17 @@ export default function AdminProducts() {
   return (
     <div className="flex-1 flex flex-col min-h-0 space-y-3 h-full overflow-hidden">
       {/* Top Title & Primary Actions */}
-      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/10">
+      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200 dark:border-white/10">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-heading font-extrabold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight">
               Products Inventory
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white/10 text-slate-200 border border-white/15">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-200/80 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-white/15">
               {totalCount.toLocaleString()} items
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Manage electronics catalog, real-time stock allocation, and specs.
           </p>
         </div>
@@ -278,29 +278,29 @@ export default function AdminProducts() {
             onClick={() => setShowDesktopFilters((prev) => !prev)}
             className={`hidden lg:inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono font-medium transition-all border ${
               showDesktopFilters
-                ? "bg-white/[0.08] hover:bg-white/[0.12] text-white border-white/20 shadow-sm"
-                : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border-white/10"
+                ? "bg-slate-200 dark:bg-white/[0.08] hover:bg-slate-300 dark:hover:bg-white/[0.12] text-slate-900 dark:text-white border-slate-300 dark:border-white/20 shadow-sm"
+                : "bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-slate-200 dark:border-white/10"
             }`}
             title={showDesktopFilters ? "Hide Filter Sidebar" : "Show Filter Sidebar"}
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-sky-400" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
             <span>{showDesktopFilters ? "Hide Filters" : "Show Filters"}</span>
             {activeFiltersCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-sky-500 text-black font-bold text-[10px] flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-sky-500 text-white dark:text-black font-bold text-[10px] flex items-center justify-center">
                 {activeFiltersCount}
               </span>
             )}
           </button>
 
           {/* View Mode Toggle */}
-          <div className="hidden sm:flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/10">
+          <div className="hidden sm:flex items-center p-1 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10">
             <button
               type="button"
               onClick={() => setViewMode("grid")}
               className={`p-1.5 rounded-lg transition-colors ${
                 viewMode === "grid"
-                  ? "bg-white text-black font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-black font-bold shadow-sm"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
               title="Card Grid View"
             >
@@ -311,8 +311,8 @@ export default function AdminProducts() {
               onClick={() => setViewMode("table")}
               className={`p-1.5 rounded-lg transition-colors ${
                 viewMode === "table"
-                  ? "bg-white text-black font-bold shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-black font-bold shadow-sm"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
               title="Table Inventory View"
             >
@@ -323,7 +323,7 @@ export default function AdminProducts() {
           {/* Add Product CTA */}
           <Link
             to="/admin/products/new"
-            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-slate-200 transition-all shadow-md shadow-white/10"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 transition-all shadow-md shadow-slate-900/10 dark:shadow-white/10"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -335,19 +335,19 @@ export default function AdminProducts() {
       <div className="shrink-0 glass-card p-2.5 sm:p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             placeholder="Search products by title, brand, SKU, processor..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-9 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-colors"
+            className="w-full pl-10 pr-9 py-2 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-slate-400 dark:focus:border-white/30 transition-colors"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white"
             >
               <X className="w-3.5 h-3.5" />
             </button>

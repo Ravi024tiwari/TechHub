@@ -17,6 +17,7 @@ import NavSearchAutocomplete from "./NavSearchAutocomplete";
 import NavCategoriesMegaMenu from "./NavCategoriesMegaMenu";
 import NavMiniCartPopover from "./NavMiniCartPopover";
 import NavUserMenu from "./NavUserMenu";
+import ThemeToggle from "../common/ThemeToggle";
 
 /**
  * Enterprise Flagship Silver Navbar:
@@ -58,8 +59,8 @@ export default function Navbar() {
         <header
           className={`w-full backdrop-blur-2xl border-b-2 transition-all duration-300 ${
             isScrolled
-              ? "bg-[#090c13]/98 border-slate-300/40 shadow-[0_12px_45px_rgba(0,0,0,0.95),0_2px_20px_rgba(203,213,225,0.12)]"
-              : "bg-gradient-to-r from-[#0c0f17]/95 via-[#161c28]/95 to-[#0c0f17]/95 border-slate-400/30 shadow-[0_4px_35px_rgba(0,0,0,0.85),0_1px_15px_rgba(203,213,225,0.08)]"
+              ? "bg-white/95 dark:bg-[#090c13]/98 border-slate-200 dark:border-slate-300/40 shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_45px_rgba(0,0,0,0.95),0_2px_20px_rgba(203,213,225,0.12)]"
+              : "bg-white/85 dark:bg-gradient-to-r dark:from-[#0c0f17]/95 dark:via-[#161c28]/95 dark:to-[#0c0f17]/95 border-slate-200 dark:border-slate-400/30 shadow-[0_2px_15px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_35px_rgba(0,0,0,0.85),0_1px_15px_rgba(203,213,225,0.08)]"
           }`}
         >
           {/* Ambient Silver Specular Beam Line */}
@@ -154,7 +155,7 @@ export default function Navbar() {
             <Link
               to="/wishlist"
               aria-label="Wishlist"
-              className="relative p-2 sm:p-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.06] transition-colors flex items-center justify-center group"
+              className="relative p-2 sm:p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-center group"
             >
               <Heart className="h-5 w-5 group-hover:scale-110 group-hover:text-red-400 transition-all" />
               {wishlistCount > 0 && (
@@ -163,6 +164,9 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+
+            {/* Bright / Dark Theme Switcher Button */}
+            <ThemeToggle compact={true} />
 
             {/* Interactive Mini-Cart Popover */}
             <NavMiniCartPopover />

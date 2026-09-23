@@ -15,6 +15,8 @@ const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./components/common/NotFound"));
 
+import { useThemeStore } from "./store/useThemeStore";
+
 // Admin Control Center (Lazy-loaded)
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -26,6 +28,12 @@ const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminTaxonomy = lazy(() => import("./pages/admin/AdminTaxonomy"));
 
 export default function App() {
+  const initTheme = useThemeStore((state) => state.initTheme);
+
+  React.useEffect(() => {
+    initTheme();
+  }, [initTheme]);
+
   return (
     <BrowserRouter>
       {/* Automatically scrolls to top on route change */}

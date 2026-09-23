@@ -83,12 +83,12 @@ export default function ProductCard({ product }) {
   return (
     <div
       onClick={handleCardClick}
-      className="group relative rounded-xl sm:rounded-2xl border-2 border-white/25 sm:border-slate-400/40 hover:border-white/60 active:border-white/70 bg-gradient-to-b from-[#141824] via-[#0d1017] to-[#080a0e] shadow-[0_4px_25px_rgba(0,0,0,0.8),_0_0_15px_rgba(255,255,255,0.08)] hover:shadow-[0_16px_45px_-10px_rgba(0,0,0,0.9),_0_0_30px_rgba(255,255,255,0.22)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer select-none"
+      className="group relative rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-slate-400 bg-white shadow-sm hover:shadow-xl dark:border-white/25 dark:sm:border-slate-400/40 dark:hover:border-white/60 dark:active:border-white/70 dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] dark:shadow-[0_4px_25px_rgba(0,0,0,0.8),_0_0_15px_rgba(255,255,255,0.08)] dark:hover:shadow-[0_16px_45px_-10px_rgba(0,0,0,0.9),_0_0_30px_rgba(255,255,255,0.22)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer select-none"
     >
       {/* =========================================================================
           TOP SECTION: Full-Width Edge-to-Edge Image Showcase
           ========================================================================= */}
-      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-64 lg:h-72 overflow-hidden bg-[#0c0f16] border-b border-slate-400/30">
+      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-64 lg:h-72 overflow-hidden bg-slate-100 dark:bg-[#0c0f16] border-b border-slate-200 dark:border-slate-400/30">
           {/* Product Image - Full Width & Height Cover */}
           <img
             src={mainImage}
@@ -98,7 +98,7 @@ export default function ProductCard({ product }) {
           />
 
           {/* Cinematic Top and Bottom Gradient Vignettes for Badge Readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0d1017] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70 dark:to-[#0d1017] pointer-events-none" />
 
           {/* Floating Badges (Top-Left) */}
           <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 z-10 flex items-center gap-1 sm:gap-1.5 pointer-events-none max-w-[70%]">
@@ -149,29 +149,29 @@ export default function ProductCard({ product }) {
         {/* =========================================================================
             BOTTOM SECTION: Metadata, Amazon Delivery Signal, Price & Action CTA
             ========================================================================= */}
-        <div className="p-2.5 sm:p-4 md:p-5 flex flex-col flex-1">
+        <div className="p-2.5 sm:p-4 md:p-5 flex flex-col flex-1 bg-white dark:bg-transparent">
           {/* Brand & Stock Pill */}
           <div className="flex items-center justify-between gap-1.5 mb-1 sm:mb-1.5">
-            <span className="text-[9.5px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
+            <span className="text-[9.5px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
               {product.brandName || product.brand?.name || "AUTHENTIC"}
             </span>
 
             <span
               className={`text-[9px] sm:text-[10px] font-semibold flex items-center gap-1 shrink-0 ${
                 (product.stock ?? 1) <= 0
-                  ? "text-red-400 font-bold"
+                  ? "text-red-500 dark:text-red-400 font-bold"
                   : (product.stock ?? 1) <= 5
-                  ? "text-amber-400 font-mono font-bold"
-                  : "text-emerald-400"
+                  ? "text-amber-500 dark:text-amber-400 font-mono font-bold"
+                  : "text-emerald-600 dark:text-emerald-400"
               }`}
             >
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
                   (product.stock ?? 1) <= 0
-                    ? "bg-red-400"
+                    ? "bg-red-500 dark:bg-red-400"
                     : (product.stock ?? 1) <= 5
-                    ? "bg-amber-400 animate-ping"
-                    : "bg-emerald-400"
+                    ? "bg-amber-500 dark:bg-amber-400 animate-ping"
+                    : "bg-emerald-500 dark:bg-emerald-400"
                 }`}
               />
               <span className="hidden xs:inline">
@@ -186,7 +186,7 @@ export default function ProductCard({ product }) {
 
           {/* Product Title */}
           <h3
-            className="font-heading font-semibold text-xs sm:text-sm md:text-base text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight sm:leading-snug mb-1.5 sm:mb-2 min-h-[2rem] sm:min-h-[2.6rem]"
+            className="font-heading font-semibold text-xs sm:text-sm md:text-base text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight sm:leading-snug mb-1.5 sm:mb-2 min-h-[2rem] sm:min-h-[2.6rem]"
             title={product.title}
           >
             {product.title}
@@ -194,41 +194,41 @@ export default function ProductCard({ product }) {
 
           {/* Ratings & Reviews */}
           <div className="flex items-center gap-1.5 mb-2 sm:mb-3 text-xs">
-            <div className="flex items-center text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
+            <div className="flex items-center text-amber-500 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
               <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-amber-400 mr-1" />
-              <span className="font-bold text-[10px] sm:text-[11px] text-amber-300">
+              <span className="font-bold text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-300">
                 {product.rating ? Number(product.rating).toFixed(1) : "4.9"}
               </span>
             </div>
-            <span className="text-slate-500 text-[10px] sm:text-xs truncate">
+            <span className="text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs truncate">
               ({product.numReviews || "150+"})
             </span>
           </div>
 
           {/* Amazon-Style Delivery Signal */}
-          <div className="hidden xs:flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300 mb-2.5 sm:mb-4 bg-white/[0.03] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-white/5 w-fit">
-            <Truck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-300" />
+          <div className="hidden xs:flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 mb-2.5 sm:mb-4 bg-slate-100 dark:bg-white/[0.03] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-slate-200 dark:border-white/5 w-fit">
+            <Truck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-600 dark:text-cyan-300" />
             <span>
-              <strong className="text-white font-medium">Fast Dispatch</strong> · Insured
+              <strong className="text-slate-800 dark:text-white font-medium">Fast Dispatch</strong> · Insured
             </span>
           </div>
 
           {/* Price Block & Action Button */}
-          <div className="mt-auto pt-2 sm:pt-3 border-t border-white/[0.08] space-y-2 sm:space-y-3">
+          <div className="mt-auto pt-2 sm:pt-3 border-t border-slate-200 dark:border-white/[0.08] space-y-2 sm:space-y-3">
             <div className="flex items-baseline justify-between gap-1">
               <div className="truncate">
-                <span className="font-heading font-black text-sm sm:text-base md:text-xl text-white tracking-tight">
+                <span className="font-heading font-black text-sm sm:text-base md:text-xl text-slate-900 dark:text-white tracking-tight">
                   {formatINR(salePrice)}
                 </span>
                 {regularPrice > salePrice && (
-                  <span className="ml-1.5 text-[10px] sm:text-xs text-slate-500 line-through">
+                  <span className="ml-1.5 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 line-through">
                     {formatINR(regularPrice)}
                   </span>
                 )}
               </div>
 
               {/* Monthly EMI pill */}
-              <span className="text-[9px] sm:text-[10px] text-slate-400 font-tech hidden xs:inline shrink-0">
+              <span className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-tech hidden xs:inline shrink-0">
                 or {formatINR(monthlyEmi)}/mo
               </span>
             </div>
@@ -240,10 +240,10 @@ export default function ProductCard({ product }) {
               disabled={product.stock === 0}
               className={`w-full h-8 sm:h-10 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 active:scale-98 shadow-md ${
                 product.stock === 0
-                  ? "bg-white/5 text-slate-500 cursor-not-allowed border border-white/5"
+                  ? "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-white/5"
                   : isAdded
-                  ? "bg-emerald-500 text-black border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)] cursor-pointer"
-                  : "bg-white text-black hover:bg-slate-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] cursor-pointer"
+                  ? "bg-emerald-500 text-white dark:text-black border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)] cursor-pointer"
+                  : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 shadow-md cursor-pointer"
               }`}
             >
               {product.stock === 0 ? (
@@ -255,7 +255,7 @@ export default function ProductCard({ product }) {
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-black" />
+                  <ShoppingBag className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white dark:text-black" />
                   <span>Add to Cart</span>
                 </>
               )}

@@ -17,6 +17,7 @@ import {
   UserCheck
 } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
+import ThemeToggle from "../common/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -43,7 +44,7 @@ export default function AdminHeader({
   };
 
   return (
-    <header className="h-16 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 bg-[#08090a]/80 backdrop-blur-xl border-b border-white/10">
+    <header className="h-16 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 bg-white/80 dark:bg-[#08090a]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 transition-colors">
       {/* Left section: Sidebar Toggles & Search */}
       <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl">
         {/* Mobile Hamburger toggle */}
@@ -115,12 +116,15 @@ export default function AdminHeader({
           to="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 bg-white/[0.05] hover:bg-white/[0.1] hover:text-white border border-white/10 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 bg-black/5 dark:bg-white/[0.05] hover:bg-black/10 dark:hover:bg-white/[0.1] hover:text-black dark:hover:text-white border border-slate-300 dark:border-white/10 transition-colors"
           title="Open customer storefront in a new tab"
         >
-          <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+          <ExternalLink className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
           <span className="hidden md:inline">Live Store</span>
         </Link>
+
+        {/* Theme Switcher Toggle (Bright / Dark) */}
+        <ThemeToggle />
 
         {/* User Profile Section with Shadcn Dropdown Menu */}
         <div className="pl-1 sm:pl-2 border-l border-white/10">

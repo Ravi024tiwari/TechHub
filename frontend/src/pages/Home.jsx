@@ -30,7 +30,7 @@ export default function Home() {
   const laptopProducts = laptopsData?.products || [];
 
   return (
-    <div className="min-h-screen w-full bg-[#050608] text-white flex flex-col selection:bg-white/20 selection:text-white relative overflow-x-clip">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#050608] text-slate-900 dark:text-white flex flex-col transition-colors duration-300 relative overflow-x-clip">
       {/* Universal Desktop & Mobile Header */}
       <Navbar />
 
