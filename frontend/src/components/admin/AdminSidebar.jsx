@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -78,6 +78,61 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
   const navigate = useNavigate();
   const location = useLocation();
 
+  const asideRef = useRef(null);
+  const navScrollRef = useRef(null);
+
+  // Mobile Drawer: Lock body scrolling when open so touch events don't scroll background page
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [isMobileOpen]);
+
+  // Desktop & Tablet: Strict wheel event isolation
+  // Prevents mouse wheel scrolling over the sidebar from bubbling or causing the main page to scroll
+  useEffect(() => {
+    const asideEl = asideRef.current;
+    if (!asideEl) return;
+
+    const handleWheel = (e) => {
+      const navEl = navScrollRef.current;
+      if (!navEl) {
+        e.preventDefault();
+        return;
+      }
+
+      const hasOverflow = navEl.scrollHeight > navEl.clientHeight;
+      if (!hasOverflow) {
+        // If sidebar navigation fits entirely on screen, stop wheel event completely so page NEVER moves
+        e.preventDefault();
+        return;
+      }
+
+      // If at top and scrolling up, prevent bubbling to page
+      if (navEl.scrollTop <= 0 && e.deltaY < 0) {
+        e.preventDefault();
+        return;
+      }
+
+      // If at bottom and scrolling down, prevent bubbling to page
+      if (navEl.scrollTop + navEl.clientHeight >= navEl.scrollHeight - 1 && e.deltaY > 0) {
+        e.preventDefault();
+        return;
+      }
+    };
+
+    asideEl.addEventListener("wheel", handleWheel, { passive: false });
+    return () => asideEl.removeEventListener("wheel", handleWheel);
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
@@ -96,13 +151,15 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
         <div
           className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={() => setIsMobileOpen(false)}
+          onTouchMove={(e) => e.preventDefault()}
           aria-hidden="true"
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white dark:bg-[#08090a] border-r border-slate-200 dark:border-white/10 transition-all duration-300 ease-in-out
+        ref={asideRef}
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white dark:bg-[#08090a] border-r border-slate-200 dark:border-white/10 transition-all duration-300 ease-in-out overscroll-contain
           ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           ${isCollapsed ? "lg:w-20" : "w-64 lg:w-72"}
         `}
@@ -144,8 +201,11 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
           </button>
         </div>
 
-        {/* Scrollable Navigation Menu */}
-        <div className="flex-1 overflow-y-auto px-3.5 py-5 space-y-6 custom-scrollbar">
+        {/* Scrollable Navigation Menu with independent scrollbar & touch handling */}
+        <div
+          ref={navScrollRef}
+          className="flex-1 overflow-y-auto overscroll-contain px-3.5 py-5 space-y-6 custom-scrollbar touch-pan-y"
+        >
           {navSections.map((section, idx) => (
             <div key={idx} className="space-y-1.5">
               {!isCollapsed && (

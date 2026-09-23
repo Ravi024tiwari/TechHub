@@ -82,21 +82,21 @@ export default function Navbar() {
               type="button"
               onClick={() => setIsDrawerOpen(true)}
               aria-label="Open mobile navigation"
-              className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              className="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             {/* Brand Logo with Brushed Silver Frame */}
             <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group">
-              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-white/30 via-slate-200/20 to-slate-400/10 border-2 border-slate-300/40 flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.15)] group-hover:scale-105 group-hover:border-slate-200 transition-all">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-slate-900 dark:bg-gradient-to-br dark:from-white/30 dark:via-slate-200/20 dark:to-slate-400/10 border-2 border-slate-800 dark:border-slate-300/40 flex items-center justify-center shadow-md dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] group-hover:scale-105 transition-all">
                 <Cpu className="h-5 w-5 text-white" />
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-heading font-extrabold text-lg sm:text-xl tracking-tight text-white leading-none group-hover:text-slate-200 transition-colors">
+                <span className="font-heading font-extrabold text-lg sm:text-xl tracking-tight text-slate-950 dark:text-white leading-none group-hover:text-sky-600 dark:group-hover:text-slate-200 transition-colors">
                   TECHHUB
                 </span>
-                <span className="text-[9px] font-tech uppercase tracking-widest text-slate-300 hidden sm:block mt-0.5 font-medium">
+                <span className="text-[9px] font-tech uppercase tracking-widest text-slate-500 dark:text-slate-300 hidden sm:block mt-0.5 font-medium">
                   Precision Electronics
                 </span>
               </div>
@@ -133,10 +133,10 @@ export default function Navbar() {
               type="button"
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
               aria-label="Toggle mobile search"
-              className="md:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              className="md:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
             >
               {isMobileSearchOpen ? (
-                <X className="h-5 w-5 text-cyan-400" />
+                <X className="h-5 w-5 text-cyan-500" />
               ) : (
                 <Search className="h-5 w-5" />
               )}
@@ -145,9 +145,9 @@ export default function Navbar() {
             {/* Orders Link (Large Desktop Screens) */}
             <Link
               to="/orders"
-              className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/[0.06] transition-colors"
+              className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
             >
-              <Package className="h-4 w-4 text-slate-400" />
+              <Package className="h-4 w-4 text-slate-500 dark:text-slate-400" />
               <span>Orders</span>
             </Link>
 
@@ -155,9 +155,9 @@ export default function Navbar() {
             <Link
               to="/wishlist"
               aria-label="Wishlist"
-              className="relative p-2 sm:p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-center group"
+              className="relative p-2 sm:p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors flex items-center justify-center group"
             >
-              <Heart className="h-5 w-5 group-hover:scale-110 group-hover:text-red-400 transition-all" />
+              <Heart className="h-5 w-5 group-hover:scale-110 group-hover:text-red-500 transition-all" />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center animate-in zoom-in shadow-md">
                   {wishlistCount}
@@ -178,13 +178,13 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold bg-white text-black hover:bg-slate-200 shadow-[0_0_15px_rgba(255,255,255,0.15)] transition-all hover:scale-105"
+                  className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-heading font-extrabold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 border border-slate-900 dark:border-white shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
-                  className="hidden sm:inline-block px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/15 transition-all"
+                  className="hidden sm:inline-block px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-heading font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 border border-slate-300 dark:border-white/15 transition-all active:scale-95 cursor-pointer"
                 >
                   Sign Up
                 </Link>
