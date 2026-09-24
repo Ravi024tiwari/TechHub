@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Cpu,
-  Search,
   Heart,
   Menu,
-  X,
   Package,
   Flame,
 } from "lucide-react";
@@ -13,7 +11,6 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import MobileDrawer from "./MobileDrawer";
 import TopAnnouncementBar from "./TopAnnouncementBar";
-import NavSearchAutocomplete from "./NavSearchAutocomplete";
 import NavCategoriesMegaMenu from "./NavCategoriesMegaMenu";
 import NavMiniCartPopover from "./NavMiniCartPopover";
 import NavUserMenu from "./NavUserMenu";
@@ -25,13 +22,11 @@ import ThemeToggle from "../common/ThemeToggle";
  * - Spans full width of the screen (w-full) with edge-to-edge breathing room.
  * - Brushed silver metallic background with ambient radiant silver light beam.
  * - Authenticated user avatar with rich interactive dropdown menu.
- * - Live debounced search with typeahead autocomplete, trending chips, and keyboard shortcut (Ctrl+K).
  * - Interactive "Categories" Mega Menu with hardware tiles and spotlight deal.
  * - Interactive Mini-Cart Popover with real-time items, subtotal, and checkout CTAs.
  */
 export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Zustand State (0ms Instant updates)
@@ -118,30 +113,9 @@ export default function Navbar() {
           </div>
 
           {/* =========================================================
-              CENTER: Live Autocomplete Search (Desktop & Tablet)
-              ========================================================= */}
-          <div className="hidden md:flex flex-1 items-center justify-center max-w-xl lg:max-w-2xl mx-2">
-            <NavSearchAutocomplete />
-          </div>
-
-          {/* =========================================================
-              RIGHT: Mobile Search Trigger, Wishlist, Mini Cart & User
+              RIGHT: Orders, Wishlist, Theme, Mini Cart & User
               ========================================================= */}
           <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
-            {/* Mobile Search Toggle Button (< md screens) */}
-            <button
-              type="button"
-              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              aria-label="Toggle mobile search"
-              className="md:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              {isMobileSearchOpen ? (
-                <X className="h-5 w-5 text-cyan-500" />
-              ) : (
-                <Search className="h-5 w-5" />
-              )}
-            </button>
-
             {/* Orders Link (Large Desktop Screens) */}
             <Link
               to="/orders"
@@ -192,16 +166,6 @@ export default function Navbar() {
             )}
           </div>
         </div>
-
-        {/* Mobile Expandable Search Bar Drawer (< md screens) */}
-        {isMobileSearchOpen && (
-          <div className="md:hidden px-4 pb-3 pt-1 border-t border-slate-400/20 bg-[#0c0f17]/95 backdrop-blur-2xl animate-in slide-in-from-top-2 duration-150">
-            <NavSearchAutocomplete
-              isMobile={true}
-              onCloseMobile={() => setIsMobileSearchOpen(false)}
-            />
-          </div>
-        )}
       </header>
       </div>
 
