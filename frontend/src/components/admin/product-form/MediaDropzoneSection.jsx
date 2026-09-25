@@ -182,19 +182,18 @@ export default function MediaDropzoneSection({
                   alt="Product"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveExistingImage(idx);
-                    }}
-                    className="p-1.5 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition-colors"
-                    title="Remove Image"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                {/* Delete Button (Accessible on mobile touch & desktop hover) */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveExistingImage(idx);
+                  }}
+                  className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/70 hover:bg-rose-500 text-white backdrop-blur-md transition-all cursor-pointer shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                  title="Remove Image"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
                 {idx === 0 && (
                   <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-sky-500 text-white dark:text-black text-[9px] font-mono font-bold uppercase shadow-sm">
                     Primary

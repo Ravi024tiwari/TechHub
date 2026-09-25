@@ -1,7 +1,11 @@
 import React from "react";
 import { IndianRupee, Boxes, AlertTriangle, Percent, ArrowDownRight } from "lucide-react";
 
-export default function PricingStockSection({ formData, setFormData }) {
+export default function PricingStockSection({
+  formData,
+  setFormData,
+  colorVariants = [],
+}) {
   const regularPrice = Number(formData.regularPrice) || 0;
   const salePrice = formData.salePrice !== "" && formData.salePrice !== null ? Number(formData.salePrice) : null;
 
@@ -120,11 +124,18 @@ export default function PricingStockSection({ formData, setFormData }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2 border-t border-slate-200/60 dark:border-white/5">
         {/* Available Stock */}
         <div className="space-y-1.5">
-          <label className="text-xs font-mono uppercase tracking-wider text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1.5">
-            <Boxes className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
-            <span>Available Inventory Units</span>
-            <span className="text-rose-500 dark:text-rose-400">*</span>
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-mono uppercase tracking-wider text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1.5">
+              <Boxes className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+              <span>Available Inventory Units</span>
+              <span className="text-rose-500 dark:text-rose-400">*</span>
+            </label>
+            {colorVariants.length > 0 && (
+              <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                <span>⚡ Auto-synced</span>
+              </span>
+            )}
+          </div>
           <input
             type="number"
             min={0}
@@ -136,7 +147,9 @@ export default function PricingStockSection({ formData, setFormData }) {
             className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 dark:bg-[#090b10] border border-slate-200 dark:border-white/15 focus:border-sky-500 dark:focus:border-sky-400 text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all outline-none"
           />
           <p className="text-[10px] sm:text-[11px] font-mono text-slate-500">
-            Base stock quantity if color variants are not configured.
+            {colorVariants.length > 0
+              ? `Auto-computed as sum of all ${colorVariants.length} color finishes (${formData.stock} total units).`
+              : "Base stock quantity if color variants are not configured."}
           </p>
         </div>
 
