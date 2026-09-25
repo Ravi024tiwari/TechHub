@@ -1,22 +1,45 @@
 import React, { useState } from "react";
-import { Eye, Star, Boxes, Sparkles, CheckCircle2, AlertCircle, ShoppingBag } from "lucide-react";
+import {
+  Eye,
+  Star,
+  Boxes,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  ShoppingBag,
+  ExternalLink,
+  ChevronRight,
+  Globe,
+} from "lucide-react";
 
 export default function LiveProductPreview({
   formData,
   primaryPreviewUrl,
   colorVariants = [],
   specifications = {},
+  isEditMode = false,
+  productId = null,
+  productSlug = null,
+  onJumpToSection = null,
 }) {
   const [selectedColorIdx, setSelectedColorIdx] = useState(0);
 
   const regularPrice = Number(formData.regularPrice) || 0;
-  const salePrice = formData.salePrice !== "" && formData.salePrice !== null ? Number(formData.salePrice) : null;
+  const salePrice =
+    formData.salePrice !== "" && formData.salePrice !== null
+      ? Number(formData.salePrice)
+      : null;
   const discountPercent =
     regularPrice > 0 && salePrice !== null && salePrice < regularPrice
       ? Math.round(((regularPrice - salePrice) / regularPrice) * 100)
       : 0;
 
   const stock = Number(formData.stock) || 0;
+
+  // Active color variant if any
+  const activeColor = colorVariants[selectedColorIdx] || colorVariants[0] || null;
+  const currentStock = activeColor ? (Number(activeColor.stock) || 0) : stock;
+  const effectivePrice = activeColor?.priceOverride != null ? Number(activeColor.priceOverride) : (salePrice ?? regularPrice);
 
   // Format currency helper
   const formatINR = (val) =>
@@ -26,42 +49,68 @@ export default function LiveProductPreview({
       maximumFractionDigits: 0,
     }).format(val || 0);
 
-  // Active color variant if any
-  const activeColor = colorVariants[selectedColorIdx] || colorVariants[0] || null;
-
-  // Completion checklist items
+  // Completion checklist items with targeted section IDs for jump
   const checklist = [
-    { label: "Product Title", ok: Boolean(formData.title?.trim().length >= 3) },
-    { label: "Category Selected", ok: Boolean(formData.category) },
-    { label: "Brand Selected", ok: Boolean(formData.brand) },
-    { label: "Regular Price (MRP)", ok: regularPrice > 0 },
-    { label: "Product Photo", ok: Boolean(primaryPreviewUrl) },
+    {
+      label: "Product Title",
+      ok: Boolean(formData.title?.trim().length >= 3),
+      sectionId: "section-general",
+    },
+    {
+      label: "Category Selected",
+      ok: Boolean(formData.category),
+      sectionId: "section-general",
+    },
+    {
+      label: "Brand Selected",
+      ok: Boolean(formData.brand),
+      sectionId: "section-general",
+    },
+    {
+      label: "Regular Price (MRP)",
+      ok: regularPrice > 0,
+      sectionId: "section-pricing",
+    },
+    {
+      label: "Product Photo",
+      ok: Boolean(primaryPreviewUrl),
+      sectionId: "section-media",
+    },
   ];
 
   const completedCount = checklist.filter((c) => c.ok).length;
   const isReady = completedCount === checklist.length;
 
+  const resolvedSlug = productSlug || productId || "";
+  const publicStoreUrl = resolvedSlug ? `/product/${resolvedSlug}` : null;
+
   return (
-    <div className="space-y-3 sm:space-y-4 lg:sticky lg:top-6">
-      {/* Header */}
+    <div className="space-y-3 sm:space-y-4 lg:sticky lg:top-[128px]">
+      {/* Header Bar */}
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-mono uppercase tracking-wider text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5">
           <Eye className="w-4 h-4 text-sky-500 dark:text-sky-400" />
-          <span>Live Storefront Preview</span>
-        </h3>
-        <span
-          className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold border ${
-            isReady
-              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
-              : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
-          }`}
-        >
-          {completedCount} / {checklist.length} Required
-        </span>
+          <h3 className="text-xs font-mono uppercase tracking-wider text-slate-700 dark:text-slate-300 font-bold">
+            Live Storefront Preview
+          </h3>
+        </div>
+
+        {isEditMode && publicStoreUrl && (
+          <a
+            href={publicStoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[11px] font-mono text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-bold transition-colors group cursor-pointer"
+            title="Open customer view in new tab"
+          >
+            <span>Live Store</span>
+            <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+        )}
       </div>
 
       {/* Realistic Interactive Store Product Card */}
-      <div className="relative rounded-2xl border-2 border-slate-200 dark:border-white/25 bg-white dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.9),_0_0_20px_rgba(255,255,255,0.06)] overflow-hidden transition-all duration-300 group">
+      <div className="relative rounded-2xl border-2 border-slate-200 dark:border-white/20 bg-white dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.8),_0_0_20px_rgba(255,255,255,0.05)] overflow-hidden transition-all duration-300 group">
         {/* Top Image Box */}
         <div className="relative w-full aspect-[4/3] bg-slate-100 dark:bg-[#0c0f16] border-b border-slate-200 dark:border-white/15 overflow-hidden flex items-center justify-center">
           {primaryPreviewUrl ? (
@@ -108,15 +157,21 @@ export default function LiveProductPreview({
           <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
             <span
               className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold backdrop-blur-md border flex items-center gap-1 shadow-sm ${
-                stock <= 0
+                currentStock <= 0
                   ? "bg-rose-500/25 text-rose-300 border-rose-500/40"
-                  : stock <= 5
+                  : currentStock <= 5
                   ? "bg-amber-500/25 text-amber-300 border-amber-500/40"
                   : "bg-emerald-500/25 text-emerald-300 border-emerald-500/40"
               }`}
             >
               <Boxes className="w-3 h-3" />
-              <span>{stock <= 0 ? "Out of Stock" : `Stock: ${stock}`}</span>
+              <span>
+                {currentStock <= 0
+                  ? "Out of Stock"
+                  : activeColor
+                  ? `${activeColor.colorName}: ${currentStock}u`
+                  : `Stock: ${currentStock}`}
+              </span>
             </span>
 
             <span
@@ -155,7 +210,18 @@ export default function LiveProductPreview({
             <div className="space-y-1.5 pt-1 border-t border-slate-200 dark:border-white/5">
               <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
                 <span>Color Finish:</span>
-                <span className="text-slate-900 dark:text-white font-semibold">{activeColor?.colorName || "Standard"}</span>
+                <span className="text-slate-900 dark:text-white font-semibold">
+                  {activeColor?.colorName || "Standard"}
+                  <span className={`ml-1 font-bold ${
+                    currentStock <= 0
+                      ? "text-rose-500"
+                      : currentStock <= 5
+                      ? "text-amber-500"
+                      : "text-emerald-500"
+                  }`}>
+                    ({currentStock <= 0 ? "Out of Stock" : `${currentStock} in stock`})
+                  </span>
+                </span>
               </div>
 
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -202,26 +268,74 @@ export default function LiveProductPreview({
         </div>
       </div>
 
-      {/* Validation Checklist Card */}
-      <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#090b10] space-y-2">
-        <h4 className="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
-          Publication Readiness Checklist
-        </h4>
-        <div className="space-y-1.5">
+      {/* Public URL Direct Route Card (In Edit Mode) */}
+      {isEditMode && publicStoreUrl && (
+        <div className="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#090b10] flex items-center justify-between gap-2 text-xs font-mono">
+          <div className="flex items-center gap-2 min-w-0">
+            <Globe className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+            <span className="text-slate-400 truncate">
+              /product/{productSlug || productId}
+            </span>
+          </div>
+          <a
+            href={publicStoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5 shrink-0"
+          >
+            <span>Visit</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </a>
+        </div>
+      )}
+
+      {/* Validation Checklist Card with Clickable Jump Targets */}
+      <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#090b10] space-y-2.5">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
+            Publication Checklist
+          </h4>
+          <span
+            className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold border ${
+              isReady
+                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
+                : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
+            }`}
+          >
+            {completedCount} / {checklist.length}
+          </span>
+        </div>
+
+        <div className="space-y-1">
           {checklist.map((item) => (
-            <div
+            <button
               key={item.label}
-              className="flex items-center justify-between text-xs font-mono"
+              type="button"
+              onClick={() => onJumpToSection && onJumpToSection(item.sectionId)}
+              className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-xs font-mono hover:bg-slate-200/60 dark:hover:bg-white/5 transition-colors group cursor-pointer text-left"
+              title={`Click to jump to ${item.label} section`}
             >
-              <span className={item.ok ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}>
-                {item.label}
-              </span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span
+                  className={
+                    item.ok
+                      ? "text-slate-700 dark:text-slate-300 font-medium"
+                      : "text-slate-400 dark:text-slate-500"
+                  }
+                >
+                  {item.label}
+                </span>
+                <ChevronRight className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+
               {item.ok ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
               ) : (
-                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">Required</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold shrink-0">
+                  Required
+                </span>
               )}
-            </div>
+            </button>
           ))}
         </div>
       </div>
