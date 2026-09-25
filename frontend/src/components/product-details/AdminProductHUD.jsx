@@ -27,9 +27,9 @@ export default function AdminProductHUD({ product, currentStock, onStockUpdated 
       {/* =========================================================================
           INTEGRATED PROFESSIONAL ADMIN ACTION CLUSTER (Clean, responsive, interactive)
           ========================================================================= */}
-      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 self-start sm:self-auto flex-wrap">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 self-start sm:self-auto overflow-x-auto scrollbar-none py-0.5 max-w-full">
         {/* Admin Telemetry Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-300 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 text-xs font-mono font-bold shadow-xs">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-300 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 text-[11px] sm:text-xs font-mono font-bold shadow-xs shrink-0">
           <span className="relative flex h-2 w-2 shrink-0">
             <span
               className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -42,7 +42,7 @@ export default function AdminProductHUD({ product, currentStock, onStockUpdated 
               }`}
             />
           </span>
-          <ShieldAlert className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+          <ShieldAlert className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 dark:text-sky-400" />
           <span>ADMIN</span>
           <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold pl-1.5 border-l border-sky-300 dark:border-sky-500/30">
             {isOut ? "0 Stock" : `${stock} Units`}
@@ -53,21 +53,21 @@ export default function AdminProductHUD({ product, currentStock, onStockUpdated 
         <button
           type="button"
           onClick={() => setIsStockModalOpen(true)}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-white hover:bg-slate-100 dark:bg-white/10 dark:hover:bg-white/20 text-slate-900 dark:text-white border-2 border-slate-300 dark:border-white/15 shadow-sm transition-all active:scale-95 cursor-pointer"
+          className="inline-flex items-center justify-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-mono font-bold bg-white hover:bg-slate-100 dark:bg-white/10 dark:hover:bg-white/20 text-slate-900 dark:text-white border-2 border-slate-300 dark:border-white/15 shadow-sm transition-all active:scale-95 cursor-pointer shrink-0"
           title="Quick inventory stock override"
         >
-          <Boxes className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
-          <span>Adjust Stock</span>
+          <Boxes className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-500 dark:text-sky-400" />
+          <span>Stock</span>
         </button>
 
         {/* Action 2: Edit in Studio Link */}
         <Link
           to={`/admin/products/edit/${product._id}`}
-          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-mono font-extrabold bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-md shadow-sky-500/25 transition-all active:scale-95 cursor-pointer"
+          className="inline-flex items-center justify-center gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-mono font-extrabold bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-md shadow-sky-500/25 transition-all active:scale-95 cursor-pointer shrink-0"
           title="Open product editor studio"
         >
-          <Edit3 className="w-3.5 h-3.5" />
-          <span>Edit Studio</span>
+          <Edit3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span>Studio</span>
         </Link>
       </div>
 

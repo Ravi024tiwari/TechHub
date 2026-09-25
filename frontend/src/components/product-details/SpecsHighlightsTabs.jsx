@@ -1,19 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Cpu,
-  Layers,
   ShieldCheck,
   Package,
-  CheckCircle2,
   Truck,
   RotateCcw,
   Sparkles,
-  Info,
   Sliders,
   Check,
-  FileText,
-  BadgeCheck,
-  Zap
 } from "lucide-react";
 
 export default function SpecsHighlightsTabs({ product }) {

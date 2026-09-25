@@ -48,16 +48,16 @@ export default function NavMiniCartPopover() {
         to="/cart"
         onClick={() => setIsOpen(false)}
         aria-label="Shopping Cart"
-        className={`relative flex items-center gap-2.5 p-2 sm:px-3 sm:py-2 rounded-xl border transition-all ${
+        className={`relative flex items-center gap-1.5 sm:gap-2.5 p-1.5 sm:px-3 sm:py-2 rounded-xl border transition-all ${
           isOpen
             ? "bg-white/10 border-white/30 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             : "bg-white/[0.04] hover:bg-white/[0.08] border-white/10 text-slate-200 hover:text-white"
         }`}
       >
         <div className="relative">
-          <ShoppingBag className="h-5 w-5 text-white" />
+          <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           {cartCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 rounded-full bg-white text-black text-[10px] font-extrabold flex items-center justify-center animate-in zoom-in">
+            <span className="absolute -top-1.5 -right-1.5 h-3.5 min-w-3.5 sm:h-4 sm:min-w-4 px-1 rounded-full bg-white text-black text-[9px] sm:text-[10px] font-extrabold flex items-center justify-center animate-in zoom-in">
               {cartCount}
             </span>
           )}

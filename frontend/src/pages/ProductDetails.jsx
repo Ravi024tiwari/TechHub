@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Star,
@@ -12,11 +12,6 @@ import {
   ArrowLeft,
   Check,
   Zap,
-  Tag,
-  Package,
-  Clock,
-  Layers,
-  Sparkles
 } from "lucide-react";
 import { useProductDetailsQuery, useProductsQuery } from "@/hooks/useProducts";
 import { useCartStore } from "@/store/useCartStore";
@@ -38,7 +33,7 @@ export default function ProductDetails() {
   const navigate = useNavigate();
 
   // State
-  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedColorOverride, setSelectedColorOverride] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   const [localStockOverride, setLocalStockOverride] = useState(null);
@@ -46,15 +41,18 @@ export default function ProductDetails() {
   // TanStack Query for Product Details
   const { data: product, isLoading, isError } = useProductDetailsQuery(idOrSlug);
 
-  // Initialize selected color variant on product load
-  useEffect(() => {
+  // Derive active selected color (with user override or catalog default)
+  const selectedColor = useMemo(() => {
+    if (selectedColorOverride) return selectedColorOverride;
     if (product?.colors && product.colors.length > 0) {
-      const defaultVariant = product.colors.find((c) => c.isDefault) || product.colors[0];
-      setSelectedColor(defaultVariant);
-    } else {
-      setSelectedColor(null);
+      return product.colors.find((c) => c.isDefault) || product.colors[0];
     }
-  }, [product]);
+    return null;
+  }, [product, selectedColorOverride]);
+
+  const setSelectedColor = (color) => {
+    setSelectedColorOverride(color);
+  };
 
   // TanStack Query for Related Products
   const categorySlug = product?.category?.slug || product?.categoryName || "";
@@ -188,13 +186,13 @@ export default function ProductDetails() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#050608] text-slate-900 dark:text-white flex flex-col transition-colors duration-300 relative pb-20 lg:pb-0">
       <Navbar />
 
-      <main className="flex-1 w-full py-6 sm:py-10 z-10">
-        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
+      <main className="flex-1 w-full py-4 sm:py-8 lg:py-10 z-10">
+        <div className="w-full px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
           {/* Storefront Header Row: Breadcrumb Navigation + Integrated Admin Quick Action Toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-slate-200 dark:border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-4 sm:mb-8 pb-3 sm:pb-4 border-b border-slate-200 dark:border-white/10">
             {/* Breadcrumb Navigation */}
-            <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 text-left overflow-x-auto whitespace-nowrap scrollbar-none py-1">
-              <Link to="/" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+            <nav className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 text-left overflow-x-auto whitespace-nowrap scrollbar-none py-0.5">
+              <Link to="/" className="hover:text-slate-900 dark:hover:text-white transition-colors shrink-0">
                 Home
               </Link>
               <ChevronRight className="h-3 w-3 text-slate-400 shrink-0" />
@@ -205,7 +203,7 @@ export default function ProductDetails() {
                 {product.categoryName || product.category?.name || "Electronics"}
               </Link>
               <ChevronRight className="h-3 w-3 text-slate-400 shrink-0" />
-              <span className="text-slate-800 dark:text-slate-200 truncate max-w-[200px] sm:max-w-xs md:max-w-md font-medium">
+              <span className="text-slate-800 dark:text-slate-200 truncate max-w-[140px] xs:max-w-[200px] sm:max-w-xs md:max-w-md font-medium">
                 {product.title}
               </span>
             </nav>

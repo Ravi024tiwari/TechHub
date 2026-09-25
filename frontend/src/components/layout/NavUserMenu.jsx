@@ -69,7 +69,7 @@ export default function NavUserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-label="User profile menu"
-        className={`flex items-center gap-2.5 p-1 sm:pl-1.5 sm:pr-3 sm:py-1 rounded-full border-2 transition-all cursor-pointer ${
+        className={`flex items-center gap-1.5 sm:gap-2.5 p-0.5 sm:pl-1.5 sm:pr-3 sm:py-1 rounded-full border-2 transition-all cursor-pointer ${
           isOpen
             ? "bg-white/15 border-slate-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             : "bg-white/[0.04] hover:bg-white/[0.09] border-slate-400/30 hover:border-slate-300"
@@ -77,11 +77,11 @@ export default function NavUserMenu() {
       >
         {/* Avatar with Metallic Ring & Active Pulse Indicator */}
         <div className="relative">
-          <Avatar className="size-8 sm:size-9 border border-white/20">
+          <Avatar className="size-7 sm:size-9 border border-white/20">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.name} />}
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="text-[11px] sm:text-xs font-bold">{initials}</AvatarFallback>
           </Avatar>
-          <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0a0c10]" />
+          <span className="absolute bottom-0 right-0 size-2 sm:size-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0a0c10]" />
         </div>
 
         {/* User Info (Desktop) */}
