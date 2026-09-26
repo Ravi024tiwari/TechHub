@@ -73,14 +73,14 @@ export default function AdminHeader({
         </button>
 
         {/* Global Admin Search Bar */}
-        <div className="flex-1 max-w-md relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="flex-1 max-w-md relative group">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-orange-500 transition-colors" />
           <input
             type="text"
             placeholder="Search orders, products, customers..."
-            className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 focus:bg-white/[0.07] transition-all"
+            className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200/70 dark:hover:bg-white/[0.06] border border-slate-300 dark:border-white/10 hover:border-slate-400 dark:hover:border-white/20 focus:border-orange-500 dark:focus:border-orange-400 text-xs font-sans font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:bg-white dark:focus:bg-[#0c0f17] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-xs"
           />
-          <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-white/10 text-slate-400 border border-white/10">
+          <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-white/10 shadow-xs">
             ⌘K
           </kbd>
         </div>

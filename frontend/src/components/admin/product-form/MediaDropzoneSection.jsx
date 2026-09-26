@@ -1,5 +1,13 @@
 import React, { useRef, useState } from "react";
-import { UploadCloud, Image as ImageIcon, Star, Trash2, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  UploadCloud,
+  Image as ImageIcon,
+  Star,
+  Trash2,
+  AlertCircle,
+  CheckCircle2,
+  FileImage,
+} from "lucide-react";
 
 export default function MediaDropzoneSection({
   selectedFiles = [],
@@ -21,7 +29,8 @@ export default function MediaDropzoneSection({
     const newFiles = Array.from(filesList);
     const validFiles = [];
 
-    const totalAllowed = MAX_FILES - (existingImages.length + selectedFiles.length);
+    const totalAllowed =
+      MAX_FILES - (existingImages.length + selectedFiles.length);
 
     if (totalAllowed <= 0) {
       setErrorMsg(`Maximum of ${MAX_FILES} photos allowed per product.`);
@@ -34,7 +43,9 @@ export default function MediaDropzoneSection({
         continue;
       }
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        setErrorMsg(`"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`);
+        setErrorMsg(
+          `"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`
+        );
         continue;
       }
 
@@ -73,8 +84,7 @@ export default function MediaDropzoneSection({
       if (removed?.previewUrl) {
         URL.revokeObjectURL(removed.previewUrl);
       }
-      const updated = prev.filter((_, i) => i !== idx);
-      return updated;
+      return prev.filter((_, i) => i !== idx);
     });
 
     if (primaryIndex === idx) {
@@ -91,33 +101,38 @@ export default function MediaDropzoneSection({
   const totalImagesCount = existingImages.length + selectedFiles.length;
 
   return (
-    <div className="rounded-2xl border-2 border-slate-200 dark:border-white/15 bg-white dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] p-3.5 sm:p-6 lg:p-7 shadow-sm dark:shadow-[0_4px_25px_rgba(0,0,0,0.8),_0_0_15px_rgba(255,255,255,0.05)] space-y-4 sm:space-y-6">
+    <div className="relative rounded-2xl sm:rounded-3xl border border-slate-300 dark:border-white/30 bg-white dark:bg-[#0c0f17] p-4 sm:p-7 shadow-sm hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-300 group overflow-hidden space-y-5 sm:space-y-6">
+      {/* Contained Ambient Background Glow */}
+      <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none">
+        <div className="absolute -top-16 -right-16 w-52 h-52 bg-gradient-to-br from-violet-500/10 via-amber-500/5 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-500" />
+      </div>
+
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-slate-200 dark:border-white/10">
-        <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-mono font-bold text-xs sm:text-sm shrink-0 mt-0.5 sm:mt-0">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 border-b border-slate-200 dark:border-white/15">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-violet-500/20 via-purple-500/15 to-violet-500/10 text-violet-600 dark:text-violet-400 font-mono font-bold text-xs sm:text-sm flex items-center justify-center border border-violet-500/30 shrink-0 shadow-xs">
             03
           </div>
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-lg font-heading font-bold text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+            <h2 className="text-base sm:text-lg font-heading font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
               <span>Product Photography & Gallery</span>
-              <span className="text-rose-500 dark:text-rose-400 text-sm">*</span>
+              <span className="text-rose-500">*</span>
             </h2>
-            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-              Upload edge-to-edge flagship photos. At least 1 image is required for catalog render.
+            <p className="text-xs font-sans text-slate-500 dark:text-slate-400 line-clamp-1">
+              High-resolution product media. At least 1 image is required for storefront rendering.
             </p>
           </div>
         </div>
 
-        <span className="text-[11px] sm:text-xs font-mono px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 w-fit">
+        <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-slate-300 w-fit shrink-0">
           {totalImagesCount} / {MAX_FILES} Photos
         </span>
       </div>
 
       {/* Error alert if any */}
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-mono flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="relative z-10 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-sans font-semibold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
           <span>{errorMsg}</span>
         </div>
       )}
@@ -128,10 +143,10 @@ export default function MediaDropzoneSection({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative rounded-2xl border-2 border-dashed p-4 sm:p-7 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-2.5 ${
+        className={`relative z-10 rounded-2xl border-2 border-dashed p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-3 ${
           isDragging
-            ? "border-sky-500 bg-sky-500/10 scale-[1.01]"
-            : "border-slate-300 dark:border-white/20 hover:border-slate-400 dark:hover:border-white/40 bg-slate-50/50 dark:bg-white/[0.02] hover:bg-slate-100/50 dark:hover:bg-white/[0.04]"
+            ? "border-orange-500 bg-orange-500/10 scale-[1.01]"
+            : "border-slate-300 dark:border-white/20 hover:border-orange-500 dark:hover:border-orange-400 bg-slate-50/70 dark:bg-[#07090e] hover:bg-slate-100/70 dark:hover:bg-white/[0.03]"
         }`}
       >
         <input
@@ -145,77 +160,89 @@ export default function MediaDropzoneSection({
           }}
         />
 
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-sky-500/10 dark:bg-white/[0.06] border border-sky-500/20 dark:border-white/10 flex items-center justify-center text-sky-600 dark:text-sky-400 shadow-inner group-hover:scale-110 transition-transform">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 border border-orange-500/30 flex items-center justify-center text-orange-600 dark:text-orange-400 shadow-xs group-hover:scale-110 transition-transform">
           <UploadCloud className="w-6 h-6 sm:w-7 sm:h-7" />
         </div>
 
         <div>
-          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
-            <span className="text-sky-600 dark:text-sky-400 underline decoration-sky-500/50 underline-offset-4">Click to browse</span> or drag photos here
+          <p className="text-xs sm:text-sm font-sans font-bold text-slate-900 dark:text-white">
+            <span className="text-orange-600 dark:text-orange-400 underline decoration-orange-500/50 underline-offset-4">
+              Click to browse
+            </span>{" "}
+            or drag & drop flagship photos here
           </p>
-          <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1 font-mono">
-            High-res WebP, PNG, or JPG (Up to 6MB per image, max 6 images)
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-sans">
+            High-res WebP, PNG, or JPG (Up to 6MB per photo, max 6 images)
           </p>
         </div>
       </div>
 
       {/* Uploaded Thumbnails Grid */}
       {totalImagesCount > 0 && (
-        <div className="space-y-3">
-          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 text-[11px] sm:text-xs font-mono text-slate-500 dark:text-slate-400">
-            <span>Uploaded Gallery (Click star to set Primary Thumbnail):</span>
-            <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+        <div className="relative z-10 space-y-3 pt-2">
+          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 text-xs font-sans text-slate-500 dark:text-slate-400">
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
+              Uploaded Gallery ({totalImagesCount}): Click star to set Primary Cover
+            </span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Ready for Cloudinary CDN</span>
+              <span>Optimized for CDN</span>
             </span>
           </div>
 
-          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {/* Existing Server Images (Edit Mode) */}
             {existingImages.map((img, idx) => (
               <div
                 key={`existing-${idx}`}
-                className="group relative rounded-xl border border-slate-200 dark:border-white/15 overflow-hidden aspect-square bg-slate-100 dark:bg-[#090b10] shadow-sm"
+                className="group relative rounded-2xl border border-slate-300 dark:border-white/20 overflow-hidden aspect-square bg-slate-100 dark:bg-[#07090e] shadow-xs"
               >
                 <img
                   src={img.url}
                   alt="Product"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                {/* Delete Button (Accessible on mobile touch & desktop hover) */}
+
+                {/* Primary Cover Badge */}
+                {idx === 0 && (
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-orange-500 text-white text-[9px] font-sans font-extrabold uppercase shadow-sm flex items-center gap-1">
+                    <Star className="w-2.5 h-2.5 fill-white" />
+                    <span>Cover</span>
+                  </div>
+                )}
+
+                {/* Delete Button */}
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemoveExistingImage(idx);
                   }}
-                  className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/70 hover:bg-rose-500 text-white backdrop-blur-md transition-all cursor-pointer shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                  className="absolute top-2 right-2 p-1.5 rounded-xl bg-black/75 hover:bg-rose-600 text-white backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95"
                   title="Remove Image"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
-                {idx === 0 && (
-                  <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-sky-500 text-white dark:text-black text-[9px] font-mono font-bold uppercase shadow-sm">
-                    Primary
-                  </div>
-                )}
               </div>
             ))}
 
             {/* Newly Selected Local Files */}
             {selectedFiles.map((item, idx) => {
-              const isPrimary = existingImages.length === 0 && primaryIndex === idx;
+              const isPrimary =
+                existingImages.length === 0 && primaryIndex === idx;
               return (
                 <div
                   key={`new-${idx}`}
-                  className={`group relative rounded-xl border-2 overflow-hidden aspect-square bg-slate-100 dark:bg-[#090b10] shadow-sm transition-all ${
-                    isPrimary ? "border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)]" : "border-slate-200 dark:border-white/15 hover:border-slate-300 dark:hover:border-white/40"
+                  className={`group relative rounded-2xl border-2 overflow-hidden aspect-square bg-slate-100 dark:bg-[#07090e] shadow-xs transition-all ${
+                    isPrimary
+                      ? "border-orange-500 shadow-md shadow-orange-500/20"
+                      : "border-slate-300 dark:border-white/20 hover:border-slate-400 dark:hover:border-white/40"
                   }`}
                 >
                   <img
                     src={item.previewUrl}
                     alt={item.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
 
                   {/* Primary Star Pill */}
@@ -225,14 +252,18 @@ export default function MediaDropzoneSection({
                       e.stopPropagation();
                       setPrimaryIndex(idx);
                     }}
-                    className={`absolute top-1.5 left-1.5 p-1 rounded-lg backdrop-blur-md transition-all ${
+                    className={`absolute top-2 left-2 p-1.5 rounded-xl backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95 ${
                       isPrimary
-                        ? "bg-amber-500 text-black"
-                        : "bg-black/60 text-slate-300 hover:text-amber-300 hover:bg-black/80"
+                        ? "bg-orange-500 text-white"
+                        : "bg-black/60 text-slate-300 hover:text-orange-400 hover:bg-black/80"
                     }`}
                     title="Set as Primary Cover"
                   >
-                    <Star className="w-3.5 h-3.5 fill-current" />
+                    <Star
+                      className={`w-3.5 h-3.5 ${
+                        isPrimary ? "fill-white" : ""
+                      }`}
+                    />
                   </button>
 
                   {/* Delete Button */}
@@ -242,7 +273,7 @@ export default function MediaDropzoneSection({
                       e.stopPropagation();
                       handleRemoveNewFile(idx);
                     }}
-                    className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/60 hover:bg-rose-500 text-slate-300 hover:text-white backdrop-blur-md transition-all"
+                    className="absolute top-2 right-2 p-1.5 rounded-xl bg-black/60 hover:bg-rose-600 text-slate-200 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95"
                     title="Remove Photo"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

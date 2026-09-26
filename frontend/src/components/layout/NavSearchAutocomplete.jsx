@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, X, Sparkles, ArrowRight, Star, Cpu, CornerDownLeft } from "lucide-react";
+import {
+  Search,
+  X,
+  Sparkles,
+  ArrowRight,
+  Star,
+  Cpu,
+  CornerDownLeft,
+} from "lucide-react";
 import { useSearchSuggestionsQuery } from "@/hooks/useProducts";
 
 const TRENDING_SEARCHES = [
@@ -19,7 +27,10 @@ const QUICK_CATEGORIES = [
   { label: "Displays", slug: "monitors" },
 ];
 
-export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile }) {
+export default function NavSearchAutocomplete({
+  isMobile = false,
+  onCloseMobile,
+}) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -28,7 +39,9 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
   const inputRef = useRef(null);
 
   // Detect OS for shortcut badge
-  const isMac = typeof window !== "undefined" && navigator.userAgent.toUpperCase().includes("MAC");
+  const isMac =
+    typeof window !== "undefined" &&
+    navigator.userAgent.toUpperCase().includes("MAC");
   const shortcutLabel = isMac ? "⌘K" : "Ctrl+K";
 
   // Debounce query
@@ -40,7 +53,8 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
   }, [query]);
 
   // Live suggestions query
-  const { data: suggestions = [], isLoading } = useSearchSuggestionsQuery(debouncedQuery);
+  const { data: suggestions = [], isLoading } =
+    useSearchSuggestionsQuery(debouncedQuery);
 
   // Global keyboard shortcut (Ctrl+K or ⌘K)
   useEffect(() => {
@@ -94,16 +108,21 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
     }).format(val || 0);
 
   return (
-    <div ref={containerRef} className={`relative ${isMobile ? "w-full" : "w-full max-w-xl xl:max-w-2xl"}`}>
+    <div
+      ref={containerRef}
+      className={`relative ${
+        isMobile ? "w-full" : "w-full max-w-xl xl:max-w-2xl"
+      }`}
+    >
       {/* Search Input Box */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSearchSubmit();
         }}
-        className="relative w-full"
+        className="relative w-full group"
       >
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-slate-400 group-focus-within:text-orange-500 transition-colors pointer-events-none" />
         <input
           ref={inputRef}
           type="text"
@@ -114,7 +133,7 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
             if (!isOpen) setIsOpen(true);
           }}
           placeholder="Search MacBooks, RTX GPUs, Sony audio, OLEDs..."
-          className="w-full h-10 sm:h-11 pl-10 pr-20 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/20 focus:border-white/40 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all shadow-[inset_0_1px_4px_rgba(0,0,0,0.5)]"
+          className="w-full h-10 sm:h-11 pl-10 pr-20 rounded-full bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200/70 dark:hover:bg-white/[0.08] focus:bg-white dark:focus:bg-[#0c0f17] border-2 border-slate-300 dark:border-white/20 hover:border-slate-400 dark:hover:border-white/35 focus:border-orange-500 dark:focus:border-orange-400 text-xs sm:text-sm font-sans font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 transition-all shadow-xs hover:shadow-md"
         />
 
         {/* Right Action Icons inside Input */}
@@ -128,13 +147,13 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
                 inputRef.current?.focus();
               }}
               aria-label="Clear search"
-              className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           ) : (
             !isMobile && (
-              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-white/[0.06] border border-white/10">
+              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400 bg-slate-200/90 dark:bg-white/[0.08] border border-slate-300 dark:border-white/15 shadow-xs">
                 {shortcutLabel}
               </span>
             )
@@ -144,14 +163,14 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
 
       {/* Autocomplete Dropdown Popover */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl bg-[#090b10]/95 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-50 overflow-hidden text-left animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl bg-white/98 dark:bg-[#090b10]/98 backdrop-blur-2xl border-2 border-slate-300 dark:border-white/20 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-50 overflow-hidden text-left animate-in fade-in slide-in-from-top-2 duration-150">
           {/* STATE 1: Empty Query - Show Trending & Categories */}
           {!debouncedQuery ? (
             <div className="p-4 sm:p-5 space-y-4">
               {/* Trending Searches */}
               <div>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 mb-2.5">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                   <span>Trending Searches</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -163,7 +182,7 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
                         setQuery(item);
                         handleSearchSubmit(item);
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 text-xs text-slate-300 hover:text-white transition-all hover:scale-105 flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.1] border border-slate-300 dark:border-white/10 text-xs font-sans font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all hover:scale-105 flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                     >
                       <Search className="h-3 w-3 text-slate-500" />
                       <span>{item}</span>
@@ -173,8 +192,8 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
               </div>
 
               {/* Quick Categories */}
-              <div className="pt-3 border-t border-white/[0.06]">
-                <div className="text-[11px] font-tech uppercase tracking-wider text-slate-500 mb-2">
+              <div className="pt-3 border-t border-slate-200 dark:border-white/[0.06]">
+                <div className="text-[11px] font-sans uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold mb-2">
                   Popular Categories
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -187,10 +206,10 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
                         if (onCloseMobile) onCloseMobile();
                         navigate(`/category/${cat.slug}`);
                       }}
-                      className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-300 hover:text-white text-left transition-all group flex items-center justify-between"
+                      className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.08] text-xs font-sans font-semibold text-slate-800 dark:text-slate-200 hover:text-orange-600 dark:hover:text-white text-left transition-all group flex items-center justify-between cursor-pointer shadow-xs active:scale-95"
                     >
                       <span>{cat.label}</span>
-                      <ArrowRight className="h-3 w-3 text-slate-600 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                      <ArrowRight className="h-3 w-3 text-slate-400 group-hover:text-orange-600 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                     </button>
                   ))}
                 </div>
@@ -199,28 +218,31 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
           ) : (
             /* STATE 2: Query Active - Show Live Suggestions */
             <div>
-              <div className="p-3 bg-white/[0.02] border-b border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
+              <div className="p-3 bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-sans">
                 <span>
-                  Search results for <strong className="text-white font-medium">"{debouncedQuery}"</strong>
+                  Search results for{" "}
+                  <strong className="text-slate-900 dark:text-white font-bold">
+                    "{debouncedQuery}"
+                  </strong>
                 </span>
                 {isLoading && (
-                  <span className="text-[10px] text-cyan-400 font-mono animate-pulse">
+                  <span className="text-[11px] text-orange-600 dark:text-orange-400 font-mono font-bold animate-pulse">
                     Scanning catalog...
                   </span>
                 )}
               </div>
 
               {/* Suggestions List */}
-              <div className="max-h-[380px] overflow-y-auto divide-y divide-white/[0.04]">
+              <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.04]">
                 {suggestions && suggestions.length > 0 ? (
                   suggestions.map((item) => (
                     <div
                       key={item._id}
                       onClick={() => handleProductSelect(item)}
-                      className="flex items-center gap-3.5 p-3 hover:bg-white/[0.06] cursor-pointer transition-colors group"
+                      className="flex items-center gap-3.5 p-3 hover:bg-slate-100/80 dark:hover:bg-white/[0.06] cursor-pointer transition-colors group"
                     >
                       {/* Product Thumbnail */}
-                      <div className="h-12 w-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center p-1">
+                      <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-white/10 overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-xs">
                         {(() => {
                           const imgUrl =
                             typeof item.images?.[0] === "object"
@@ -233,7 +255,7 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
                               className="h-full w-full object-contain group-hover:scale-105 transition-transform"
                             />
                           ) : (
-                            <Cpu className="h-5 w-5 text-slate-500" />
+                            <Cpu className="h-5 w-5 text-slate-400" />
                           );
                         })()}
                       </div>
@@ -242,59 +264,61 @@ export default function NavSearchAutocomplete({ isMobile = false, onCloseMobile 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           {item.brand && (
-                            <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-white/10 text-slate-300 font-semibold">
+                            <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-slate-200/80 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-bold">
                               {item.brand}
                             </span>
                           )}
                           {item.averageRating && (
-                            <span className="flex items-center gap-0.5 text-[11px] text-amber-300 font-medium">
-                              <Star className="h-2.5 w-2.5 fill-amber-300" />
+                            <span className="flex items-center gap-0.5 text-[11px] text-amber-500 dark:text-amber-300 font-bold">
+                              <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
                               {item.averageRating}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs sm:text-sm font-semibold text-white truncate group-hover:text-cyan-300 transition-colors mt-0.5">
+                        <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors mt-0.5">
                           {item.title}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs font-bold text-white font-mono">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">
                             {formatINR(item.salePrice || item.regularPrice)}
                           </span>
-                          {item.salePrice && item.regularPrice > item.salePrice && (
-                            <span className="text-[10px] text-slate-500 line-through">
-                              {formatINR(item.regularPrice)}
-                            </span>
-                          )}
+                          {item.salePrice &&
+                            item.regularPrice > item.salePrice && (
+                              <span className="text-[10px] text-slate-400 line-through font-mono">
+                                {formatINR(item.regularPrice)}
+                              </span>
+                            )}
                         </div>
                       </div>
 
                       {/* Quick jump icon */}
-                      <div className="p-1.5 rounded-lg text-slate-500 group-hover:text-white group-hover:bg-white/10 transition-colors shrink-0">
+                      <div className="p-1.5 rounded-lg text-slate-400 group-hover:text-orange-600 dark:group-hover:text-white group-hover:bg-orange-50 dark:group-hover:bg-white/10 transition-colors shrink-0">
                         <ArrowRight className="h-4 w-4" />
                       </div>
                     </div>
                   ))
                 ) : !isLoading ? (
                   <div className="p-8 text-center space-y-2">
-                    <p className="text-xs sm:text-sm font-medium text-slate-300">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
                       No matching products found for "{debouncedQuery}"
                     </p>
-                    <p className="text-[11px] text-slate-500">
-                      Check for spelling errors or try searching for general terms like "MacBook", "GPU", or "Headphones".
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Check for spelling errors or try searching for general
+                      terms like "MacBook", "GPU", or "Headphones".
                     </p>
                   </div>
                 ) : null}
               </div>
 
               {/* View All Matches Footer */}
-              <div className="p-2.5 bg-white/[0.03] border-t border-white/[0.08]">
+              <div className="p-2.5 bg-slate-50 dark:bg-white/[0.03] border-t border-slate-200 dark:border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => handleSearchSubmit()}
-                  className="w-full py-2 px-4 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-xs font-semibold text-white flex items-center justify-center gap-2 transition-all group"
+                  className="w-full py-2 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-white/[0.08] dark:hover:bg-white/[0.14] dark:text-white text-xs font-sans font-bold flex items-center justify-center gap-2 transition-all group cursor-pointer shadow-xs active:scale-95"
                 >
                   <span>View all results for "{debouncedQuery}"</span>
-                  <CornerDownLeft className="h-3.5 w-3.5 text-slate-400 group-hover:text-white" />
+                  <CornerDownLeft className="h-3.5 w-3.5 text-slate-400 group-hover:text-white transition-colors" />
                 </button>
               </div>
             </div>

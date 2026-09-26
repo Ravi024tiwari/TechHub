@@ -9,6 +9,10 @@ import {
   RotateCcw,
   Sparkles,
   Package,
+  Layers,
+  Eye,
+  FileEdit,
+  X,
 } from "lucide-react";
 import {
   fetchAdminCategories,
@@ -267,11 +271,11 @@ export default function AdminProductForm() {
           const relativeTop =
             elementRect.top - viewportRect.top + viewport.scrollTop;
           viewport.scrollTo({
-            top: Math.max(0, relativeTop - 110),
+            top: Math.max(0, relativeTop - 120),
             behavior: "smooth",
           });
         } else {
-          const yOffset = -110;
+          const yOffset = -120;
           const y =
             element.getBoundingClientRect().top + window.pageYOffset + yOffset;
           window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
@@ -296,8 +300,8 @@ export default function AdminProductForm() {
 
     const handleScroll = () => {
       const scrollPosition = viewport
-        ? viewport.scrollTop + 140
-        : window.scrollY + 140;
+        ? viewport.scrollTop + 150
+        : window.scrollY + 150;
 
       for (let i = sectionIds.length - 1; i >= 0; i--) {
         const section = document.getElementById(sectionIds[i]);
@@ -339,7 +343,7 @@ export default function AdminProductForm() {
     setSelectedFiles([]);
     setPrimaryIndex(0);
     setSubmitError("");
-    setSubmitSuccess("Form inputs restored to the saved state.");
+    setSubmitSuccess("Form inputs restored to saved state.");
     setTimeout(() => setSubmitSuccess(""), 2500);
   }, [originalSnapshot, selectedFiles]);
 
@@ -463,7 +467,7 @@ export default function AdminProductForm() {
       } else {
         await createAdminProduct(payload);
         setSubmitSuccess(
-          "New flagship product successfully published to catalog!"
+          "Flagship product successfully published to store catalog!"
         );
       }
 
@@ -499,8 +503,12 @@ export default function AdminProductForm() {
   if (loadingInitial) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <Loader2 className="w-10 h-10 animate-spin text-sky-400" />
-        <p className="text-xs font-mono text-slate-400">
+        <div className="relative flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 animate-pulse flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+          </div>
+        </div>
+        <p className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
           Loading product specifications and media catalog...
         </p>
       </div>
@@ -508,7 +516,7 @@ export default function AdminProductForm() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5 pb-28 sm:pb-20">
+    <div className="space-y-4 sm:space-y-6 pb-28 sm:pb-20 animate-in fade-in duration-300">
       {/* Top Production-Grade Header HUD */}
       <EditModeProductHUD
         isEditMode={isEditMode}
@@ -520,9 +528,11 @@ export default function AdminProductForm() {
         onSave={handleSubmit}
         onDiscard={() => navigate("/admin/products")}
         onReset={handleResetChanges}
+        mobileTab={mobileTab}
+        setMobileTab={setMobileTab}
       />
 
-      {/* Sticky Quick-Jump Section Navigation Tabs (Hidden when viewing Live Preview on mobile) */}
+      {/* Sticky Quick-Jump Section Navigation Tabs */}
       <div className={mobileTab === "preview" ? "hidden lg:block" : "block"}>
         <SectionNavTabs
           activeSection={activeSection}
@@ -535,55 +545,75 @@ export default function AdminProductForm() {
         />
       </div>
 
-      {/* Mobile View Switcher (Visible only below lg breakpoint) */}
-      <div className="lg:hidden flex items-center p-1 bg-slate-200/80 dark:bg-white/[0.06] rounded-2xl border border-slate-300 dark:border-white/10 mb-3 shadow-xs">
+      {/* Mobile View Switcher (Only visible below lg breakpoint) */}
+      <div className="lg:hidden flex items-center p-1.5 bg-slate-100 dark:bg-[#0c0f17] rounded-2xl border border-slate-300 dark:border-white/20 mb-3 shadow-xs">
         <button
           type="button"
           onClick={() => setMobileTab("form")}
-          className={`flex-1 py-2 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-sans font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             mobileTab === "form"
-              ? "bg-white dark:bg-[#12141c] text-sky-600 dark:text-sky-400 shadow-xs"
+              ? "bg-white dark:bg-[#181a24] text-orange-600 dark:text-orange-400 shadow-sm border border-slate-300 dark:border-white/20"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
+          <FileEdit className="w-3.5 h-3.5" />
           <span>Specifications Form</span>
         </button>
         <button
           type="button"
           onClick={() => setMobileTab("preview")}
-          className={`flex-1 py-2 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-sans font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             mobileTab === "preview"
-              ? "bg-white dark:bg-[#12141c] text-sky-600 dark:text-sky-400 shadow-xs"
+              ? "bg-white dark:bg-[#181a24] text-orange-600 dark:text-orange-400 shadow-sm border border-slate-300 dark:border-white/20"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
+          <Eye className="w-3.5 h-3.5" />
           <span>Live Store Preview</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         </button>
       </div>
 
       {/* Global Status Alerts */}
       {submitError && (
-        <div className="p-3.5 sm:p-4 rounded-xl bg-rose-500/15 border-2 border-rose-500/40 text-rose-700 dark:text-rose-300 text-xs font-mono flex items-center gap-3 shadow-sm">
-          <AlertTriangle className="w-5 h-5 shrink-0 text-rose-500 dark:text-rose-400" />
-          <div className="flex-1">
-            <p className="font-bold">Validation or Database Error</p>
-            <p className="text-rose-800 dark:text-rose-200/90 mt-0.5">
-              {submitError}
-            </p>
+        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-sans font-semibold flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <AlertTriangle className="w-5 h-5 shrink-0 text-rose-500" />
+            <div className="min-w-0">
+              <p className="font-bold">Validation or Database Error</p>
+              <p className="text-rose-800 dark:text-rose-200 mt-0.5">
+                {submitError}
+              </p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setSubmitError("")}
+            className="p-1 rounded-lg text-rose-500 hover:bg-rose-500/20 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
       {submitSuccess && (
-        <div className="p-3.5 sm:p-4 rounded-xl bg-emerald-500/15 border-2 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-mono flex items-center gap-3 shadow-sm">
-          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500 dark:text-emerald-400" />
-          <div className="flex-1">
-            <p className="font-bold">Success</p>
-            <p className="text-emerald-800 dark:text-emerald-200/90 mt-0.5">
-              {submitSuccess}
-            </p>
+        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-sans font-semibold flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
+            <div className="min-w-0">
+              <p className="font-bold">Success</p>
+              <p className="text-emerald-800 dark:text-emerald-200 mt-0.5">
+                {submitSuccess}
+              </p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setSubmitSuccess("")}
+            className="p-1 rounded-lg text-emerald-500 hover:bg-emerald-500/20 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
@@ -599,7 +629,7 @@ export default function AdminProductForm() {
           }`}
         >
           {/* 1. General Info & Classification */}
-          <div id="section-general" className="scroll-mt-36">
+          <section id="section-general" className="scroll-mt-36">
             <BasicInfoSection
               formData={formData}
               setFormData={setFormData}
@@ -607,19 +637,19 @@ export default function AdminProductForm() {
               brands={brands}
               onGenerateSku={handleGenerateSku}
             />
-          </div>
+          </section>
 
           {/* 2. Pricing & Warehouse Stock */}
-          <div id="section-pricing" className="scroll-mt-36">
+          <section id="section-pricing" className="scroll-mt-36">
             <PricingStockSection
               formData={formData}
               setFormData={setFormData}
               colorVariants={colorVariants}
             />
-          </div>
+          </section>
 
           {/* 3. Product Photography & Gallery */}
-          <div id="section-media" className="scroll-mt-36">
+          <section id="section-media" className="scroll-mt-36">
             <MediaDropzoneSection
               selectedFiles={selectedFiles}
               setSelectedFiles={setSelectedFiles}
@@ -628,28 +658,28 @@ export default function AdminProductForm() {
               primaryIndex={primaryIndex}
               setPrimaryIndex={setPrimaryIndex}
             />
-          </div>
+          </section>
 
           {/* 4. Color Combinations & Finish Studio */}
-          <div id="section-variants" className="scroll-mt-36">
+          <section id="section-variants" className="scroll-mt-36">
             <ColorVariantsSection
               colorVariants={colorVariants}
               setColorVariants={setColorVariants}
               masterSku={formData.sku}
             />
-          </div>
+          </section>
 
           {/* 5. Dynamic Technical Specifications */}
-          <div id="section-specs" className="scroll-mt-36">
+          <section id="section-specs" className="scroll-mt-36">
             <DynamicSpecsSection
               categoryName={formData.categoryName}
               specifications={specifications}
               setSpecifications={setSpecifications}
             />
-          </div>
+          </section>
 
           {/* 6. Key Features, Box Contents, & Warranty */}
-          <div id="section-highlights" className="scroll-mt-36">
+          <section id="section-highlights" className="scroll-mt-36">
             <HighlightsSection
               keyFeatures={keyFeatures}
               setKeyFeatures={setKeyFeatures}
@@ -658,43 +688,48 @@ export default function AdminProductForm() {
               warranty={warranty}
               setWarranty={setWarranty}
             />
-          </div>
+          </section>
 
           {/* Bottom Submit Banner */}
-          <div className="p-4 sm:p-5 rounded-2xl border-2 border-slate-200 dark:border-white/15 bg-white dark:bg-[#090b10] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm dark:shadow-lg">
-            <div>
-              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+          <div className="relative rounded-2xl sm:rounded-3xl border border-slate-300 dark:border-white/30 bg-white dark:bg-[#0c0f17] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-xl transition-all overflow-hidden group">
+            {/* Contained Ambient Background Glow */}
+            <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none">
+              <div className="absolute -top-16 -right-16 w-52 h-52 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent rounded-full blur-3xl group-hover:scale-125 transition-transform duration-500" />
+            </div>
+
+            <div className="relative z-10">
+              <p className="text-sm sm:text-base font-heading font-black text-slate-900 dark:text-white">
                 {isEditMode
                   ? "Commit modifications to live catalog?"
-                  : "Ready to deploy hardware to live store?"}
+                  : "Ready to deploy flagship hardware to store?"}
               </p>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-                All changes, specifications, stock units, and color swatches
-                will be updated immediately.
+              <p className="text-xs font-sans text-slate-500 dark:text-slate-400 mt-0.5">
+                All specifications, prices, inventory units, and color finishes will sync immediately.
               </p>
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+
+            <div className="relative z-10 flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => navigate("/admin/products")}
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 dark:hover:bg-white/10 text-xs font-mono text-slate-700 dark:text-slate-300 transition-colors cursor-pointer text-center justify-center"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 dark:hover:bg-white/10 text-xs font-sans font-semibold text-slate-700 dark:text-slate-300 transition-colors cursor-pointer text-center justify-center border border-slate-300 dark:border-white/15"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-[2] sm:flex-initial px-5 sm:px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs font-mono flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer disabled:opacity-50 active:scale-98"
+                className="flex-[2] sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-heading font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg shadow-orange-500/25 cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-black shrink-0" />
+                    <Loader2 className="w-4 h-4 animate-spin text-white shrink-0" />
                     <span>Processing...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 text-black shrink-0" />
+                    <Save className="w-4 h-4 text-white shrink-0" />
                     <span>
                       {isEditMode ? "Save Changes" : "Publish Product"}
                     </span>
@@ -723,6 +758,48 @@ export default function AdminProductForm() {
           />
         </div>
       </form>
+
+      {/* Mobile Sticky Bottom Floating Action Bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#08090a]/95 backdrop-blur-md border-t border-slate-300 dark:border-white/20 p-3 flex items-center gap-2.5 shadow-2xl">
+        <button
+          type="button"
+          onClick={() =>
+            setMobileTab((prev) => (prev === "form" ? "preview" : "form"))
+          }
+          className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 text-xs font-sans font-bold border border-slate-300 dark:border-white/20 shrink-0"
+        >
+          {mobileTab === "form" ? (
+            <>
+              <Eye className="w-4 h-4 text-orange-500" />
+              <span>Preview</span>
+            </>
+          ) : (
+            <>
+              <FileEdit className="w-4 h-4 text-orange-500" />
+              <span>Form</span>
+            </>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-heading font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/25 disabled:opacity-50 active:scale-95"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 text-white" />
+              <span>{isEditMode ? "Save Changes" : "Publish Product"}</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
