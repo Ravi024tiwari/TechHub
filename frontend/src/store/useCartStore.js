@@ -97,6 +97,9 @@ export const useCartStore = create(
           return sum + price * (item.quantity || 1);
         }, 0);
       },
+      getTotalPrice: () => {
+        return get().getSubtotal();
+      },
     }),
     {
       name: "shop_cart",

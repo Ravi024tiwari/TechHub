@@ -6,6 +6,7 @@ import { apiClient } from "./client";
  */
 
 // Fetch paginated products with optional filters
+// here we are fetching the products but we are not storing on the locally to renderkng 
 export const fetchProducts = async (params = {}) => {
   const response = await apiClient.get("/products", { params });
   return response.data?.data || { products: [], pagination: {} };
@@ -36,4 +37,15 @@ export const fetchSearchSuggestions = async (query) => {
 export const fetchBrands = async () => {
   const response = await apiClient.get("/brands");
   return response.data?.data || [];
+};
+
+// Fetch dynamic filter facets and metadata (categories, brands, price range, specs)
+export const fetchFilterMetadata = async (params = {}) => {
+  const response = await apiClient.get("/products/filters", { params });
+  return response.data?.data || {
+    categories: [],
+    brands: [],
+    priceRange: { minPrice: 0, maxPrice: 500000 },
+    availableSpecs: { ram: [], storage: [], processors: [] },
+  };
 };

@@ -110,7 +110,7 @@ export default function Signup() {
           );
           // Seamlessly redirect to home/storefront after showing success badge
           setTimeout(() => {
-            navigate("/", { replace: true });
+            navigate("/products", { replace: true });
           }, 1200);
         },
         onError: (err) => {

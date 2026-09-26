@@ -105,11 +105,15 @@ body {
    📐 Typography Hierarchy (Consistent Across All Pages)
    ========================================================================== */
 
-h1, h2, h3, h4, h5, h6,
-.font-heading {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   letter-spacing: -0.025em; /* Apple-style tight tracking */
   color: var(--text-primary);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em;
 }
 
 .font-body {
