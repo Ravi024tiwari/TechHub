@@ -18,8 +18,7 @@ export const getAllCustomersAdmin = asyncHandler(async (req, res) => {
 
   const { search, status, sortBy = "createdAt", sortOrder = "desc" } = req.query;
 
-  // Base query: Only retrieve customers (exclude admin accounts from customer list)
-  const query = { role: "customer" };
+  const query = { role: { $ne: "admin" } };
 
   // Status Filter: active vs blocked
   if (status === "active") {
@@ -44,18 +43,20 @@ export const getAllCustomersAdmin = asyncHandler(async (req, res) => {
   const sortDirection = sortOrder === "asc" ? 1 : -1;
   const sortConfig = { [sortField]: sortDirection };
 
-  // Low-latency lean projection: Only select necessary fields, omit heavy nested subdocs
+  // Ultra-low-latency lean projection: Only select essential fields for listing
   const projection = "name email phone avatar.url isBlocked role createdAt";
 
-  // Execute count and paginated query concurrently
-  const [totalCustomers, customers] = await Promise.all([
+  // Execute count, paginated query, and status summary counts concurrently
+  const [totalCustomers, customers, activeCount, blockedCount] = await Promise.all([
     User.countDocuments(query),
     User.find(query)
       .select(projection)
       .sort(sortConfig)
       .skip(skip)
       .limit(limit)
-      .lean()
+      .lean(),
+    User.countDocuments({ role: { $ne: "admin" }, isBlocked: false }),
+    User.countDocuments({ role: { $ne: "admin" }, isBlocked: true })
   ]);
 
   const totalPages = Math.ceil(totalCustomers / limit) || 1;
@@ -65,6 +66,11 @@ export const getAllCustomersAdmin = asyncHandler(async (req, res) => {
       200,
       {
         customers,
+        summary: {
+          total: activeCount + blockedCount,
+          active: activeCount,
+          blocked: blockedCount
+        },
         pagination: {
           totalCustomers,
           totalPages,

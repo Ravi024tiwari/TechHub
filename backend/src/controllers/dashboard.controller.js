@@ -359,7 +359,7 @@ export const getAdminDashboardOverview = asyncHandler(async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(5)
         .populate("user", "name email avatar")
-        .select("orderNumber user pricing orderStatus paymentInfo createdAt")
+        .select("orderNumber user pricing orderStatus paymentInfo orderItems createdAt")
         .lean(),
 
       // 5. Recent 5 Customer Registrations
@@ -527,8 +527,22 @@ export const getAdminSalesAnalytics = asyncHandler(async (req, res) => {
         },
         { $unwind: { path: "$productDoc", preserveNullAndEmptyArrays: true } },
         {
+          $lookup: {
+            from: "categories",
+            localField: "productDoc.category",
+            foreignField: "_id",
+            as: "categoryDoc"
+          }
+        },
+        { $unwind: { path: "$categoryDoc", preserveNullAndEmptyArrays: true } },
+        {
           $group: {
-            _id: { $ifNull: ["$productDoc.category", "Uncategorized"] },
+            _id: {
+              $ifNull: [
+                "$categoryDoc.name",
+                { $ifNull: ["$productDoc.categoryName", "Electronics"] }
+              ]
+            },
             totalRevenue: {
               $sum: { $multiply: ["$orderItems.price", "$orderItems.quantity"] }
             },
@@ -680,6 +694,7 @@ export const getAdminInventoryHealth = asyncHandler(async (req, res) => {
         }
       })
         .select("title slug sku category stock lowStockThreshold regularPrice salePrice images")
+        .populate("category", "name slug")
         .sort({ stock: 1 })
         .limit(20)
         .lean(),
@@ -687,6 +702,7 @@ export const getAdminInventoryHealth = asyncHandler(async (req, res) => {
       // 3. Completely Out of Stock Products
       Product.find({ stock: 0 })
         .select("title slug sku category stock lowStockThreshold regularPrice salePrice images updatedAt")
+        .populate("category", "name slug")
         .sort({ updatedAt: -1 })
         .limit(20)
         .lean(),
@@ -718,6 +734,15 @@ export const getAdminInventoryHealth = asyncHandler(async (req, res) => {
         },
         { $unwind: { path: "$productDoc", preserveNullAndEmptyArrays: true } },
         {
+          $lookup: {
+            from: "categories",
+            localField: "productDoc.category",
+            foreignField: "_id",
+            as: "categoryDoc"
+          }
+        },
+        { $unwind: { path: "$categoryDoc", preserveNullAndEmptyArrays: true } },
+        {
           $project: {
             productId: "$_id",
             title: 1,
@@ -726,7 +751,12 @@ export const getAdminInventoryHealth = asyncHandler(async (req, res) => {
             totalRevenue: { $round: ["$totalRevenue", 2] },
             currentStock: "$productDoc.stock",
             sku: "$productDoc.sku",
-            category: "$productDoc.category"
+            category: {
+              $ifNull: [
+                "$categoryDoc.name",
+                { $ifNull: ["$productDoc.categoryName", "Electronics"] }
+              ]
+            }
           }
         }
       ])

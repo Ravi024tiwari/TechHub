@@ -52,6 +52,20 @@ export const updateOrderStatus = async (orderId, status, notes = "") => {
   return response.data?.data;
 };
 
+// Update order tracking & logistics details
+export const updateOrderTracking = async (orderId, trackingData) => {
+  const response = await apiClient.patch(`/orders/admin/${orderId}/tracking`, trackingData);
+  return response.data?.data;
+};
+
+// Admin cancel order with automated restocking
+export const cancelAdminOrder = async (orderId, reason = "") => {
+  const response = await apiClient.post(`/orders/admin/${orderId}/cancel`, {
+    reason,
+  });
+  return response.data?.data;
+};
+
 // Fetch products with pagination & filters
 export const fetchAdminProducts = async (params = {}) => {
   const response = await apiClient.get("/products", {
@@ -176,3 +190,26 @@ export const deleteAdminBrand = async (id) => {
   const response = await apiClient.delete(`/brands/${id}`);
   return response.data?.data;
 };
+
+// ==========================================
+// 👥 Customer Management APIs
+// ==========================================
+
+export const fetchAdminCustomers = async (params = {}) => {
+  const response = await apiClient.get("/users/admin/customers", { params });
+  return response.data?.data;
+};
+
+export const fetchAdminCustomerDetails = async (userId) => {
+  const response = await apiClient.get(`/users/admin/customers/${userId}`);
+  return response.data?.data;
+};
+
+export const toggleBlockCustomer = async (userId, data = {}) => {
+  const response = await apiClient.patch(
+    `/users/admin/customers/${userId}/block`,
+    data
+  );
+  return response.data?.data;
+};
+

@@ -28,6 +28,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminProductForm = lazy(() => import("./pages/admin/AdminProductForm"));
 const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminOrderDetail = lazy(() => import("./pages/admin/AdminOrderDetail"));
 const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
 const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminTaxonomy = lazy(() => import("./pages/admin/AdminTaxonomy"));
@@ -82,6 +83,7 @@ export default function App() {
             <Route path="categories" element={<Navigate to="/admin/taxonomy" replace />} />
             <Route path="brands" element={<Navigate to="/admin/taxonomy?tab=brands" replace />} />
             <Route path="orders" element={<AdminOrders />} />
+            <Route path="orders/:orderId" element={<AdminOrderDetail />} />
             <Route path="customers" element={<AdminCustomers />} />
             <Route path="inventory" element={<AdminInventory />} />
           </Route>
