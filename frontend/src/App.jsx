@@ -9,8 +9,13 @@ import ProtectedRoute from "./components/routes/ProtectedRoute";
 
 // Lazy-loaded route components for production performance & code splitting
 const Home = lazy(() => import("./pages/Home"));
+const Products = lazy(() => import("./pages/Products"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Deals = lazy(() => import("./pages/Deals"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Profile = lazy(() => import("./pages/Profile"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./components/common/NotFound"));
@@ -44,9 +49,14 @@ export default function App() {
         <Routes>
           {/* Public Storefront Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Home />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/deals" element={<Deals />} />
-          <Route path="/category/:categorySlug" element={<Home />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/account" element={<Profile />} />
+          <Route path="/category/:categorySlug" element={<Products />} />
           <Route path="/product/:idOrSlug" element={<ProductDetails />} />
 
           {/* Authentication Routes (Aliases for ease of access) */}

@@ -28,3 +28,18 @@ export const getCurrentUserApi = async () => {
   const response = await apiClient.get("/auth/me");
   return response.data?.data?.user || response.data?.data;
 };
+
+// Update user profile (Name, Phone, Avatar file)
+export const updateProfileApi = async (formDataOrData) => {
+  const isFormData = formDataOrData instanceof FormData;
+  const response = await apiClient.patch("/auth/profile", formDataOrData, {
+    headers: isFormData ? { "Content-Type": "multipart/form-data" } : {},
+  });
+  return response.data; // { statusCode, data: updatedUser, message }
+};
+
+// Change user password
+export const changePasswordApi = async (passwordData) => {
+  const response = await apiClient.patch("/auth/change-password", passwordData);
+  return response.data;
+};

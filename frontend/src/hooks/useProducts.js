@@ -5,6 +5,7 @@ import {
   fetchCategories,
   fetchSearchSuggestions,
   fetchBrands,
+  fetchFilterMetadata,
 } from "../api/productApi";
 
 export const PRODUCT_KEYS = {
@@ -13,6 +14,7 @@ export const PRODUCT_KEYS = {
   detail: (idOrSlug) => [...PRODUCT_KEYS.all, "detail", idOrSlug],
   categories: ["categories"],
   brands: ["brands"],
+  filters: (params) => [...PRODUCT_KEYS.all, "filters", params],
   search: (query) => ["search_suggestions", query],
 };
 
@@ -71,5 +73,17 @@ export function useBrandsQuery() {
     queryKey: PRODUCT_KEYS.brands,
     queryFn: fetchBrands,
     staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+}
+
+/**
+ * Hook to fetch dynamic filter facets (categories, brands, price range, specs)
+ */
+export function useFilterMetadataQuery(params = {}) {
+  return useQuery({
+    queryKey: PRODUCT_KEYS.filters(params),
+    queryFn: () => fetchFilterMetadata(params),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    placeholderData: (previousData) => previousData,
   });
 }

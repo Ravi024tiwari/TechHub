@@ -157,6 +157,18 @@ export default function MobileDrawer({ isOpen, onClose }) {
           </Link>
 
           <Link
+            to="/products"
+            onClick={onClose}
+            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
+          >
+            <div className="flex items-center gap-3">
+              <Layers className="h-4 w-4 text-sky-400" />
+              <span>All Hardware Catalog</span>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+          </Link>
+
+          <Link
             to="/products?deal=hot"
             onClick={onClose}
             className="flex items-center justify-between p-2.5 rounded-xl bg-amber-400/10 border border-amber-400/20 text-amber-300 hover:text-amber-200 transition-colors text-xs font-semibold"

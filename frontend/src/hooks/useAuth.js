@@ -4,6 +4,8 @@ import {
   registerUserApi,
   logoutUserApi,
   getCurrentUserApi,
+  updateProfileApi,
+  changePasswordApi,
 } from "../api/authApi";
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -92,5 +94,35 @@ export function useCurrentUserQuery() {
     },
     enabled: Boolean(isAuthenticated),
     staleTime: 1000 * 60 * 15, // 15 mins fresh
+  });
+}
+
+/**
+ * Hook to manage Profile & Avatar Update Mutation:
+ * - Updates user profile on backend.
+ * - On success: synchronizes updated user profile to Zustand and cache.
+ */
+export function useUpdateProfileMutation() {
+  const queryClient = useQueryClient();
+  const updateUser = useAuthStore((state) => state.updateUser);
+
+  return useMutation({
+    mutationFn: updateProfileApi,
+    onSuccess: (response) => {
+      const updatedUser = response?.data?.user || response?.data || response?.user;
+      if (updatedUser) {
+        updateUser(updatedUser);
+        queryClient.setQueryData(AUTH_KEYS.currentUser, updatedUser);
+      }
+    },
+  });
+}
+
+/**
+ * Hook to manage Password Change Mutation
+ */
+export function useChangePasswordMutation() {
+  return useMutation({
+    mutationFn: changePasswordApi,
   });
 }

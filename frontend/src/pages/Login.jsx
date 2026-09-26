@@ -52,7 +52,7 @@ export default function Login() {
           } else if (loggedInUser?.role === "admin") {
             navigate("/admin", { replace: true });
           } else {
-            navigate("/", { replace: true });
+            navigate("/products", { replace: true });
           }
         },
         onError: (err) => {
