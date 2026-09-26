@@ -1,5 +1,6 @@
 import React from "react";
-import { User, MapPin, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { User, MapPin, Lock, LayoutDashboard } from "lucide-react";
 
 /**
  * Production-Grade Dynamic Tab Navigation Pill Bar:
@@ -98,6 +99,19 @@ export default function ProfileTabsNav({ activeTab, onTabChange, addressCount = 
           </button>
         );
       })}
+
+      {/* Direct Quick Jump to Customer VIP Dashboard */}
+      <Link
+        to="/dashboard"
+        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-heading font-bold bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 transition-all shrink-0 ml-auto shadow-sm"
+      >
+        <LayoutDashboard className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">VIP Dashboard</span>
+        <span className="sm:hidden inline">Dashboard</span>
+        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-sky-500/25 text-sky-600 dark:text-sky-300 font-bold uppercase">
+          Live
+        </span>
+      </Link>
     </div>
   );
 }

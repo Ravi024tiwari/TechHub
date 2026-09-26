@@ -23,6 +23,7 @@ dashboardRouter.use(verifyJWT);
  * @access  Private (Customer & Admin)
  */
 dashboardRouter.get("/customer/summary", getCustomerDashboardSummary);
+dashboardRouter.get("/customer", getCustomerDashboardSummary);
 
 // ==========================================
 // Admin Operations & Analytics Routes

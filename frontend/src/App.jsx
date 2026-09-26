@@ -16,6 +16,7 @@ const Cart = lazy(() => import("./pages/Cart"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Profile = lazy(() => import("./pages/Profile"));
+const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./components/common/NotFound"));
@@ -55,6 +56,8 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/dashboard" element={<CustomerDashboard />} />
+          <Route path="/customer/dashboard" element={<CustomerDashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/account" element={<Profile />} />
           <Route path="/category/:categorySlug" element={<Products />} />

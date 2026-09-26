@@ -7,6 +7,7 @@ import {
   Package,
   Flame,
   Search,
+  LayoutDashboard,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
@@ -94,29 +95,21 @@ export default function Navbar() {
                 <span className="font-heading font-extrabold text-base sm:text-xl tracking-tight text-slate-950 dark:text-white leading-none group-hover:text-sky-600 dark:group-hover:text-slate-200 transition-colors">
                   TECHHUB
                 </span>
-                <span className="text-[9px] font-tech uppercase tracking-widest text-slate-500 dark:text-slate-300 hidden sm:block mt-0.5 font-medium">
+                <span className="text-[9px] font-tech uppercase tracking-widest text-slate-500 dark:text-slate-300 hidden xl:block mt-0.5 font-medium">
                   Precision Electronics
                 </span>
               </div>
             </Link>
 
             {/* Desktop Categories Mega Menu */}
-            <div className="hidden lg:block ml-2">
+            <div className="hidden lg:block ml-1">
               <NavCategoriesMegaMenu />
             </div>
 
-            {/* Explore Catalog Direct Link (Desktop) */}
-            <Link
-              to="/products"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all"
-            >
-              <span>Catalog</span>
-            </Link>
-
-            {/* Deals Direct Link (Desktop) */}
+            {/* Deals Direct Link (Wide Screens) */}
             <Link
               to="/products?deal=hot"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-500 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 hover:bg-amber-400/10 border border-amber-400/30 transition-all"
+              className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-500 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 hover:bg-amber-400/10 border border-amber-400/30 transition-all"
             >
               <Flame className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               <span>Deals</span>
@@ -124,16 +117,28 @@ export default function Navbar() {
           </div>
 
           {/* =========================================================
-              CENTER: Live Search Autocomplete (Visible on md+)
+              CENTER: Live Search Autocomplete (Dominant Visual Anchor)
               ========================================================= */}
-          <div className="hidden md:flex flex-1 max-w-md xl:max-w-xl mx-2 lg:mx-4 justify-center">
+          <div className="hidden md:flex flex-1 min-w-[200px] max-w-xl xl:max-w-2xl mx-2 sm:mx-4 lg:mx-6 justify-center">
             <NavSearchAutocomplete />
           </div>
 
           {/* =========================================================
-              RIGHT: Orders, Wishlist, Theme, Mini Cart & User
+              RIGHT: Dashboard, Orders, Wishlist, Theme, Mini Cart & User
               ========================================================= */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 lg:gap-4 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 shrink-0">
+            {/* Customer Dashboard VIP Pill (Large Desktop) */}
+            <Link
+              to="/dashboard"
+              className="hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-white bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 transition-all shadow-sm"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5 text-sky-500" />
+              <span>Dashboard</span>
+              <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-sky-500/25 text-sky-600 dark:text-sky-300 font-bold uppercase">
+                VIP
+              </span>
+            </Link>
+
             {/* Orders Link (Large Desktop Screens) */}
             <Link
               to="/orders"

@@ -20,6 +20,7 @@ import {
   Monitor,
   Gamepad2,
   Watch,
+  LayoutDashboard,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
@@ -154,6 +155,20 @@ export default function MobileDrawer({ isOpen, onClose }) {
               <span>Storefront Home</span>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+          </Link>
+
+          <Link
+            to="/dashboard"
+            onClick={onClose}
+            className="flex items-center justify-between p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 hover:text-white transition-colors text-xs font-semibold"
+          >
+            <div className="flex items-center gap-3">
+              <LayoutDashboard className="h-4 w-4 text-sky-400" />
+              <span>Customer Dashboard</span>
+            </div>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-500/25 uppercase font-bold text-sky-300">
+              VIP
+            </span>
           </Link>
 
           <Link

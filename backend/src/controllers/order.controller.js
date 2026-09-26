@@ -550,6 +550,21 @@ export const verifyPaymentAndPlaceOrder = asyncHandler(async (req, res) => {
   // Increment Flash Deal claimed quota if any item is enrolled
   await incrementFlashDealClaims(newOrder.orderItems);
 
+  // Trigger Event-Driven Loyalty & Badge Progression on User Model
+  try {
+    const userDoc = await User.findById(req.user._id);
+    if (userDoc) {
+      const userOrderCount = await Order.countDocuments({ user: req.user._id });
+      await userDoc.recordOrderPayment({
+        amount: cart.pricing.grandTotal,
+        orderCount: userOrderCount,
+        orderNumber: newOrder.orderNumber
+      });
+    }
+  } catch (loyaltyErr) {
+    console.error("Non-blocking loyalty update error:", loyaltyErr);
+  }
+
   // Clear customer cart
   cart.items = [];
   cart.coupon = { couponId: null, code: null, discountAmount: 0 };
@@ -921,6 +936,21 @@ export const updateOrderStatusAdmin = asyncHandler(async (req, res) => {
     if (order.paymentInfo.method === "COD" && order.paymentInfo.status === "PENDING") {
       order.paymentInfo.status = "PAID";
       order.paymentInfo.paidAt = new Date();
+
+      // Trigger Event-Driven Loyalty & Badge Progression on User Model for COD delivery
+      try {
+        const userDoc = await User.findById(order.user);
+        if (userDoc) {
+          const userOrderCount = await Order.countDocuments({ user: order.user });
+          await userDoc.recordOrderPayment({
+            amount: order.pricing?.grandTotal || 0,
+            orderCount: userOrderCount,
+            orderNumber: order.orderNumber
+          });
+        }
+      } catch (loyaltyErr) {
+        console.error("Non-blocking loyalty update error on COD delivery:", loyaltyErr);
+      }
     }
   }
 

@@ -59,83 +59,164 @@ export const getCustomerDashboardSummary = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const userObjectId = new mongoose.Types.ObjectId(userId);
 
-  // Run independent customer queries concurrently
-  const [userProfile, orderStats, recentOrders, cartData, wishlistData, reviewStats] =
-    await Promise.all([
-      // 1. User Profile & Saved Addresses
-      User.findById(userId).select("name email phone avatar role addresses createdAt"),
+  const now = new Date();
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-      // 2. Customer Order Statistics
-      Order.aggregate([
-        { $match: { user: userObjectId } },
-        {
-          $facet: {
-            lifetimeSpend: [
-              {
-                $match: {
-                  orderStatus: { $ne: "CANCELLED" },
-                  $or: [
-                    { "paymentInfo.status": "PAID" },
-                    { "paymentInfo.method": "COD", orderStatus: "DELIVERED" }
-                  ]
-                }
-              },
-              {
-                $group: {
-                  _id: null,
-                  totalSpent: { $sum: "$pricing.grandTotal" },
-                  paidOrdersCount: { $sum: 1 }
-                }
+  const [
+    userProfile,
+    orderStats,
+    monthlySpendAgg,
+    categorySpendAgg,
+    activeOrders,
+    recentOrders,
+    cartData,
+    wishlistData,
+    reviewStats
+  ] = await Promise.all([
+    // 1. User Profile, Saved Addresses & Loyalty Data
+    User.findById(userId).select("name email phone avatar role addresses loyalty badges createdAt"),
+
+    // 2. Comprehensive Order & Spending Metrics via Facet Aggregation
+    Order.aggregate([
+      { $match: { user: userObjectId } },
+      {
+        $facet: {
+          lifetimeSpend: [
+            {
+              $match: {
+                orderStatus: { $ne: "CANCELLED" },
+                $or: [
+                  { "paymentInfo.status": "PAID" },
+                  { "paymentInfo.method": "COD", orderStatus: "DELIVERED" }
+                ]
               }
-            ],
-            statusCounts: [
-              {
-                $group: {
-                  _id: "$orderStatus",
-                  count: { $sum: 1 }
-                }
+            },
+            {
+              $group: {
+                _id: null,
+                totalSpent: { $sum: "$pricing.grandTotal" },
+                totalSavings: { $sum: { $ifNull: ["$pricing.discountAmount", 0] } },
+                paidOrdersCount: { $sum: 1 }
               }
-            ],
-            overallCount: [{ $count: "total" }]
-          }
+            }
+          ],
+          statusCounts: [
+            {
+              $group: {
+                _id: "$orderStatus",
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          overallCount: [{ $count: "total" }]
         }
-      ]),
+      }
+    ]),
 
-      // 3. Recent 5 Orders with essential tracking snapshots
-      Order.find({ user: userId })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .select(
-          "orderNumber orderItems pricing orderStatus paymentInfo trackingInfo createdAt"
-        )
-        .lean(),
-
-      // 4. Active Cart summary
-      Cart.findOne({ user: userId })
-        .select("items pricing")
-        .lean(),
-
-      // 5. Wishlist preview (total items + first 4 items populated)
-      Wishlist.findOne({ user: userId })
-        .populate({
-          path: "products.product",
-          select: "title slug regularPrice salePrice images stock isActive"
-        })
-        .lean(),
-
-      // 6. Review metrics submitted by this customer
-      Review.aggregate([
-        { $match: { user: userObjectId } },
-        {
-          $group: {
-            _id: null,
-            totalReviews: { $sum: 1 },
-            totalHelpfulVotes: { $sum: "$helpfulCount" },
-            averageRatingGiven: { $avg: "$rating" }
-          }
+    // 3. 6-Month Time-Series Spending Aggregation for Charts
+    Order.aggregate([
+      {
+        $match: {
+          user: userObjectId,
+          orderStatus: { $ne: "CANCELLED" },
+          createdAt: { $gte: sixMonthsAgo }
         }
-      ])
-    ]);
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          spent: { $sum: "$pricing.grandTotal" },
+          orders: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } }
+    ]),
+
+    // 4. Category-Wise Spending Distribution
+    Order.aggregate([
+      {
+        $match: {
+          user: userObjectId,
+          orderStatus: { $ne: "CANCELLED" }
+        }
+      },
+      { $unwind: "$orderItems" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "orderItems.product",
+          foreignField: "_id",
+          as: "prod"
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $ifNull: [
+              { $arrayElemAt: ["$prod.categoryName", 0] },
+              "Electronics"
+            ]
+          },
+          spent: {
+            $sum: { $multiply: ["$orderItems.price", "$orderItems.quantity"] }
+          },
+          count: { $sum: "$orderItems.quantity" }
+        }
+      },
+      { $sort: { spent: -1 } },
+      { $limit: 6 }
+    ]),
+
+    // 5. Active Unfulfilled / In-Transit Orders (Priority Live Tracking)
+    Order.find({
+      user: userId,
+      orderStatus: {
+        $in: ["PLACED", "CONFIRMED", "PROCESSING", "SHIPPED", "OUT_FOR_DELIVERY"]
+      }
+    })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .select(
+        "orderNumber orderItems pricing orderStatus paymentInfo trackingInfo estimatedDelivery createdAt"
+      )
+      .lean(),
+
+    // 6. Recent 5 Orders with essential snapshots
+    Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select(
+        "orderNumber orderItems pricing orderStatus paymentInfo trackingInfo createdAt"
+      )
+      .lean(),
+
+    // 7. Active Cart summary
+    Cart.findOne({ user: userId }).select("items pricing").lean(),
+
+    // 8. Wishlist preview (total items + first 4 items populated)
+    Wishlist.findOne({ user: userId })
+      .populate({
+        path: "products.product",
+        select: "title slug regularPrice salePrice images stock isActive"
+      })
+      .lean(),
+
+    // 9. Review metrics submitted by this customer
+    Review.aggregate([
+      { $match: { user: userObjectId } },
+      {
+        $group: {
+          _id: null,
+          totalReviews: { $sum: 1 },
+          totalHelpfulVotes: { $sum: "$helpfulCount" },
+          averageRatingGiven: { $avg: "$rating" }
+        }
+      }
+    ])
+  ]);
 
   if (!userProfile) {
     throw new ApiError(404, "User profile not found");
@@ -145,6 +226,7 @@ export const getCustomerDashboardSummary = asyncHandler(async (req, res) => {
   const facetResult = orderStats[0] || {};
   const totalOrders = facetResult.overallCount?.[0]?.total || 0;
   const lifetimeSpent = facetResult.lifetimeSpend?.[0]?.totalSpent || 0;
+  const totalSavings = facetResult.lifetimeSpend?.[0]?.totalSavings || 0;
 
   const statusMap = (facetResult.statusCounts || []).reduce((acc, item) => {
     acc[item._id] = item.count;
@@ -159,6 +241,87 @@ export const getCustomerDashboardSummary = asyncHandler(async (req, res) => {
     (statusMap["OUT_FOR_DELIVERY"] || 0);
   const deliveredOrdersCount = statusMap["DELIVERED"] || 0;
   const cancelledOrdersCount = statusMap["CANCELLED"] || 0;
+
+  // 3. Compute VIP Loyalty Tier & Progression via Decoupled User Model Method
+  const spent = Math.round(lifetimeSpent * 100) / 100;
+  const loyalty = userProfile
+    ? userProfile.calculateLoyaltyProgression(spent)
+    : User.computeLoyaltyTier(spent, 0);
+
+  // Reconcile user loyalty state in background if out-of-sync with order history
+  if (
+    userProfile &&
+    (!userProfile.loyalty?.lifetimeSpent || userProfile.loyalty.lifetimeSpent < spent)
+  ) {
+    userProfile.loyalty = userProfile.loyalty || {};
+    userProfile.loyalty.lifetimeSpent = spent;
+    userProfile.loyalty.tier = loyalty.tierKey;
+    userProfile.save().catch(() => {});
+  }
+
+  // Build Continuous 6-Month Time-Series Array (ensures 0-fill for quiet months)
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthlySpending = [];
+  const spendLookup = (monthlySpendAgg || []).reduce((acc, row) => {
+    const key = `${row._id.year}-${row._id.month}`;
+    acc[key] = { spent: row.spent || 0, orders: row.orders || 0 };
+    return acc;
+  }, {});
+
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const yr = d.getFullYear();
+    const mo = d.getMonth() + 1; // 1-indexed
+    const lookupKey = `${yr}-${mo}`;
+    const record = spendLookup[lookupKey] || { spent: 0, orders: 0 };
+    monthlySpending.push({
+      month: monthNames[d.getMonth()],
+      year: yr,
+      spent: Math.round(record.spent * 100) / 100,
+      orders: record.orders
+    });
+  }
+
+  // Format Category Breakdown with Percentage Share
+  const totalCatSpent = categorySpendAgg.reduce((sum, c) => sum + (c.spent || 0), 0) || 1;
+  const categoryBreakdown = categorySpendAgg.map((cat) => ({
+    category: (cat._id || "Electronics").toUpperCase(),
+    spent: Math.round(cat.spent * 100) / 100,
+    count: cat.count || 0,
+    percentage: Math.min(100, Math.round((cat.spent / totalCatSpent) * 100))
+  }));
+
+  // Step-indexed Active Orders for Real-Time Tracking UI
+  const statusStepMap = {
+    PLACED: 0,
+    CONFIRMED: 1,
+    PROCESSING: 2,
+    SHIPPED: 3,
+    OUT_FOR_DELIVERY: 3,
+    DELIVERED: 4
+  };
+
+  const formattedActiveOrders = activeOrders.map((ord) => ({
+    _id: ord._id,
+    orderNumber: ord.orderNumber,
+    orderStatus: ord.orderStatus,
+    statusStep: statusStepMap[ord.orderStatus] ?? 0,
+    itemsCount: ord.orderItems?.length || 0,
+    firstItem: ord.orderItems?.[0]
+      ? {
+          title: ord.orderItems[0].title,
+          image: ord.orderItems[0].image,
+          price: ord.orderItems[0].price,
+          quantity: ord.orderItems[0].quantity
+        }
+      : null,
+    grandTotal: ord.pricing?.grandTotal || 0,
+    paymentMethod: ord.paymentInfo?.method || "RAZORPAY",
+    paymentStatus: ord.paymentInfo?.status || "PENDING",
+    trackingInfo: ord.trackingInfo || null,
+    estimatedDelivery: ord.estimatedDelivery || null,
+    createdAt: ord.createdAt
+  }));
 
   // Format Wishlist Preview
   const wishlistItems = wishlistData?.products || [];
@@ -198,15 +361,24 @@ export const getCustomerDashboardSummary = asyncHandler(async (req, res) => {
           phone: userProfile.phone,
           avatar: userProfile.avatar?.url || "",
           memberSince: userProfile.createdAt,
-          defaultAddress
+          defaultAddress,
+          totalAddressesCount: userProfile.addresses?.length || 0
         },
+        loyalty,
+        badges: userProfile?.badges || [],
         metrics: {
           totalOrders,
           activeOrdersCount,
           deliveredOrdersCount,
           cancelledOrdersCount,
-          lifetimeSpent: Math.round(lifetimeSpent * 100) / 100
+          lifetimeSpent: spent,
+          totalSavings: Math.round(totalSavings * 100) / 100,
+          averageOrderValue:
+            totalOrders > 0 ? Math.round((spent / totalOrders) * 100) / 100 : 0
         },
+        monthlySpending,
+        categoryBreakdown,
+        activeOrders: formattedActiveOrders,
         recentOrders,
         cart: {
           totalItems: cartData?.pricing?.totalItems || cartData?.items?.length || 0,

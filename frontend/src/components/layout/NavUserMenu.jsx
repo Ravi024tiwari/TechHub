@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   Layers,
   ArrowRight,
+  LayoutDashboard,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -88,7 +89,7 @@ export default function NavUserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-label="User profile menu"
-        className={`flex items-center gap-1.5 sm:gap-2.5 p-0.5 sm:pl-1.5 sm:pr-3 sm:py-1 rounded-full border-2 transition-all cursor-pointer ${
+        className={`flex items-center gap-1.5 xl:gap-2.5 p-0.5 xl:pl-1.5 xl:pr-3 xl:py-1 rounded-full border-2 transition-all cursor-pointer ${
           isOpen
             ? "bg-white/20 border-white shadow-[0_0_20px_rgba(255,255,255,0.25)]"
             : "bg-white/[0.05] hover:bg-white/[0.12] border-slate-300 dark:border-white/20 hover:border-white"
@@ -105,8 +106,8 @@ export default function NavUserMenu() {
           <span className="absolute bottom-0 right-0 size-2 sm:size-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0a0c10]" />
         </div>
 
-        {/* User Info (Desktop) */}
-        <div className="hidden sm:flex flex-col text-left">
+        {/* User Info (Desktop xl+) */}
+        <div className="hidden xl:flex flex-col text-left">
           <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight max-w-[110px] truncate">
             {user.name}
           </span>
@@ -121,7 +122,7 @@ export default function NavUserMenu() {
         </div>
 
         <ChevronDown
-          className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 hidden sm:block ${
+          className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 hidden xl:block ${
             isOpen ? "rotate-180 text-white" : ""
           }`}
         />
@@ -207,7 +208,34 @@ export default function NavUserMenu() {
 
           {/* Navigation Links with High-Contrast Color Combinations */}
           <div className="space-y-1 py-1">
-            {/* 1. All Products / Catalog */}
+            {/* 1. Customer Command Center / Dashboard */}
+            <Link
+              to="/dashboard"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-between p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 hover:border-sky-500/40 text-xs font-medium text-slate-200 hover:text-white transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 group-hover:scale-110 transition-transform">
+                  <LayoutDashboard className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="block font-bold text-white">Customer Dashboard</span>
+                    <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-sky-500/30 text-sky-300 font-bold uppercase">
+                      VIP
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">
+                    Spend analytics, tier & live tracker
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] text-sky-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">
+                Open →
+              </span>
+            </Link>
+
+            {/* 2. All Products / Catalog */}
             <Link
               to="/products"
               onClick={() => setIsOpen(false)}
