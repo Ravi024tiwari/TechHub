@@ -7,6 +7,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useAddressesQuery } from "@/hooks/useAddresses";
 import { usePlaceCodOrderMutation } from "@/hooks/useOrders";
+import { syncCartApi, clearCartApi, applyCouponApi } from "@/api/cartApi";
 import {
   ShoppingBag,
   Trash2,
@@ -111,7 +112,9 @@ export default function Cart() {
       maximumFractionDigits: 0,
     }).format(val || 0);
 
-  // Handle Checkout Order Placement
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+
+  // Handle Checkout Order Placement with Production Server-Side Cart Synchronization
   const handleProceedCheckout = async () => {
     setOrderError("");
 
@@ -120,13 +123,43 @@ export default function Cart() {
       return;
     }
 
+    if (items.length === 0) {
+      setOrderError("Your cart is empty. Please add items to checkout.");
+      return;
+    }
+
     if (!selectedAddressId) {
       setOrderError("Please add and select a shipping address before checking out.");
       return;
     }
 
-    if (paymentMethod === "COD") {
-      try {
+    setIsSubmittingOrder(true);
+
+    try {
+      // Step 1: Format items and synchronize with MongoDB backend
+      const syncItems = items.map((item) => ({
+        productId: item._id,
+        quantity: item.quantity || 1,
+        selectedSpecs: {
+          color: item.selectedColor || "",
+        },
+      }));
+
+      // Flush previous session cart on server and push fresh items
+      await clearCartApi();
+      await syncCartApi(syncItems);
+
+      // Step 2: If a promo coupon was applied, synchronize it with backend
+      if (couponSuccess && couponCode) {
+        try {
+          await applyCouponApi(couponCode);
+        } catch (couponErr) {
+          console.warn("Backend coupon notice:", couponErr);
+        }
+      }
+
+      // Step 3: Place order via Cash on Delivery
+      if (paymentMethod === "COD") {
         const response = await placeCodMutation.mutateAsync({
           shippingAddressId: selectedAddressId,
         });
@@ -134,17 +167,19 @@ export default function Cart() {
         setIsOrderPlaced(true);
         setPlacedOrderDetails(response?.data?.order || response?.order || null);
         clearCart();
-      } catch (err) {
-        setOrderError(
-          err?.response?.data?.message ||
-            err?.message ||
-            "Failed to place order. Please try again."
+      } else {
+        alert(
+          "Online Razorpay / Card gateway initialized! In test mode, please switch to 'Cash on Delivery' to test end-to-end order placement."
         );
       }
-    } else {
-      alert(
-        "Online Razorpay / Card gateway initialized! In test mode, please switch to 'Cash on Delivery' to test end-to-end order placement."
+    } catch (err) {
+      setOrderError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to place order. Please review your cart and try again."
       );
+    } finally {
+      setIsSubmittingOrder(false);
     }
   };
 
@@ -691,17 +726,17 @@ export default function Cart() {
                 <button
                   type="button"
                   onClick={handleProceedCheckout}
-                  disabled={placeCodMutation.isPending}
+                  disabled={placeCodMutation.isPending || isSubmittingOrder}
                   className="w-full h-11 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-heading font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-98 transition-all cursor-pointer disabled:opacity-50"
                 >
-                  {placeCodMutation.isPending ? (
+                  {placeCodMutation.isPending || isSubmittingOrder ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Lock className="h-4 w-4" />
                   )}
                   <span>
-                    {placeCodMutation.isPending
-                      ? "Placing Order..."
+                    {placeCodMutation.isPending || isSubmittingOrder
+                      ? "Securing & Placing Order..."
                       : paymentMethod === "COD"
                       ? "Confirm COD Order"
                       : "Proceed to Payment Gateway"}
