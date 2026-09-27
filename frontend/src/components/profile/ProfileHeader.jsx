@@ -24,7 +24,7 @@ export default function ProfileHeader({ user, onAvatarClick }) {
         <div className="relative group cursor-pointer shrink-0" onClick={onAvatarClick}>
           <Avatar className="size-16 sm:size-24 border-2 border-slate-200 dark:border-white/20 shadow-lg">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.name} />}
-            <AvatarFallback className="text-xl sm:text-2xl font-bold bg-gradient-to-tr from-sky-500 to-blue-600 text-white">
+            <AvatarFallback className="text-xl sm:text-2xl font-bold bg-gradient-to-tr from-orange-500 to-amber-600 text-white">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -56,14 +56,14 @@ export default function ProfileHeader({ user, onAvatarClick }) {
       <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-white/[0.06]">
         <Link
           to="/cart"
-          className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 text-slate-800 dark:text-white transition-all text-center flex items-center justify-center gap-2 hover:bg-slate-200 dark:hover:bg-white/10"
+          className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:border-white/20 text-slate-800 dark:text-white transition-all text-center flex items-center justify-center gap-2 hover:bg-slate-200 dark:hover:bg-white/10"
         >
-          <ShoppingBag className="h-4 w-4 text-sky-400 shrink-0" />
+          <ShoppingBag className="h-4 w-4 text-orange-500 shrink-0" />
           <span>My Bag</span>
         </Link>
         <Link
           to="/products"
-          className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-md shadow-sky-500/20 hover:shadow-sky-500/35 hover:scale-105 active:scale-95 transition-all text-center"
+          className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all text-center"
         >
           Explore Hardware
         </Link>

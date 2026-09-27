@@ -4,6 +4,9 @@ import {
   fetchOrderByIdApi,
   placeCodOrderApi,
   cancelOrderApi,
+  downloadInvoicePdfApi,
+  submitReviewApi,
+  submitReturnRequestApi,
 } from "../api/orderApi";
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -28,7 +31,7 @@ export function useMyOrdersQuery(params = {}) {
 }
 
 /**
- * Hook to retrieve a single order by its ID.
+ * Hook to retrieve a single order by its ID or orderNumber.
  */
 export function useOrderDetailQuery(orderId) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -37,6 +40,7 @@ export function useOrderDetailQuery(orderId) {
     queryKey: ORDER_KEYS.detail(orderId),
     queryFn: () => fetchOrderByIdApi(orderId),
     enabled: Boolean(isAuthenticated && orderId),
+    staleTime: 1000 * 60 * 2, // 2 minutes fresh
   });
 }
 
@@ -62,8 +66,51 @@ export function useCancelOrderMutation() {
 
   return useMutation({
     mutationFn: ({ orderId, reason }) => cancelOrderApi(orderId, reason),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ORDER_KEYS.myOrders });
+      if (variables?.orderId) {
+        queryClient.invalidateQueries({ queryKey: ORDER_KEYS.detail(variables.orderId) });
+      }
+    },
+  });
+}
+
+/**
+ * Hook to download PDF tax invoice.
+ */
+export function useDownloadInvoiceMutation() {
+  return useMutation({
+    mutationFn: ({ orderId, orderNumber }) => downloadInvoicePdfApi(orderId, orderNumber),
+  });
+}
+
+/**
+ * Hook to submit product review from delivered order item.
+ */
+export function useSubmitReviewMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ productId, reviewData }) => submitReviewApi(productId, reviewData),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["productReviews", variables.productId] });
+      queryClient.invalidateQueries({ queryKey: ["product", variables.productId] });
+    },
+  });
+}
+
+/**
+ * Hook to submit item return/exchange request.
+ */
+export function useSubmitReturnMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: submitReturnRequestApi,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myReturns"] });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.myOrders });
     },
   });
 }
+

@@ -29,7 +29,7 @@ export default function WishlistClearModal({ isOpen, onClose, onConfirm, itemCou
           </div>
           <div>
             <h3 className="font-heading text-lg font-bold text-slate-900 dark:text-white">
-              Clear Hardware Vault?
+              Clear Your Wishlist?
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               This action cannot be undone.
@@ -60,7 +60,7 @@ export default function WishlistClearModal({ isOpen, onClose, onConfirm, itemCou
             className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-500/25 active:scale-95 transition-all cursor-pointer"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            <span>Clear Vault</span>
+            <span>Clear Wishlist</span>
           </button>
         </div>
       </div>

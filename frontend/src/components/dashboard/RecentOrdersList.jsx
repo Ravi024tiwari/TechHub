@@ -183,7 +183,7 @@ export default function RecentOrdersList({ recentOrders = [] }) {
 
                   <div className="flex items-center gap-2">
                     <Link
-                      to={`/orders`}
+                      to={`/orders/${order.orderNumber || order._id}`}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-white/10 hover:bg-gradient-to-r hover:from-orange-500 hover:to-amber-500 hover:border-orange-500 hover:text-white border border-slate-200 dark:border-white/15 text-xs font-heading font-bold text-slate-700 dark:text-slate-200 shadow-xs transition-all"
                     >
                       <span>Details</span>

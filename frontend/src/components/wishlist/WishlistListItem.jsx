@@ -56,9 +56,9 @@ export default function WishlistListItem({ product }) {
   };
 
   return (
-    <div className="group p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0c0f17] border border-slate-200/90 dark:border-white/10 hover:border-rose-500/40 dark:hover:border-rose-500/30 transition-all duration-300 shadow-xs hover:shadow-xl dark:hover:shadow-black/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-6 relative overflow-hidden">
+    <div className="group p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0c0f17] border border-slate-200/90 dark:border-white/10 hover:border-orange-500/40 dark:hover:border-orange-500/30 transition-all duration-300 shadow-xs hover:shadow-xl dark:hover:shadow-black/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-6 relative overflow-hidden">
       {/* Ambient hover glow */}
-      <div className="absolute -right-16 -top-16 w-36 h-36 bg-rose-500/5 rounded-full blur-3xl pointer-events-none group-hover:opacity-100 opacity-0 transition-opacity" />
+      <div className="absolute -right-16 -top-16 w-36 h-36 bg-orange-500/5 rounded-full blur-3xl pointer-events-none group-hover:opacity-100 opacity-0 transition-opacity" />
 
       {/* Left: Product Image & Meta */}
       <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 w-full md:w-auto">
@@ -75,7 +75,7 @@ export default function WishlistListItem({ product }) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-            <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">
+            <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/20">
               {product.brandName || "FLAGSHIP"}
             </span>
 
@@ -100,7 +100,7 @@ export default function WishlistListItem({ product }) {
 
           <Link
             to={`/product/${product.slug || product._id}`}
-            className="font-heading font-bold text-xs sm:text-base text-slate-900 dark:text-white hover:text-rose-500 dark:hover:text-rose-400 transition-colors line-clamp-1 block tracking-tight"
+            className="font-heading font-bold text-xs sm:text-base text-slate-900 dark:text-white hover:text-orange-500 dark:hover:text-orange-400 transition-colors line-clamp-1 block tracking-tight"
           >
             {product.title}
           </Link>
@@ -143,7 +143,7 @@ export default function WishlistListItem({ product }) {
                 ? "bg-slate-100 dark:bg-white/5 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-white/5"
                 : isAdded
                 ? "bg-emerald-500 text-white shadow-emerald-500/30"
-                : "bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white shadow-rose-500/25"
+                : "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20"
             }`}
             title="Move to Bag"
           >

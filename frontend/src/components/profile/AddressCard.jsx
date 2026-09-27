@@ -38,7 +38,7 @@ export default function AddressCard({
     ? "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30"
     : isOther
     ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
-    : "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30";
+    : "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30";
 
   return (
     <div
@@ -53,7 +53,7 @@ export default function AddressCard({
         className={`absolute -right-12 -top-12 w-32 h-32 rounded-full blur-3xl pointer-events-none transition-opacity ${
           isDefault
             ? "bg-emerald-500/15 opacity-100"
-            : "bg-sky-500/5 opacity-0 group-hover:opacity-100"
+            : "bg-orange-500/5 opacity-0 group-hover:opacity-100"
         }`}
       />
 
@@ -85,7 +85,7 @@ export default function AddressCard({
             <button
               type="button"
               onClick={onEdit}
-              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 border border-transparent hover:border-orange-500/20 transition-all cursor-pointer"
               title="Edit Address"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -123,7 +123,7 @@ export default function AddressCard({
         {/* Street & Postal Geo Container */}
         <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.07] space-y-2 mb-3 sm:mb-4 text-xs leading-relaxed">
           <div className="flex items-start gap-2.5">
-            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-500 shrink-0 mt-0.5" />
+            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-500 shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
               <p className="font-medium text-slate-800 dark:text-slate-200 text-xs sm:text-[13px]">
                 {address.street}

@@ -42,14 +42,14 @@ export default function Profile() {
         <Navbar />
         <div className="flex-1 flex items-center justify-center p-6 text-center">
           <div className="max-w-md p-8 rounded-3xl bg-white dark:bg-[#0c0f17] border border-slate-200 dark:border-white/10 shadow-xl">
-            <User className="h-12 w-12 mx-auto text-sky-500 mb-4" />
+            <User className="h-12 w-12 mx-auto text-orange-500 mb-4" />
             <h1 className="text-xl font-bold font-heading mb-2">Please Sign In</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
               You must be logged in to view and manage your account profile and addresses.
             </p>
             <Link
               to="/login"
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-heading font-bold text-xs uppercase tracking-wider shadow-md shadow-sky-500/25 hover:scale-105 active:scale-95 transition-all inline-block"
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-heading font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/25 hover:scale-105 active:scale-95 transition-all inline-block"
             >
               Sign In Now
             </Link>

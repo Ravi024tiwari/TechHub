@@ -6,6 +6,7 @@ import ProductCard from "@/components/product/ProductCard";
 import WishlistListItem from "@/components/wishlist/WishlistListItem";
 import WishlistToolbar from "@/components/wishlist/WishlistToolbar";
 import WishlistClearModal from "@/components/wishlist/WishlistClearModal";
+import WishlistHeader from "@/components/wishlist/WishlistHeader";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { useCartStore } from "@/store/useCartStore";
 import {
@@ -35,6 +36,8 @@ export default function Wishlist() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
+  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [isMovingToCart, setIsMovingToCart] = useState(false);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [batchActionNotice, setBatchActionNotice] = useState(null);
 
@@ -57,7 +60,7 @@ export default function Wishlist() {
   }, [items]);
 
   // Financial summary metrics
-  const { totalValue, totalSavings, inStockCount } = useMemo(() => {
+  const { totalValue, totalSavings, inStockCount, outOfStockCount } = useMemo(() => {
     let value = 0;
     let savings = 0;
     let inStock = 0;
@@ -74,7 +77,14 @@ export default function Wishlist() {
       }
     });
 
-    return { totalValue: value, totalSavings: savings, inStockCount: inStock };
+    const outOfStock = Math.max(0, items.length - inStock);
+
+    return {
+      totalValue: value,
+      totalSavings: savings,
+      inStockCount: inStock,
+      outOfStockCount: outOfStock,
+    };
   }, [items]);
 
   const formatINR = (val) =>
@@ -87,6 +97,13 @@ export default function Wishlist() {
   // Filter & Sort Items
   const filteredItems = useMemo(() => {
     let result = [...items];
+
+    // In-Stock Only filter
+    if (onlyInStock) {
+      result = result.filter(
+        (item) => item.inStock !== false && (item.stock ?? 1) > 0
+      );
+    }
 
     // Search query filter
     if (searchQuery.trim()) {
@@ -135,7 +152,7 @@ export default function Wishlist() {
     }
 
     return result;
-  }, [items, searchQuery, selectedCategory, sortBy]);
+  }, [items, searchQuery, selectedCategory, sortBy, onlyInStock]);
 
   // Move all available in-stock items to bag
   const handleMoveAllToCart = () => {
@@ -151,26 +168,33 @@ export default function Wishlist() {
       return;
     }
 
-    available.forEach((item) => {
-      addItem(item, 1);
-    });
-
-    setBatchActionNotice({
-      type: "success",
-      message: `Moved ${available.length} ${
-        available.length === 1 ? "item" : "items"
-      } directly to your shopping bag!`,
-    });
+    setIsMovingToCart(true);
 
     setTimeout(() => {
-      setBatchActionNotice(null);
-    }, 4000);
+      available.forEach((item) => {
+        addItem(item, 1);
+      });
+
+      setIsMovingToCart(false);
+
+      setBatchActionNotice({
+        type: "success",
+        message: `Moved ${available.length} ${
+          available.length === 1 ? "item" : "items"
+        } directly to your shopping bag!`,
+      });
+
+      setTimeout(() => {
+        setBatchActionNotice(null);
+      }, 4000);
+    }, 300);
   };
 
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedCategory("all");
     setSortBy("recent");
+    setOnlyInStock(false);
   };
 
   return (
@@ -178,93 +202,19 @@ export default function Wishlist() {
       <Navbar />
 
       <main className="flex-1 w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-10">
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400 mb-6">
-          <Link
-            to="/"
-            className="hover:text-slate-900 dark:hover:text-white transition-colors"
-          >
-            Home
-          </Link>
-          <ChevronRight className="h-3 w-3 text-slate-400" />
-          <Link
-            to="/products"
-            className="hover:text-slate-900 dark:hover:text-white transition-colors"
-          >
-            Catalog
-          </Link>
-          <ChevronRight className="h-3 w-3 text-slate-400" />
-          <span className="text-slate-900 dark:text-white font-semibold">
-            Saved Hardware Vault
-          </span>
-        </nav>
-
-        {/* Hero Header & Vault Value Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-200 dark:border-white/10 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 text-[11px] font-mono uppercase tracking-wider mb-2.5 font-bold border border-rose-500/20 shadow-xs">
-              <Heart className="h-3 w-3 fill-rose-500" />
-              <span>Customer Hardware Vault</span>
-            </div>
-            <h1 className="font-heading text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Saved Wishlist ({items.length})
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
-              Track real-time pricing on curated flagship gear, monitor stock
-              levels, and seamlessly transfer saved builds into your cart.
-            </p>
-          </div>
-
-          {items.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Financial Snapshot Card */}
-              <div className="px-4 py-2.5 rounded-2xl bg-white dark:bg-[#0c0f17] border border-slate-200 dark:border-white/10 flex items-center gap-4 shadow-xs">
-                <div>
-                  <div className="text-[10px] font-mono uppercase text-slate-400">
-                    Estimated Vault Value
-                  </div>
-                  <div className="font-heading font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
-                    {formatINR(totalValue)}
-                  </div>
-                </div>
-
-                {totalSavings > 0 && (
-                  <div className="pl-4 border-l border-slate-200 dark:border-white/10">
-                    <div className="text-[10px] font-mono uppercase text-emerald-500 flex items-center gap-0.5">
-                      <TrendingDown className="h-3 w-3" />
-                      <span>Savings</span>
-                    </div>
-                    <div className="font-mono font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400">
-                      {formatINR(totalSavings)}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleMoveAllToCart}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white shadow-lg shadow-rose-500/25 active:scale-95 transition-all cursor-pointer"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  <span>Move All In-Stock ({inStockCount})</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsClearModalOpen(true)}
-                  className="p-3 rounded-2xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 transition-all cursor-pointer"
-                  title="Clear Hardware Vault"
-                  aria-label="Clear Hardware Vault"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Production-Grade Interactive Hardware Vault Hero Header */}
+        <WishlistHeader
+          items={items}
+          totalValue={totalValue}
+          totalSavings={totalSavings}
+          inStockCount={inStockCount}
+          outOfStockCount={outOfStockCount}
+          onMoveAllToCart={handleMoveAllToCart}
+          onClearClick={() => setIsClearModalOpen(true)}
+          isMoving={isMovingToCart}
+          onlyInStock={onlyInStock}
+          setOnlyInStock={setOnlyInStock}
+        />
 
         {/* Batch Notice Toast */}
         {batchActionNotice && (
@@ -299,18 +249,16 @@ export default function Wishlist() {
               </div>
             </div>
             <h2 className="font-heading text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2.5">
-              Your Hardware Vault is Empty
+              Your Wishlist is Empty
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-              You haven't saved any hardware yet. Explore our ultra-flagship
-              catalog and tap the heart icon on any device to monitor prices
-              and store them here.
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-sans">
+              You haven't saved any items to your wishlist yet. Explore our catalog and tap the heart icon on any product to save it here.
             </p>
             <Link
               to="/products"
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-950 font-heading font-bold text-xs uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-heading font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
             >
-              <span>Explore Flagship Catalog</span>
+              <span>Explore Products</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -329,6 +277,8 @@ export default function Wishlist() {
               setViewMode={handleViewModeChange}
               totalCount={items.length}
               filteredCount={filteredItems.length}
+              onlyInStock={onlyInStock}
+              setOnlyInStock={setOnlyInStock}
             />
 
             {/* Zero Results from Active Filter */}

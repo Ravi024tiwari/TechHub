@@ -135,7 +135,7 @@ export default function PersonalDetailsSection({ user, fileInputRef: externalFil
           <div className="relative inline-block mx-auto mb-4 group">
             <Avatar className="size-32 border-4 border-slate-100 dark:border-white/10 shadow-xl">
               {currentAvatarUrl && <AvatarImage src={currentAvatarUrl} alt={user?.name} />}
-              <AvatarFallback className="text-4xl font-extrabold bg-gradient-to-tr from-sky-500 to-blue-600 text-white">
+              <AvatarFallback className="text-4xl font-extrabold bg-gradient-to-tr from-orange-500 to-amber-600 text-white">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -153,7 +153,7 @@ export default function PersonalDetailsSection({ user, fileInputRef: externalFil
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-heading font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-sky-500/20 hover:shadow-sky-500/35 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-heading font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
             >
               <Camera className="h-4 w-4" />
               <span>Upload New Photo</span>
@@ -217,7 +217,7 @@ export default function PersonalDetailsSection({ user, fileInputRef: externalFil
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Ravi Tiwari"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 focus:border-sky-500 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 focus:border-orange-500 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function PersonalDetailsSection({ user, fileInputRef: externalFil
                   value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                   placeholder="9876543210"
-                  className="w-full pl-12 pr-3.5 py-2.5 rounded-xl text-xs font-mono bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 focus:border-sky-500 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none transition-colors"
+                  className="w-full pl-12 pr-3.5 py-2.5 rounded-xl text-xs font-mono bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 focus:border-orange-500 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none transition-colors"
                 />
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -276,7 +276,7 @@ export default function PersonalDetailsSection({ user, fileInputRef: externalFil
               <button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
-                className="px-6 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-md shadow-sky-500/25 active:scale-95 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                className="px-6 py-2.5 rounded-xl text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 active:scale-95 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {updateProfileMutation.isPending && (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />

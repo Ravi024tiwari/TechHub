@@ -678,6 +678,7 @@ export const getMyOrders = asyncHandler(async (req, res) => {
 
   const [orders, totalOrders] = await Promise.all([
     Order.find(query)
+      .populate("orderItems.product", "slug brand category")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber)

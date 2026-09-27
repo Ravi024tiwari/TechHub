@@ -88,13 +88,21 @@ export default function ActiveOrderTracker({ activeOrders = [] }) {
           </div>
         </div>
 
-        <Link
-          to={`/orders`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs font-heading font-bold text-slate-700 dark:text-slate-200 transition-colors w-fit"
-        >
-          <span>View All Orders</span>
-          <ChevronRight className="h-3.5 w-3.5" />
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            to={`/orders/${primaryOrder.orderNumber || primaryOrder.id}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white text-xs font-heading font-bold shadow-xs transition-all w-fit"
+          >
+            <span>Telemetry & Details</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            to={`/orders`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs font-heading font-bold text-slate-700 dark:text-slate-200 transition-colors w-fit"
+          >
+            <span>All Orders</span>
+          </Link>
+        </div>
       </div>
 
       {/* Item Snapshot Preview */}

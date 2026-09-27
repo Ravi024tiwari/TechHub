@@ -193,7 +193,7 @@ export default function AddressModal({
       >
         {/* Subtle decorative background ambient flares */}
         <div className="absolute -top-20 -right-20 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-44 h-44 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-44 h-44 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Modal Header */}
         <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50/70 dark:bg-white/[0.02] shrink-0">
@@ -419,8 +419,8 @@ export default function AddressModal({
                   icon: Home,
                   desc: "All Day Delivery",
                   activeClasses:
-                    "bg-sky-500/10 border-sky-500 text-sky-600 dark:text-sky-400 ring-2 ring-sky-500/20 shadow-md shadow-sky-500/10",
-                  iconBadge: "bg-sky-500/20 text-sky-500",
+                    "bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400 ring-2 ring-orange-500/20 shadow-md shadow-orange-500/10",
+                  iconBadge: "bg-orange-500/20 text-orange-500",
                 },
                 {
                   id: "work",

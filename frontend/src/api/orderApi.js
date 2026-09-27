@@ -40,3 +40,53 @@ export const cancelOrderApi = async (orderId, reason = "") => {
   const response = await apiClient.post(`/orders/${orderId}/cancel`, { reason });
   return response.data;
 };
+
+// Download Tax Invoice PDF as a Blob and trigger native browser file save
+export const downloadInvoicePdfApi = async (orderId, orderNumber = "INV") => {
+  const response = await apiClient.get(`/invoices/${orderId}/download`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `Invoice-${orderNumber}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+  return true;
+};
+
+// Submit verified purchase review for an order item
+export const submitReviewApi = async (productId, { rating, title, comment, pros = [], cons = [] }) => {
+  const response = await apiClient.post(`/reviews/${productId}`, {
+    rating,
+    title,
+    comment,
+    pros,
+    cons,
+  });
+  return response.data;
+};
+
+// Submit return or replacement request for a delivered order item
+export const submitReturnRequestApi = async ({
+  orderId,
+  orderItemId,
+  requestType = "RETURN_AND_REFUND",
+  reason,
+  description,
+  serialNumber = "",
+}) => {
+  const response = await apiClient.post("/returns", {
+    orderId,
+    orderItemId,
+    requestType,
+    reason,
+    description,
+    serialNumber,
+  });
+  return response.data;
+};
+

@@ -20,10 +20,10 @@ export default function ProfileTabsNav({ activeTab, onTabChange, addressCount = 
       label: "Personal Details & Photo",
       icon: User,
       activeClass:
-        "bg-white dark:bg-[#0c0f17] text-sky-600 dark:text-sky-400 border-sky-500/40 ring-1 ring-sky-500/25 shadow-md shadow-sky-500/10",
-      activeIconClass: "text-sky-500 dark:text-sky-400",
-      hoverClass: "hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-500/5",
-      accentDot: "bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]",
+        "bg-white dark:bg-[#0c0f17] text-orange-600 dark:text-orange-400 border-orange-500/40 ring-1 ring-orange-500/25 shadow-md shadow-orange-500/10",
+      activeIconClass: "text-orange-500 dark:text-orange-400",
+      hoverClass: "hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-500/5",
+      accentDot: "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]",
     },
     {
       id: "addresses",
@@ -103,12 +103,12 @@ export default function ProfileTabsNav({ activeTab, onTabChange, addressCount = 
       {/* Direct Quick Jump to Customer VIP Dashboard */}
       <Link
         to="/dashboard"
-        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-heading font-bold bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 transition-all shrink-0 ml-auto shadow-sm"
+        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-heading font-bold bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/30 transition-all shrink-0 ml-auto shadow-sm"
       >
-        <LayoutDashboard className="h-3.5 w-3.5" />
+        <LayoutDashboard className="h-3.5 w-3.5 text-orange-500" />
         <span className="hidden sm:inline">VIP Dashboard</span>
         <span className="sm:hidden inline">Dashboard</span>
-        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-sky-500/25 text-sky-600 dark:text-sky-300 font-bold uppercase">
+        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-orange-500/25 text-orange-600 dark:text-orange-300 font-bold uppercase">
           Live
         </span>
       </Link>
