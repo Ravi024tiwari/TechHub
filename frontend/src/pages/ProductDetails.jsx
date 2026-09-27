@@ -27,6 +27,7 @@ import StockTelemetryBadge from "@/components/product-details/StockTelemetryBadg
 import SpecsHighlightsTabs from "@/components/product-details/SpecsHighlightsTabs";
 import AdminProductHUD from "@/components/product-details/AdminProductHUD";
 import MobileStickyBuyBar from "@/components/product-details/MobileStickyBuyBar";
+import ProductReviewsSection from "@/components/product-details/reviews/ProductReviewsSection";
 
 export default function ProductDetails() {
   const { idOrSlug } = useParams();
@@ -261,18 +262,25 @@ export default function ProductDetails() {
               </div>
 
               {/* Ratings Tier */}
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
+              <a
+                href="#product-reviews"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById("product-reviews")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="inline-flex items-center gap-2 text-xs sm:text-sm group hover:opacity-80 transition-opacity w-fit cursor-pointer"
+              >
                 <div className="flex items-center text-amber-500">
                   <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                   <span className="ml-1 font-bold text-slate-900 dark:text-white">
-                    {product.rating ? Number(product.rating).toFixed(1) : "4.9"}
+                    {product.rating ? Number(product.rating).toFixed(1) : "0.0"}
                   </span>
                 </div>
                 <span className="text-slate-300 dark:text-slate-600">·</span>
-                <span className="text-slate-600 dark:text-slate-400">
-                  {product.numReviews || "140"} verified customer ratings
+                <span className="text-slate-600 dark:text-slate-400 group-hover:underline underline-offset-2">
+                  {product.numReviews || 0} verified customer {product.numReviews === 1 ? "rating" : "ratings"}
                 </span>
-              </div>
+              </a>
 
               {/* Pricing Engine */}
               <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0c0e14] border-2 border-slate-200 dark:border-white/10 shadow-sm space-y-2">
@@ -418,6 +426,11 @@ export default function ProductDetails() {
               FULL SPECIFICATION MATRIX & UNBOXING TABS
               ========================================================= */}
           <SpecsHighlightsTabs product={product} />
+
+          {/* =========================================================
+              PRODUCTION GRADE VERIFIED REVIEWS & RATINGS TELEMETRY
+              ========================================================= */}
+          <ProductReviewsSection product={product} />
 
           {/* Related Products Shelf */}
           {relatedProducts.length > 0 && (

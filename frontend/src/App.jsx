@@ -23,6 +23,7 @@ const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./components/common/NotFound"));
 
 import { useThemeStore } from "./store/useThemeStore";
+import { useAuthStore } from "./store/useAuthStore";
 
 // Admin Control Center (Lazy-loaded)
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
@@ -42,6 +43,24 @@ export default function App() {
     initTheme();
   }, [initTheme]);
 
+  // Production Cross-Tab Sync: If session is cleared in another tab, log out and redirect immediately
+  React.useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "shop_auth") {
+        try {
+          const authData = e.newValue ? JSON.parse(e.newValue) : null;
+          if (!authData || !authData.state?.isAuthenticated) {
+            useAuthStore.getState().logout();
+          }
+        } catch {
+          useAuthStore.getState().logout();
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   return (
     <BrowserRouter>
       {/* Automatically scrolls to top on route change */}
@@ -56,13 +75,65 @@ export default function App() {
           <Route path="/deals" element={<Deals />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:orderId" element={<CustomerOrderDetail />} />
-          <Route path="/order/:orderId" element={<CustomerOrderDetail />} />
-          <Route path="/dashboard" element={<CustomerDashboard />} />
-          <Route path="/customer/dashboard" element={<CustomerDashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/account" element={<Profile />} />
+
+          {/* Protected Customer Routes (Redirects to landing page '/' if logged out) */}
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:orderId"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <CustomerOrderDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/order/:orderId"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <CustomerOrderDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <CustomerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer/dashboard"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <CustomerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute redirectTo="/">
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/category/:categorySlug" element={<Products />} />
           <Route path="/product/:idOrSlug" element={<ProductDetails />} />
 

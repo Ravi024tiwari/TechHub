@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import {
   loginUserApi,
   registerUserApi,
@@ -59,10 +60,12 @@ export function useRegisterMutation() {
  * Hook to manage User Logout Mutation:
  * - Revokes session on backend.
  * - Clears Zustand state and wipes TanStack Query cache.
+ * - Seamlessly redirects customer or admin to landing page '/'.
  */
 export function useLogoutMutation() {
   const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: logoutUserApi,
@@ -70,6 +73,7 @@ export function useLogoutMutation() {
       logout();
       queryClient.removeQueries({ queryKey: AUTH_KEYS.currentUser });
       queryClient.clear();
+      navigate("/", { replace: true });
     },
   });
 }

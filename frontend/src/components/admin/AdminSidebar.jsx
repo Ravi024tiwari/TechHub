@@ -13,9 +13,10 @@ import {
   ShieldCheck,
   X,
   Sparkles,
-  Layers
+  Layers,
 } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
+import { logoutUserApi } from "../../api/authApi";
 
 const navSections = [
   {
@@ -134,8 +135,9 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
   }, []);
 
   const handleLogout = () => {
+    logoutUserApi().catch(() => {});
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   const handleNavClick = () => {

@@ -799,17 +799,35 @@ export const getFilterMetadata = asyncHandler(async (req, res) => {
     brandDocMap[doc.slug.toLowerCase()] = doc;
   }
 
-  const enrichedBrands = rawBrandList.map((item) => {
+  // Enrich and deduplicate Brands with aggregated product counts
+  const brandMergeMap = new Map();
+  for (const item of rawBrandList) {
     const key = item._id ? item._id.toString() : "";
     const matchedDoc = brandDocMap[key] || brandDocMap[key.toLowerCase()];
-    return {
-      _id: matchedDoc?._id || item._id,
-      name: matchedDoc?.name || item._id,
-      slug: matchedDoc?.slug || (typeof item._id === "string" ? item._id.toLowerCase() : ""),
-      logo: matchedDoc?.logo?.url || null,
-      count: item.count
-    };
-  });
+    const name = matchedDoc?.name || (typeof item._id === "string" ? item._id : "Unknown");
+    const slug = matchedDoc?.slug || (typeof item._id === "string" ? item._id.toLowerCase() : "");
+    const dedupKey = (slug || name).toLowerCase().trim();
+    if (!dedupKey) continue;
+
+    if (brandMergeMap.has(dedupKey)) {
+      const existing = brandMergeMap.get(dedupKey);
+      existing.count += item.count || 0;
+      if (!existing.logo && matchedDoc?.logo?.url) {
+        existing.logo = matchedDoc.logo.url;
+      }
+    } else {
+      brandMergeMap.set(dedupKey, {
+        _id: matchedDoc?._id || item._id,
+        name: name,
+        slug: slug || dedupKey,
+        logo: matchedDoc?.logo?.url || null,
+        count: item.count || 0
+      });
+    }
+  }
+  const enrichedBrands = Array.from(brandMergeMap.values()).sort(
+    (a, b) => b.count - a.count
+  );
 
   // Enrich Categories with relational document info
   const rawCatList = metadata?.rawCategories || [];
@@ -835,17 +853,35 @@ export const getFilterMetadata = asyncHandler(async (req, res) => {
     catDocMap[doc.name.toLowerCase()] = doc;
   }
 
-  const enrichedCategories = rawCatList.map((item) => {
+  // Enrich and deduplicate Categories with aggregated product counts
+  const catMergeMap = new Map();
+  for (const item of rawCatList) {
     const key = item._id ? item._id.toString() : "";
     const matchedDoc = catDocMap[key] || catDocMap[key.toLowerCase()];
-    return {
-      _id: matchedDoc?._id || item._id,
-      name: matchedDoc?.name || item._id,
-      slug: matchedDoc?.slug || (typeof item._id === "string" ? item._id.toLowerCase() : ""),
-      icon: matchedDoc?.icon?.url || null,
-      count: item.count
-    };
-  });
+    const name = matchedDoc?.name || (typeof item._id === "string" ? item._id : "Unknown");
+    const slug = matchedDoc?.slug || (typeof item._id === "string" ? item._id.toLowerCase() : "");
+    const dedupKey = (slug || name).toLowerCase().trim();
+    if (!dedupKey) continue;
+
+    if (catMergeMap.has(dedupKey)) {
+      const existing = catMergeMap.get(dedupKey);
+      existing.count += item.count || 0;
+      if (!existing.icon && matchedDoc?.icon?.url) {
+        existing.icon = matchedDoc.icon.url;
+      }
+    } else {
+      catMergeMap.set(dedupKey, {
+        _id: matchedDoc?._id || item._id,
+        name: name,
+        slug: slug || dedupKey,
+        icon: matchedDoc?.icon?.url || null,
+        count: item.count || 0
+      });
+    }
+  }
+  const enrichedCategories = Array.from(catMergeMap.values()).sort(
+    (a, b) => b.count - a.count
+  );
 
   // Format Colors
   const formattedColors = (metadata?.colors || []).map((c) => ({

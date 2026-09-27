@@ -33,6 +33,7 @@ import {
   Sparkles,
   Calendar,
   Layers,
+  Star,
 } from "lucide-react";
 
 export default function CustomerOrderDetail() {
@@ -115,6 +116,7 @@ export default function CustomerOrderDetail() {
 
   const isCancellable =
     order && ["PLACED", "CONFIRMED"].includes(order.orderStatus);
+  const isDelivered = order?.orderStatus?.toUpperCase() === "DELIVERED";
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white flex flex-col transition-colors duration-300">
@@ -219,6 +221,42 @@ export default function CustomerOrderDetail() {
         ) : (
           /* Master Order Detail View matching Admin Palette */
           <div className="space-y-6">
+            {/* Delivery Completion & Verified Review Prompt Banner */}
+            {isDelivered && (
+              <div className="relative p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-500/15 via-amber-500/10 to-emerald-500/15 border-2 border-emerald-500/30 dark:border-emerald-500/40 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                    <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-heading font-black text-base sm:text-lg text-slate-900 dark:text-white">
+                        Order Delivered Successfully!
+                      </h3>
+                      <span className="hidden min-[480px]:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                        Verified Purchase
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-sans mt-0.5">
+                      Your items have been delivered. Share your authentic owner review to help other verified buyers.
+                    </p>
+                  </div>
+                </div>
+
+                {order.orderItems?.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReviewItem(order.orderItems[0])}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white font-heading font-bold text-xs uppercase tracking-wider shadow-md shadow-amber-500/25 transition-all cursor-pointer whitespace-nowrap active:scale-95 shrink-0"
+                  >
+                    <Star className="w-3.5 h-3.5 fill-white text-white" />
+                    <span>Rate & Review Products</span>
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Hero Header Card with Crisp Border & Ambient Glow */}
             <div className="relative p-5 sm:p-7 rounded-3xl bg-white dark:bg-[#0c0f17] border border-slate-300 dark:border-white/30 hover:border-slate-400 dark:hover:border-white/50 shadow-sm transition-all overflow-hidden space-y-5">
               <div className="absolute -top-14 -right-14 w-64 h-64 bg-gradient-to-br from-orange-500/15 via-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />

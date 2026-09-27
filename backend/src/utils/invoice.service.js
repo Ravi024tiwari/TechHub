@@ -45,25 +45,17 @@ const formatINR = (amount) => {
 };
 
 /**
- * Generate streaming PDF buffer using PDFKit
- * @param {Object} order - Populated Order document
- * @param {NodeJS.WritableStream} stream - Output stream (e.g. Express res)
+ * Safely format text and handle undefined/null values
  */
+const safeStr = (val, fallback = "") => {
+  if (val === undefined || val === null) return fallback;
+  return String(val);
+};
 
-export const generateInvoicePDF = (order, stream) => {
-  const doc = new PDFDocument({
-    size: "A4",
-    margin: 40,
-    info: {
-      Title: `Invoice-${order.orderNumber}`,
-      Author: COMPANY_DETAILS.name,
-      Subject: "Tax Invoice for Electronics Purchase"
-    }
-  });
-
-  // Pipe directly to the output stream
-  doc.pipe(stream);
-
+/**
+ * Internal helper to draw the invoice contents onto a PDFKit document
+ */
+const drawInvoiceContents = (doc, order) => {
   const primaryColor = "#0f172a"; // Deep navy slate
   const accentColor = "#2563eb"; // Tech blue
   const mutedColor = "#64748b"; // Slate gray
@@ -337,4 +329,52 @@ export const generateInvoicePDF = (order, stream) => {
 
   // Finalize PDF stream
   doc.end();
+};
+
+/**
+ * Generate in-memory PDF Buffer using PDFKit
+ * - Compiles document fully before sending to eliminate net::ERR_INCOMPLETE_CHUNKED_ENCODING
+ * @param {Object} order - Populated Order document
+ * @returns {Promise<Buffer>}
+ */
+export const generateInvoicePDFBuffer = (order) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: "A4",
+        margin: 40,
+        info: {
+          Title: `Invoice-${safeStr(order?.orderNumber || order?._id, "Receipt")}`,
+          Author: COMPANY_DETAILS.name,
+          Subject: "Tax Invoice for Electronics Purchase"
+        }
+      });
+
+      const chunks = [];
+      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+      doc.on("error", (err) => reject(err));
+
+      drawInvoiceContents(doc, order);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+/**
+ * Streaming wrapper for backward compatibility
+ */
+export const generateInvoicePDF = async (order, stream) => {
+  try {
+    const buffer = await generateInvoicePDFBuffer(order);
+    stream.write(buffer);
+    stream.end();
+  } catch (err) {
+    if (!stream.headersSent) {
+      stream.status?.(500).json?.({ success: false, message: "Error generating invoice PDF" });
+    } else {
+      stream.destroy?.(err);
+    }
+  }
 };

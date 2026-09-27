@@ -85,7 +85,7 @@ export const checkCanUserReview = asyncHandler(async (req, res) => {
   const deliveredOrder = await Order.findOne({
     user: req.user._id,
     "orderItems.product": productId,
-    orderStatus: "DELIVERED"
+    orderStatus: { $in: ["DELIVERED", "Delivered", "delivered"] }
   });
 
   if (!deliveredOrder) {
@@ -163,7 +163,7 @@ export const createReview = asyncHandler(async (req, res) => {
   const verifiedOrder = await Order.findOne({
     user: req.user._id,
     "orderItems.product": productId,
-    orderStatus: "DELIVERED"
+    orderStatus: { $in: ["DELIVERED", "Delivered", "delivered"] }
   });
 
   if (!verifiedOrder) {

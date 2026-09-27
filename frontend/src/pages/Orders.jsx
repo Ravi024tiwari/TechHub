@@ -23,11 +23,20 @@ import {
   Navigation,
   XCircle,
   RotateCcw,
+  Star,
 } from "lucide-react";
+import OrderReviewModal from "@/components/orders/OrderReviewModal";
 
 export default function Orders() {
   const { isAuthenticated } = useAuthStore();
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedReviewItem, setSelectedReviewItem] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3500);
+  };
 
   const { data: orders = [], isLoading } = useMyOrdersQuery(
     statusFilter !== "all" ? { status: statusFilter } : {}
@@ -328,14 +337,26 @@ export default function Orders() {
                                 </div>
                               </div>
 
-                              {/* Direct "View Product Details" Link Button */}
-                              <div className="self-end sm:self-center shrink-0">
+                              {/* Action Buttons Column */}
+                              <div className="self-end sm:self-center shrink-0 flex items-center gap-2 flex-wrap">
+                                {order.orderStatus?.toUpperCase() === "DELIVERED" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedReviewItem(item)}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-sans font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/40 hover:border-amber-500/60 shadow-xs transition-all cursor-pointer active:scale-95"
+                                    title="Rate and write an authentic review for this delivered product"
+                                  >
+                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                    <span>Rate & Review</span>
+                                  </button>
+                                )}
+
                                 <Link
                                   to={productUrl}
                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-sans font-semibold bg-white dark:bg-white/10 border border-slate-300 dark:border-white/25 text-slate-800 dark:text-white hover:border-orange-500 hover:text-orange-600 dark:hover:border-orange-500 dark:hover:text-orange-400 shadow-xs transition-all"
                                 >
                                   <ExternalLink className="w-3.5 h-3.5 text-orange-500" />
-                                  <span>View Product Details</span>
+                                  <span>View Details</span>
                                 </Link>
                               </div>
                             </div>
@@ -387,6 +408,22 @@ export default function Orders() {
           </div>
         )}
       </main>
+
+      {/* Verified Product Review Modal */}
+      <OrderReviewModal
+        isOpen={Boolean(selectedReviewItem)}
+        onClose={() => setSelectedReviewItem(null)}
+        item={selectedReviewItem}
+        onSuccess={() => showToast("Review published successfully! Thank you for your feedback.")}
+      />
+
+      {/* Floating Action Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-950 shadow-2xl border border-slate-700 dark:border-white/20 text-xs font-sans font-semibold animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       <Footer />
     </div>

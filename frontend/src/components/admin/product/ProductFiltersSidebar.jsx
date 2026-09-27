@@ -118,9 +118,9 @@ export default function ProductFiltersSidebar({
     [filters.brand]
   );
 
-  // Filtered categories by micro-search
+  // Filtered categories by micro-search (Deduplicated)
   const filteredCategoriesList = useMemo(() => {
-    const list =
+    const rawList =
       categories.length > 0
         ? categories
         : [
@@ -131,15 +131,28 @@ export default function ProductFiltersSidebar({
             { name: "Monitors", slug: "monitors", count: 18 },
             { name: "Accessories", slug: "accessories", count: 29 },
           ];
+
+    const map = new Map();
+    for (const c of rawList) {
+      const slug = (c.slug || c.name || "").toLowerCase().trim();
+      if (!slug) continue;
+      if (map.has(slug)) {
+        map.get(slug).count = (map.get(slug).count || 0) + (c.count || 0);
+      } else {
+        map.set(slug, { ...c, slug });
+      }
+    }
+    const list = Array.from(map.values());
+
     if (!categorySearch.trim()) return list;
     return list.filter((c) =>
       c.name.toLowerCase().includes(categorySearch.toLowerCase().trim())
     );
   }, [categories, categorySearch]);
 
-  // Filtered brands by micro-search
+  // Filtered brands by micro-search (Deduplicated)
   const filteredBrandsList = useMemo(() => {
-    const list =
+    const rawList =
       brands.length > 0
         ? brands
         : [
@@ -151,6 +164,20 @@ export default function ProductFiltersSidebar({
             { name: "HP", count: 12 },
             { name: "Logitech", count: 15 },
           ];
+
+    const map = new Map();
+    for (const b of rawList) {
+      const name = (b.name || b.slug || "").trim();
+      const key = name.toLowerCase();
+      if (!key) continue;
+      if (map.has(key)) {
+        map.get(key).count = (map.get(key).count || 0) + (b.count || 0);
+      } else {
+        map.set(key, { ...b, name });
+      }
+    }
+    const list = Array.from(map.values());
+
     if (!brandSearch.trim()) return list;
     return list.filter((b) =>
       b.name.toLowerCase().includes(brandSearch.toLowerCase().trim())

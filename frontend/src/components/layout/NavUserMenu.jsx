@@ -20,12 +20,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { useLogoutMutation } from "@/hooks/useAuth";
 
-/**
- * Enterprise Production-Grade User Dropdown & Customer Portal:
- * - Optimized for mobile screens with a solid non-bleeding background and backdrop scrim.
- * - Vibrant color-coded interactive items (Emerald, Amber, Rose, Sky, Purple).
- * - Complete links to all customer pages: Catalog, Orders, Wishlist, Bag, and Account.
- */
+
 export default function NavUserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -73,8 +68,8 @@ export default function NavUserMenu() {
   const handleLogout = () => {
     setIsOpen(false);
     logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        navigate("/login");
+      onSettled: () => {
+        navigate("/", { replace: true });
       },
     });
   };

@@ -125,6 +125,17 @@ apiClient.interceptors.response.use(
         // If refresh token is genuinely invalid, logout cleanly
         useAuthStore.getState().logout();
         error.userMessage = "Your session has expired. Please log in again.";
+
+        // Involuntary logout: redirect to home landing page if currently on an authenticated route
+        if (
+          typeof window !== "undefined" &&
+          window.location.pathname !== "/" &&
+          !window.location.pathname.startsWith("/login") &&
+          !window.location.pathname.startsWith("/signup")
+        ) {
+          window.location.replace("/");
+        }
+
         return Promise.reject(error);
       } finally {
         isRefreshing = false;

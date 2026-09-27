@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Order } from "../models/order.model.js";
 import {
   generateInvoicePDF,
+  generateInvoicePDFBuffer,
   COMPANY_DETAILS,
   getHsnCode
 } from "../utils/invoice.service.js";
@@ -102,7 +103,7 @@ export const getOrderInvoiceData = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Generate and stream printable Tax Invoice PDF directly to client browser
+ * @desc    Generate and send printable Tax Invoice PDF directly to client browser
  * @route   GET /api/v1/invoices/:orderId/download
  * @access  Private (Customer & Admin)
  */
@@ -110,15 +111,16 @@ export const downloadOrderInvoicePDF = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
   const order = await getAuthorizedOrder(orderId, req.user);
 
-  const filename = `Invoice-${order.orderNumber}.pdf`;
+  const filename = `Invoice-${order.orderNumber || order._id}.pdf`;
 
-  // Set HTTP headers for streaming binary PDF
+  // Compile PDF in-memory to prevent stream dropouts and chunked encoding errors
+  const pdfBuffer = await generateInvoicePDFBuffer(order);
+
+  // Set HTTP headers for binary PDF with explicit Content-Length (prevents chunked encoding drops)
+  res.status(200);
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="${filename}"`
-  );
-
-  // Generate and stream PDF directly to client response
-  generateInvoicePDF(order, res);
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.setHeader("Content-Length", pdfBuffer.length);
+  res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+  res.end(pdfBuffer);
 });

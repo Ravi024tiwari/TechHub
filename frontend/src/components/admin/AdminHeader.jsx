@@ -17,6 +17,7 @@ import {
   UserCheck
 } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
+import { logoutUserApi } from "../../api/authApi";
 import ThemeToggle from "../common/ThemeToggle";
 import {
   DropdownMenu,
@@ -39,8 +40,9 @@ export default function AdminHeader({
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    logoutUserApi().catch(() => {});
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   return (

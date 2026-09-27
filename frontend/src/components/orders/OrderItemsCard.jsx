@@ -30,7 +30,7 @@ export default function OrderItemsCard({
   const [reorderedId, setReorderedId] = useState(null);
 
   const orderItems = order?.orderItems || [];
-  const isDelivered = order?.orderStatus === "DELIVERED";
+  const isDelivered = order?.orderStatus?.toUpperCase() === "DELIVERED";
 
   const handleBuyAgain = (item) => {
     const productPayload = {
@@ -214,9 +214,10 @@ export default function OrderItemsCard({
                     <button
                       type="button"
                       onClick={() => onOpenReviewModal(item)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-sans font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-sans font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/40 hover:border-amber-500/60 shadow-xs hover:shadow-amber-500/15 transition-all cursor-pointer active:scale-95"
+                      title="Rate and write an authentic review for this delivered product"
                     >
-                      <Star className="w-3.5 h-3.5 text-amber-500" />
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                       <span>Rate & Review</span>
                     </button>
 

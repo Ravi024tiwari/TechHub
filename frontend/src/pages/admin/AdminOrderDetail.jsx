@@ -32,6 +32,7 @@ import {
   useUpdateOrderTrackingMutation,
   useCancelAdminOrderMutation,
 } from "../../hooks/useAdminOrders";
+import { downloadInvoicePdfApi } from "../../api/orderApi";
 import OrderTrackingModal from "../../components/admin/orders/OrderTrackingModal";
 import OrderStatusDropdown from "../../components/admin/orders/OrderStatusDropdown";
 
@@ -72,6 +73,19 @@ export default function AdminOrderDetail() {
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
+
+  const handleDownloadInvoice = async () => {
+    if (!order?._id) return;
+    try {
+      setIsDownloadingInvoice(true);
+      await downloadInvoicePdfApi(order._id, order.orderNumber || "INV");
+    } catch (err) {
+      console.error("Failed to download tax invoice:", err);
+    } finally {
+      setIsDownloadingInvoice(false);
+    }
+  };
 
   // Query order details with 2-minute memory cache
   const { data, isLoading, isError, error, refetch } =
@@ -230,15 +244,20 @@ export default function AdminOrderDetail() {
             <span>Print Slip</span>
           </button>
 
-          <a
-            href={`/api/v1/invoices/${order._id}/download`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-sans font-semibold bg-white dark:bg-white/10 border border-slate-300 dark:border-white/25 text-slate-800 dark:text-white hover:border-orange-500 hover:text-orange-600 transition-colors shadow-xs"
+          <button
+            type="button"
+            onClick={handleDownloadInvoice}
+            disabled={isDownloadingInvoice}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-sans font-semibold bg-white dark:bg-white/10 border border-slate-300 dark:border-white/25 text-slate-800 dark:text-white hover:border-orange-500 hover:text-orange-600 transition-colors shadow-xs cursor-pointer disabled:opacity-60"
+            title="Download Official Tax Invoice PDF"
           >
-            <FileText className="w-3.5 h-3.5 text-orange-500" />
-            <span>Tax Invoice (PDF)</span>
-          </a>
+            {isDownloadingInvoice ? (
+              <Loader2 className="w-3.5 h-3.5 text-orange-500 animate-spin" />
+            ) : (
+              <FileText className="w-3.5 h-3.5 text-orange-500" />
+            )}
+            <span>{isDownloadingInvoice ? "Generating..." : "Tax Invoice (PDF)"}</span>
+          </button>
         </div>
       </div>
 
