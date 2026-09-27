@@ -14,6 +14,7 @@ import {
   X,
   Sparkles,
   Layers,
+  RotateCcw,
 } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
 import { logoutUserApi } from "../../api/authApi";
@@ -68,6 +69,11 @@ const navSections = [
         label: "Customers",
         to: "/admin/customers",
         icon: Users,
+      },
+      {
+        label: "Returns & RMA",
+        to: "/admin/returns",
+        icon: RotateCcw,
       },
     ],
   },

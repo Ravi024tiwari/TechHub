@@ -86,6 +86,9 @@ export function useCreateReviewMutation() {
       queryClient.invalidateQueries({
         queryKey: ["product", variables.productId],
       });
+      // Invalidate orders queries so delivered item review status updates immediately
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["myOrders"] });
     },
   });
 }
@@ -100,6 +103,8 @@ export function useUpdateReviewMutation() {
     mutationFn: ({ reviewId, reviewData }) => updateReviewApi(reviewId, reviewData),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["myOrders"] });
       if (variables?.productId) {
         queryClient.invalidateQueries({
           queryKey: ["product", variables.productId],
@@ -119,6 +124,8 @@ export function useDeleteReviewMutation() {
     mutationFn: ({ reviewId }) => deleteReviewApi(reviewId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["myOrders"] });
       if (variables?.productId) {
         queryClient.invalidateQueries({
           queryKey: ["product", variables.productId],

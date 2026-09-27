@@ -12,7 +12,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 
 /**
  * ReviewCard component
- * Renders a single customer review with verified badge, pros/cons, helpful counter, and edit/delete permissions.
+ * Compact, responsive customer review card optimized for all screen sizes.
  */
 export default function ReviewCard({
   review,
@@ -53,39 +53,39 @@ export default function ReviewCard({
     : "";
 
   return (
-    <article className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0c0f17] border border-slate-200/80 dark:border-white/10 shadow-xs hover:border-slate-300 dark:hover:border-white/20 transition-all duration-200 flex flex-col justify-between">
+    <article className="p-3.5 sm:p-4.5 rounded-xl sm:rounded-2xl bg-white dark:bg-[#0c0f17] border border-slate-200/80 dark:border-white/10 shadow-xs hover:border-slate-300 dark:hover:border-white/20 transition-all duration-200 flex flex-col justify-between">
       <div>
-        {/* Header: User Info & Actions */}
-        <div className="flex items-start justify-between gap-4 mb-3.5">
-          <div className="flex items-center gap-3">
+        {/* Header: User Info & Actions (Ultra-compact on mobile) */}
+        <div className="flex items-center justify-between gap-2 mb-2 sm:mb-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
             {/* User Avatar */}
             {authorAvatar ? (
               <img
                 src={authorAvatar}
                 alt={authorName}
-                className="h-10 w-10 rounded-full object-cover border border-slate-200 dark:border-white/10"
+                className="h-8 w-8 rounded-full object-cover border border-slate-200 dark:border-white/10 shrink-0"
               />
             ) : (
-              <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-heading font-black text-sm flex items-center justify-center shadow-xs">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-heading font-black text-xs flex items-center justify-center shadow-xs shrink-0">
                 {initial}
               </div>
             )}
 
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-heading font-bold text-sm text-slate-900 dark:text-white">
+            <div className="min-w-0 flex flex-col">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-heading font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate max-w-[130px] sm:max-w-none">
                   {authorName}
                 </span>
 
                 {review.isVerifiedPurchase && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    <ShieldCheck className="h-3 w-3" />
-                    Verified Buyer
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                    <ShieldCheck className="h-2.5 w-2.5" />
+                    Verified
                   </span>
                 )}
               </div>
 
-              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+              <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
                 {formattedDate}
               </span>
             </div>
@@ -93,13 +93,13 @@ export default function ReviewCard({
 
           {/* Action Menu (Edit / Delete if authorized) */}
           {(isOwner || isAdmin) && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 shrink-0">
               {isOwner && (
                 <button
                   type="button"
                   onClick={() => onEdit(review)}
                   title="Edit Review"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
+                  className="p-1 rounded-md text-slate-400 hover:text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
                 >
                   <Edit3 className="h-3.5 w-3.5" />
                 </button>
@@ -109,7 +109,7 @@ export default function ReviewCard({
                 type="button"
                 onClick={() => onDelete(review._id)}
                 title="Delete Review"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
+                className="p-1 rounded-md text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -117,14 +117,14 @@ export default function ReviewCard({
           )}
         </div>
 
-        {/* Rating Stars & Title */}
-        <div className="space-y-1.5 mb-3">
+        {/* Rating Stars & Title (Compact inline grouping) */}
+        <div className="space-y-1 mb-2 sm:mb-2.5">
           <div className="flex items-center gap-1.5">
             <div className="flex items-center text-amber-400">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`h-4 w-4 ${
+                  className={`h-3.5 w-3.5 ${
                     star <= review.rating
                       ? "fill-amber-400 text-amber-400"
                       : "text-slate-200 dark:text-white/10"
@@ -132,38 +132,38 @@ export default function ReviewCard({
                 />
               ))}
             </div>
-            <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+            <span className="text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300">
               {review.rating}.0
             </span>
           </div>
 
-          <h4 className="font-heading font-bold text-base text-slate-900 dark:text-white">
+          <h4 className="font-heading font-bold text-xs sm:text-sm text-slate-900 dark:text-white leading-snug">
             {review.title}
           </h4>
         </div>
 
         {/* Review Comment Body */}
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-sans whitespace-pre-line mb-4">
+        <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed font-sans whitespace-pre-line mb-3">
           {review.comment}
         </p>
 
-        {/* Pros & Cons Tags */}
+        {/* Pros & Cons Tags (Compact chips) */}
         {(review.pros?.length > 0 || review.cons?.length > 0) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-3">
             {review.pros?.length > 0 && (
-              <div className="p-2.5 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/15 space-y-1">
-                <span className="flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 className="h-3 w-3" />
+              <div className="p-2 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/15 space-y-0.5">
+                <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-2.5 w-2.5" />
                   Pros
                 </span>
                 <ul className="space-y-0.5">
                   {review.pros.map((pro, idx) => (
                     <li
                       key={idx}
-                      className="text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-1"
+                      className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-1"
                     >
                       <span className="text-emerald-500">•</span>
-                      <span>{pro}</span>
+                      <span className="truncate">{pro}</span>
                     </li>
                   ))}
                 </ul>
@@ -171,19 +171,19 @@ export default function ReviewCard({
             )}
 
             {review.cons?.length > 0 && (
-              <div className="p-2.5 rounded-xl bg-rose-500/[0.04] border border-rose-500/15 space-y-1">
-                <span className="flex items-center gap-1 text-[11px] font-mono font-bold text-rose-600 dark:text-rose-400">
-                  <XCircle className="h-3 w-3" />
+              <div className="p-2 rounded-lg bg-rose-500/[0.04] border border-rose-500/15 space-y-0.5">
+                <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-rose-600 dark:text-rose-400">
+                  <XCircle className="h-2.5 w-2.5" />
                   Cons
                 </span>
                 <ul className="space-y-0.5">
                   {review.cons.map((con, idx) => (
                     <li
                       key={idx}
-                      className="text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-1"
+                      className="text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-300 flex items-start gap-1"
                     >
                       <span className="text-rose-500">•</span>
-                      <span>{con}</span>
+                      <span className="truncate">{con}</span>
                     </li>
                   ))}
                 </ul>
@@ -194,13 +194,13 @@ export default function ReviewCard({
       </div>
 
       {/* Footer: Helpfulness Action */}
-      <div className="pt-3.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
-        <span className="text-[11px] text-slate-400 font-sans">
+      <div className="pt-2 sm:pt-2.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between gap-2">
+        <span className="text-[10px] sm:text-[11px] text-slate-400 font-sans truncate">
           {review.helpfulCount > 0
             ? `${review.helpfulCount} ${
-                review.helpfulCount === 1 ? "person" : "people"
-              } found this helpful`
-            : "Was this review helpful?"}
+                review.helpfulCount === 1 ? "helpful" : "helpful"
+              }`
+            : "Helpful review?"}
         </span>
 
         <button
@@ -214,13 +214,13 @@ export default function ReviewCard({
               ? "You cannot upvote your own review"
               : "Mark as helpful"
           }
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-mono font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
             hasVotedHelpful
-              ? "bg-sky-500 text-white shadow-xs"
+              ? "bg-sky-500 text-white shadow-2xs"
               : "bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-white/10"
           }`}
         >
-          <ThumbsUp className={`h-3.5 w-3.5 ${hasVotedHelpful ? "fill-white" : ""}`} />
+          <ThumbsUp className={`h-3 w-3 ${hasVotedHelpful ? "fill-white" : ""}`} />
           <span>Helpful ({review.helpfulCount || 0})</span>
         </button>
       </div>

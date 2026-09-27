@@ -5,6 +5,8 @@ import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
 import { Coupon } from "../models/coupon.model.js";
 import { User } from "../models/user.model.js";
+import { Review } from "../models/review.model.js";
+import { ReturnRequest } from "../models/return.model.js";
 import { FlashDeal } from "../models/flashDeal.model.js";
 import { razorpayInstance } from "../config/razorpay.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -676,7 +678,7 @@ export const getMyOrders = asyncHandler(async (req, res) => {
   const limitNumber = Math.min(50, Math.max(1, parseInt(limit, 10)));
   const skip = (pageNumber - 1) * limitNumber;
 
-  const [orders, totalOrders] = await Promise.all([
+  const [rawOrders, totalOrders] = await Promise.all([
     Order.find(query)
       .populate("orderItems.product", "slug brand category")
       .sort({ createdAt: -1 })
@@ -685,6 +687,65 @@ export const getMyOrders = asyncHandler(async (req, res) => {
       .select("-__v"),
     Order.countDocuments(query)
   ]);
+
+  let orders = rawOrders.map((o) => o.toObject());
+
+  // Attach user review and return status to order items
+  const [userReviews, userReturns] = await Promise.all([
+    Review.find({ user: req.user._id })
+      .select("_id product order rating title comment createdAt")
+      .lean(),
+    ReturnRequest.find({ user: req.user._id })
+      .select("_id returnNumber order orderItem.orderItemId status requestType reason adminRemarks rejectionReason replacementDetails refundDetails createdAt")
+      .lean()
+  ]);
+
+  const reviewsMap = new Map();
+  userReviews.forEach((rev) => {
+    if (rev.product) {
+      reviewsMap.set(rev.product.toString(), rev);
+    }
+    if (rev.order && rev.product) {
+      reviewsMap.set(`${rev.order.toString()}_${rev.product.toString()}`, rev);
+    }
+  });
+
+  const returnsMap = new Map();
+  userReturns.forEach((ret) => {
+    if (ret.orderItem?.orderItemId) {
+      returnsMap.set(ret.orderItem.orderItemId.toString(), ret);
+    }
+  });
+
+  orders = orders.map((o) => {
+    const isDelivered = ["DELIVERED", "Delivered", "delivered"].includes(o.orderStatus);
+    return {
+      ...o,
+      orderItems: (o.orderItems || []).map((item) => {
+        const prodId = (item.product?._id || item.product)?.toString();
+        const existingReview = isDelivered && prodId
+          ? (o._id ? reviewsMap.get(`${o._id.toString()}_${prodId}`) : null) || reviewsMap.get(prodId) || null
+          : null;
+
+        const itemIdStr = item._id?.toString();
+        const existingReturn = itemIdStr ? returnsMap.get(itemIdStr) || null : null;
+
+        return {
+          ...item,
+          userReview: existingReview
+            ? {
+                _id: existingReview._id,
+                rating: existingReview.rating,
+                title: existingReview.title,
+                comment: existingReview.comment,
+                createdAt: existingReview.createdAt
+              }
+            : null,
+          returnRequest: existingReturn
+        };
+      })
+    };
+  });
 
   return res.status(200).json(
     new ApiResponse(
@@ -731,8 +792,66 @@ export const getOrderById = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Access forbidden: You do not have permission to view this order");
   }
 
+  let orderData = order.toObject();
+
+  // If order is delivered, populate review and return status for each item
+  if (
+    order.orderStatus &&
+    ["DELIVERED", "Delivered", "delivered"].includes(order.orderStatus)
+  ) {
+    const [userReviews, userReturns] = await Promise.all([
+      Review.find({ user: req.user._id })
+        .select("_id product order rating title comment createdAt")
+        .lean(),
+      ReturnRequest.find({ order: order._id })
+        .select("_id returnNumber order orderItem.orderItemId status requestType reason adminRemarks rejectionReason replacementDetails refundDetails createdAt")
+        .lean()
+    ]);
+
+    const reviewsMap = new Map();
+    userReviews.forEach((rev) => {
+      if (rev.product) {
+        reviewsMap.set(rev.product.toString(), rev);
+      }
+      if (rev.order && rev.product) {
+        reviewsMap.set(`${rev.order.toString()}_${rev.product.toString()}`, rev);
+      }
+    });
+
+    const returnsMap = new Map();
+    userReturns.forEach((ret) => {
+      if (ret.orderItem?.orderItemId) {
+        returnsMap.set(ret.orderItem.orderItemId.toString(), ret);
+      }
+    });
+
+    orderData.orderItems = (orderData.orderItems || []).map((item) => {
+      const prodId = (item.product?._id || item.product)?.toString();
+      const existingReview = prodId
+        ? (orderData._id ? reviewsMap.get(`${orderData._id.toString()}_${prodId}`) : null) || reviewsMap.get(prodId) || null
+        : null;
+
+      const itemIdStr = item._id?.toString();
+      const existingReturn = itemIdStr ? returnsMap.get(itemIdStr) || null : null;
+
+      return {
+        ...item,
+        userReview: existingReview
+          ? {
+              _id: existingReview._id,
+              rating: existingReview.rating,
+              title: existingReview.title,
+              comment: existingReview.comment,
+              createdAt: existingReview.createdAt
+            }
+          : null,
+        returnRequest: existingReturn
+      };
+    });
+  }
+
   return res.status(200).json(
-    new ApiResponse(200, { order }, "Order details retrieved successfully")
+    new ApiResponse(200, { order: orderData }, "Order details retrieved successfully")
   );
 });
 

@@ -6,7 +6,8 @@ import {
   cancelReturnRequest,
   getAllReturnRequestsAdmin,
   reviewReturnRequestAdmin,
-  processReturnRefundAdmin
+  processReturnRefundAdmin,
+  dispatchReplacementAdmin
 } from "../controllers/return.controller.js";
 import { verifyJWT, authorizeRoles } from "../middlewares/auth.middleware.js";
 import { uploadMultiple } from "../middlewares/upload.middleware.js";
@@ -83,6 +84,17 @@ returnRouter.post(
   "/admin/:returnId/refund",
   authorizeRoles("admin"),
   processReturnRefundAdmin
+);
+
+/**
+ * @route   POST /api/v1/returns/admin/:returnId/replacement
+ * @desc    Dispatch replacement item for customer and adjust inventory
+ * @access  Private (Admin only)
+ */
+returnRouter.post(
+  "/admin/:returnId/replacement",
+  authorizeRoles("admin"),
+  dispatchReplacementAdmin
 );
 
 export default returnRouter;

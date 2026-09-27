@@ -8,6 +8,7 @@ import {
   Package,
 } from "lucide-react";
 import { useSubmitReviewMutation } from "@/hooks/useOrders";
+import { useUpdateReviewMutation } from "@/hooks/useReviews";
 
 const RATING_LABELS = {
   1: "Poor - Significant Hardware Issues",
@@ -17,15 +18,36 @@ const RATING_LABELS = {
   5: "Exceptional - Elite Tier Hardware",
 };
 
-export default function OrderReviewModal({ isOpen, onClose, item, onSuccess }) {
-  const [rating, setRating] = useState(5);
+export default function OrderReviewModal({
+  isOpen,
+  onClose,
+  item,
+  initialRating = 5,
+  onSuccess,
+}) {
+  const existingReview = item?.userReview || null;
+  const isEditing = Boolean(existingReview);
+
+  const [rating, setRating] = useState(existingReview?.rating || initialRating || 5);
   const [hoverRating, setHoverRating] = useState(0);
-  const [title, setTitle] = useState("");
-  const [comment, setComment] = useState("");
+  const [title, setTitle] = useState(existingReview?.title || "");
+  const [comment, setComment] = useState(existingReview?.comment || "");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Sync state whenever modal opens or item changes
+  React.useEffect(() => {
+    if (isOpen && item) {
+      setRating(item.userReview?.rating || initialRating || 5);
+      setTitle(item.userReview?.title || "");
+      setComment(item.userReview?.comment || "");
+      setErrorMessage("");
+      setIsSuccess(false);
+    }
+  }, [isOpen, item, initialRating]);
+
   const submitReviewMutation = useSubmitReviewMutation();
+  const updateReviewMutation = useUpdateReviewMutation();
 
   if (!isOpen || !item) return null;
 
@@ -46,21 +68,33 @@ export default function OrderReviewModal({ isOpen, onClose, item, onSuccess }) {
     }
 
     try {
-      await submitReviewMutation.mutateAsync({
-        productId,
-        reviewData: {
-          rating,
-          title: title.trim(),
-          comment: comment.trim(),
-        },
-      });
+      if (isEditing && existingReview?._id) {
+        await updateReviewMutation.mutateAsync({
+          reviewId: existingReview._id,
+          productId,
+          reviewData: {
+            rating,
+            title: title.trim(),
+            comment: comment.trim(),
+          },
+        });
+      } else {
+        await submitReviewMutation.mutateAsync({
+          productId,
+          reviewData: {
+            rating,
+            title: title.trim(),
+            comment: comment.trim(),
+          },
+        });
+      }
 
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
         if (onSuccess) onSuccess();
         onClose();
-      }, 2000);
+      }, 1500);
     } catch (err) {
       setErrorMessage(
         err?.response?.data?.message ||
@@ -69,6 +103,8 @@ export default function OrderReviewModal({ isOpen, onClose, item, onSuccess }) {
       );
     }
   };
+
+  const isPending = submitReviewMutation.isPending || updateReviewMutation.isPending;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
@@ -90,7 +126,7 @@ export default function OrderReviewModal({ isOpen, onClose, item, onSuccess }) {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-heading font-black text-lg sm:text-xl text-slate-900 dark:text-white">
-                Verified Owner Review
+                {isEditing ? "Update Your Review" : "Verified Owner Review"}
               </h3>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                 <ShieldCheck className="h-3 w-3" />
@@ -211,7 +247,7 @@ export default function OrderReviewModal({ isOpen, onClose, item, onSuccess }) {
               <button
                 type="button"
                 onClick={onClose}
-                disabled={submitReviewMutation.isPending}
+                disabled={isPending}
                 className="px-4 py-2.5 rounded-xl text-xs font-heading font-bold bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
               >
                 Cancel
@@ -219,16 +255,16 @@ export default function OrderReviewModal({ isOpen, onClose, item, onSuccess }) {
 
               <button
                 type="submit"
-                disabled={submitReviewMutation.isPending}
+                disabled={isPending}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-heading font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-md shadow-orange-500/25 transition-all cursor-pointer disabled:opacity-50"
               >
-                {submitReviewMutation.isPending ? (
+                {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Publishing Review...</span>
+                    <span>{isEditing ? "Saving Changes..." : "Publishing Review..."}</span>
                   </>
                 ) : (
-                  <span>Publish Verified Review</span>
+                  <span>{isEditing ? "Save Changes" : "Publish Verified Review"}</span>
                 )}
               </button>
             </div>

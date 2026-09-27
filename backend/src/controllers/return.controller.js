@@ -305,7 +305,7 @@ export const getAllReturnRequestsAdmin = asyncHandler(async (req, res) => {
     query.returnNumber = new RegExp(search.trim(), "i");
   }
 
-  const [totalReturns, returns] = await Promise.all([
+  const [totalReturns, returns, statusBreakdown, overallTotal] = await Promise.all([
     ReturnRequest.countDocuments(query),
     ReturnRequest.find(query)
       .populate("user", "name email phone")
@@ -313,8 +313,34 @@ export const getAllReturnRequestsAdmin = asyncHandler(async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean()
+      .lean(),
+    ReturnRequest.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]),
+    ReturnRequest.countDocuments({})
   ]);
+
+  const metrics = {
+    total: overallTotal,
+    requested: 0,
+    approved: 0,
+    received: 0,
+    completed: 0,
+    rejected: 0,
+  };
+
+  statusBreakdown.forEach((group) => {
+    if (group._id === "REQUESTED") metrics.requested = group.count;
+    else if (group._id === "APPROVED" || group._id === "PICKUP_SCHEDULED") metrics.approved += group.count;
+    else if (group._id === "ITEM_RECEIVED") metrics.received += group.count;
+    else if (["REFUND_PROCESSED", "REPLACEMENT_DISPATCHED", "COMPLETED"].includes(group._id)) metrics.completed += group.count;
+    else if (group._id === "REJECTED") metrics.rejected += group.count;
+  });
 
   const totalPages = Math.ceil(totalReturns / limit) || 1;
 
@@ -323,6 +349,7 @@ export const getAllReturnRequestsAdmin = asyncHandler(async (req, res) => {
       200,
       {
         returns,
+        metrics,
         pagination: {
           totalReturns,
           totalPages,
@@ -525,3 +552,140 @@ export const processReturnRefundAdmin = asyncHandler(async (req, res) => {
     )
   );
 });
+
+/**
+ * @desc    Dispatch replacement item for customer and adjust inventory
+ * @route   POST /api/v1/returns/admin/:returnId/replacement
+ * @access  Private (Admin only)
+ */
+export const dispatchReplacementAdmin = asyncHandler(async (req, res) => {
+  const { returnId } = req.params;
+  const {
+    courierPartner,
+    trackingNumber,
+    restockReturnedItem = false,
+    adminRemarks = ""
+  } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(returnId)) {
+    throw new ApiError(400, "Invalid return request ID format");
+  }
+
+  if (!courierPartner || !courierPartner.trim()) {
+    throw new ApiError(400, "Courier Partner name is required for replacement dispatch");
+  }
+
+  if (!trackingNumber || !trackingNumber.trim()) {
+    throw new ApiError(400, "Tracking number is required for replacement dispatch");
+  }
+
+  const returnRequest = await ReturnRequest.findById(returnId);
+  if (!returnRequest) {
+    throw new ApiError(404, "Return request not found");
+  }
+
+  if (returnRequest.requestType !== "REPLACEMENT") {
+    throw new ApiError(
+      400,
+      `Cannot dispatch replacement for request type '${returnRequest.requestType}'. This request is for RETURN_AND_REFUND.`
+    );
+  }
+
+  if (!["APPROVED", "ITEM_RECEIVED"].includes(returnRequest.status)) {
+    throw new ApiError(
+      400,
+      `Replacement can only be dispatched for returns that are APPROVED or ITEM_RECEIVED. Current status: '${returnRequest.status}'`
+    );
+  }
+
+  // 1. Decrement stock for the replacement item dispatched to customer
+  const productId = returnRequest.orderItem.product;
+  const qtyToDispatch = returnRequest.orderItem.quantity || 1;
+  const chosenColor = returnRequest.orderItem.selectedSpecs?.color;
+
+  let productUpdated = false;
+  if (chosenColor) {
+    const updated = await Product.findOneAndUpdate(
+      {
+        _id: productId,
+        "colors.colorName": new RegExp(`^${chosenColor.trim()}$`, "i"),
+        "colors.stock": { $gte: qtyToDispatch }
+      },
+      {
+        $inc: {
+          "colors.$.stock": -qtyToDispatch,
+          stock: -qtyToDispatch
+        }
+      },
+      { new: true }
+    );
+    if (updated) productUpdated = true;
+  }
+
+  if (!productUpdated) {
+    await Product.findByIdAndUpdate(productId, {
+      $inc: { stock: -qtyToDispatch }
+    });
+  }
+
+  // 2. If old item is returned and restockable, restore stock for it
+  if (restockReturnedItem && productId) {
+    if (chosenColor) {
+      await Product.findOneAndUpdate(
+        {
+          _id: productId,
+          "colors.colorName": new RegExp(`^${chosenColor.trim()}$`, "i")
+        },
+        {
+          $inc: {
+            "colors.$.stock": qtyToDispatch,
+            stock: qtyToDispatch
+          }
+        }
+      );
+    } else {
+      await Product.findByIdAndUpdate(productId, {
+        $inc: { stock: qtyToDispatch }
+      });
+    }
+  }
+
+  // 3. Update Return Request Record
+  returnRequest.status = "REPLACEMENT_DISPATCHED";
+  returnRequest.replacementDetails = {
+    courierPartner: courierPartner.trim(),
+    trackingNumber: trackingNumber.trim(),
+    dispatchedAt: new Date()
+  };
+  if (adminRemarks) {
+    returnRequest.adminRemarks = adminRemarks.trim();
+  }
+
+  returnRequest.statusTimeline.push({
+    status: "REPLACEMENT_DISPATCHED",
+    timestamp: new Date(),
+    note: `Replacement unit dispatched via ${courierPartner.trim()} (Tracking: ${trackingNumber.trim()}). ${adminRemarks.trim()}`
+  });
+
+  await returnRequest.save();
+
+  // 4. Update Order status timeline
+  const order = await Order.findById(returnRequest.order);
+  if (order) {
+    order.statusTimeline.push({
+      status: order.orderStatus,
+      timestamp: new Date(),
+      note: `Replacement item dispatched for '${returnRequest.orderItem.title}' (${courierPartner.trim()} - ${trackingNumber.trim()}).`
+    });
+    await order.save();
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      { returnRequest },
+      `Replacement unit dispatched via ${courierPartner.trim()} with Tracking: ${trackingNumber.trim()}`
+    )
+  );
+});
+

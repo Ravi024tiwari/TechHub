@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -24,13 +24,19 @@ import {
   XCircle,
   RotateCcw,
   Star,
+  Check,
+  Sparkles,
 } from "lucide-react";
 import OrderReviewModal from "@/components/orders/OrderReviewModal";
+import OrderReturnModal from "@/components/orders/OrderReturnModal";
 
 export default function Orders() {
   const { isAuthenticated } = useAuthStore();
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedReviewItem, setSelectedReviewItem] = useState(null);
+  const [reviewInitialRating, setReviewInitialRating] = useState(5);
+  const [selectedReturnItem, setSelectedReturnItem] = useState(null);
+  const [selectedReturnOrder, setSelectedReturnOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
 
   const showToast = (msg) => {
@@ -38,9 +44,26 @@ export default function Orders() {
     setTimeout(() => setToastMessage(""), 3500);
   };
 
-  const { data: orders = [], isLoading } = useMyOrdersQuery(
-    statusFilter !== "all" ? { status: statusFilter } : {}
-  );
+  const {
+    data: orders = [],
+    isLoading,
+    refetch,
+  } = useMyOrdersQuery(statusFilter !== "all" ? { status: statusFilter } : {});
+
+  // Identify any delivered items pending review across customer's orders
+  const pendingReviewItems = useMemo(() => {
+    const list = [];
+    orders.forEach((order) => {
+      if (order.orderStatus?.toUpperCase() === "DELIVERED") {
+        (order.orderItems || []).forEach((item) => {
+          if (!item.userReview) {
+            list.push({ item, order });
+          }
+        });
+      }
+    });
+    return list;
+  }, [orders]);
 
   const formatINR = (val) =>
     new Intl.NumberFormat("en-IN", {
@@ -137,13 +160,13 @@ export default function Orders() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-sans font-semibold mb-2">
               <Package className="w-3.5 h-3.5" />
-              <span>Real-Time Order Telemetry</span>
+              <span>Verified Purchases & Tracking</span>
             </div>
             <h1 className="font-heading font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">
-              My Orders & Dispatches
+              My Orders & Purchases
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-sans">
-              Track express courier delivery, review line items, redirect to product details, and download tax invoices.
+              Track express delivery, manage returns & replacements, rate products, and download tax invoices.
             </p>
           </div>
 
@@ -176,7 +199,7 @@ export default function Orders() {
         ) : isLoading ? (
           <div className="py-20 text-center space-y-3">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-orange-500 mb-3" />
-            <p className="text-xs text-slate-400 font-sans">Loading your orders telemetry...</p>
+            <p className="text-xs text-slate-400 font-sans">Loading your orders...</p>
           </div>
         ) : orders.length === 0 ? (
           /* Empty State */
@@ -188,19 +211,51 @@ export default function Orders() {
               No Orders Placed Yet
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6 font-sans leading-relaxed">
-              When you purchase electronics on TechHub, your real-time air dispatch and courier tracking telemetry will appear right here.
+              When you purchase electronics on TechHub, your real-time air dispatch and courier tracking will appear right here.
             </p>
             <Link
               to="/products"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-sans font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-600/30 transition-all"
             >
-              <span>Browse Flagship Catalog</span>
+              <span>Browse Catalog</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         ) : (
-          /* Orders List with Admin Palette & Direct Product Links */
+          /* Orders List */
           <div className="space-y-6">
+            {/* Pending Review Callout Banner */}
+            {pendingReviewItems.length > 0 && (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-in fade-in duration-300">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-500 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4 fill-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-heading font-extrabold text-slate-900 dark:text-white">
+                      You have {pendingReviewItems.length} delivered {pendingReviewItems.length === 1 ? "item" : "items"} awaiting your review!
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans">
+                      Share your rating and feedback to help other shoppers make informed decisions.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const first = pendingReviewItems[0];
+                    setSelectedReviewItem(first.item);
+                    setReviewInitialRating(5);
+                  }}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-heading font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-xs shadow-orange-500/25 active:scale-95 transition-all cursor-pointer shrink-0"
+                >
+                  <Star className="w-3.5 h-3.5 fill-white" />
+                  <span>Rate Delivered Item</span>
+                </button>
+              </div>
+            )}
+
             {orders.map((order) => {
               const shipping = order.shippingAddress || {};
               const pricing = order.pricing || {};
@@ -214,58 +269,60 @@ export default function Orders() {
                   {/* Subtle Ambient Glow */}
                   <div className="absolute -top-12 -right-12 w-56 h-56 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-                  {/* Order Top Meta Bar matching Admin Header */}
-                  <div className="relative z-10 px-5 sm:px-6 py-4 bg-slate-50/80 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs">
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                  {/* Order Top Meta Bar */}
+                  <div className="relative z-10 px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    {/* Meta Info Row */}
+                    <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-6 w-full sm:w-auto">
                       <div>
                         <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider block">
                           Order Number
                         </span>
                         <Link
                           to={`/orders/${order.orderNumber || order._id}`}
-                          className="font-mono font-black text-sm text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                          className="font-mono font-black text-xs sm:text-sm text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                         >
                           #{order.orderNumber || order._id?.slice(-8).toUpperCase()}
                         </Link>
                       </div>
 
-                      <div className="h-8 w-px bg-slate-200 dark:bg-white/10 hidden sm:block" />
+                      <div className="h-7 w-px bg-slate-200 dark:bg-white/10" />
 
                       <div>
                         <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider block">
                           Date Placed
                         </span>
-                        <span className="text-slate-700 dark:text-slate-300 font-sans font-medium">
+                        <span className="text-slate-700 dark:text-slate-300 font-sans font-medium text-xs">
                           {formatDate(order.createdAt)}
                         </span>
                       </div>
 
-                      <div className="h-8 w-px bg-slate-200 dark:bg-white/10 hidden sm:block" />
+                      <div className="h-7 w-px bg-slate-200 dark:bg-white/10 hidden sm:block" />
 
-                      <div className="px-2.5 py-1 rounded-xl bg-orange-500/10 dark:bg-orange-500/15 border border-orange-500/30">
-                        <span className="text-[10px] font-sans font-black text-orange-700 dark:text-orange-400 uppercase tracking-wider block">
+                      <div className="px-2.5 py-1 rounded-xl bg-orange-500/10 dark:bg-orange-500/15 border border-orange-500/30 shrink-0">
+                        <span className="text-[9px] font-sans font-black text-orange-700 dark:text-orange-400 uppercase tracking-wider block">
                           Total Amount
                         </span>
-                        <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-sm sm:text-base tracking-tight">
+                        <span className="font-mono font-black text-orange-600 dark:text-orange-400 text-xs sm:text-sm tracking-tight">
                           {formatINR(pricing.grandTotal || 0)}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* Order Action Row */}
+                    <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-200/70 dark:border-white/10">
                       {getStatusBadge(order.orderStatus)}
                       <Link
                         to={`/orders/${order.orderNumber || order._id}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-sans font-semibold bg-white dark:bg-white/10 border border-slate-300 dark:border-white/25 text-slate-800 dark:text-white hover:border-orange-500 hover:text-orange-600 dark:hover:border-orange-500 dark:hover:text-orange-400 shadow-xs transition-all cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-sans font-semibold bg-white dark:bg-white/10 border border-slate-300 dark:border-white/25 text-slate-800 dark:text-white hover:border-orange-500 hover:text-orange-600 dark:hover:border-orange-500 dark:hover:text-orange-400 shadow-xs transition-all cursor-pointer"
                       >
-                        <span>Telemetry & Details</span>
+                        <span>Order Details</span>
                         <ChevronRight className="w-3.5 h-3.5 text-orange-500" />
                       </Link>
                     </div>
                   </div>
 
                   {/* Order Body: Items & Shipping Destination */}
-                  <div className="relative z-10 p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  <div className="relative z-10 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
                     {/* Items Column (8 cols) */}
                     <div className="lg:col-span-8 space-y-3">
                       <div className="flex items-center justify-between mb-1">
@@ -273,8 +330,8 @@ export default function Orders() {
                           <Package className="w-4 h-4 text-orange-500" />
                           <span>Purchased Items ({order.orderItems?.length || 0})</span>
                         </span>
-                        <span className="text-[11px] text-slate-400 font-sans">
-                          Click any product to inspect details
+                        <span className="text-[11px] text-slate-400 font-sans hidden sm:inline">
+                          Tap product to inspect details
                         </span>
                       </div>
 
@@ -286,10 +343,17 @@ export default function Orders() {
                             (typeof item.product === "object" ? item.product?._id : item.product);
                           const productUrl = productSlugOrId ? `/product/${productSlugOrId}` : "#";
 
+                          const isDelivered = order.orderStatus?.toUpperCase() === "DELIVERED";
+                          const deliveryDate = new Date(order.trackingInfo?.deliveredAt || order.updatedAt || Date.now());
+                          const diffDays = Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24));
+                          const isReturnEligible = diffDays <= 7;
+                          const hasReturn = !!item.returnRequest;
+                          const showReturnOption = isDelivered && (hasReturn || isReturnEligible);
+
                           return (
                             <div
-                              key={idx}
-                              className="group flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0c0f17] hover:bg-slate-50/80 dark:hover:bg-white/[0.02] border border-slate-300 dark:border-white/20 hover:border-orange-500 dark:hover:border-orange-500 transition-all gap-3.5"
+                              key={item._id || item.product?._id || idx}
+                              className="group flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0c0f17] hover:bg-slate-50/80 dark:hover:bg-white/[0.02] border border-slate-300 dark:border-white/20 hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all gap-3.5"
                             >
                               <div className="flex items-center gap-3.5 min-w-0 flex-1">
                                 {/* Clickable Product Thumbnail Link */}
@@ -302,7 +366,7 @@ export default function Orders() {
                                     <img
                                       src={item.image}
                                       alt={item.title}
-                                      className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
+                                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                                     />
                                   ) : (
                                     <Package className="w-6 h-6 text-slate-400" />
@@ -337,28 +401,127 @@ export default function Orders() {
                                 </div>
                               </div>
 
-                              {/* Action Buttons Column */}
-                              <div className="self-end sm:self-center shrink-0 flex items-center gap-2 flex-wrap">
-                                {order.orderStatus?.toUpperCase() === "DELIVERED" && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setSelectedReviewItem(item)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-sans font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/40 hover:border-amber-500/60 shadow-xs transition-all cursor-pointer active:scale-95"
-                                    title="Rate and write an authentic review for this delivered product"
-                                  >
-                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                    <span>Rate & Review</span>
-                                  </button>
-                                )}
-
-                                <Link
-                                  to={productUrl}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-sans font-semibold bg-white dark:bg-white/10 border border-slate-300 dark:border-white/25 text-slate-800 dark:text-white hover:border-orange-500 hover:text-orange-600 dark:hover:border-orange-500 dark:hover:text-orange-400 shadow-xs transition-all"
+                              {/* Action Area: Customer-Friendly Responsive 2-Col Grid on Mobile, Inline on Desktop */}
+                              {isDelivered ? (
+                                <div
+                                  className={`w-full sm:w-auto ${
+                                    showReturnOption ? "grid grid-cols-2" : "flex"
+                                  } sm:flex sm:items-center gap-2 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-white/5 shrink-0`}
                                 >
-                                  <ExternalLink className="w-3.5 h-3.5 text-orange-500" />
-                                  <span>View Details</span>
-                                </Link>
-                              </div>
+                                  {/* Review Action */}
+                                  {item.userReview ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedReviewItem(item);
+                                        setReviewInitialRating(item.userReview.rating);
+                                      }}
+                                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-sans font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer active:scale-95"
+                                      title="You have reviewed this product. Click to view or edit."
+                                    >
+                                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                      <span className="truncate">Reviewed ({item.userReview.rating}★)</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedReviewItem(item);
+                                        setReviewInitialRating(5);
+                                      }}
+                                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-sans font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-xs shadow-orange-500/25 transition-all cursor-pointer active:scale-95"
+                                      title="Rate and write an authentic review for this delivered product"
+                                    >
+                                      <Star className="w-3.5 h-3.5 fill-white text-white shrink-0" />
+                                      <span className="truncate">Rate & Review</span>
+                                    </button>
+                                  )}
+
+                                  {/* Return & Replacement Status or Action */}
+                                  {hasReturn ? (
+                                    <div className="w-full sm:w-auto">
+                                      {item.returnRequest.status === "REQUESTED" && (
+                                        <span
+                                          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] sm:text-xs font-sans font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-center"
+                                          title={`RMA #${item.returnRequest.returnNumber} is under quality review`}
+                                        >
+                                          <Clock className="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" />
+                                          <span className="truncate">
+                                            {item.returnRequest.requestType === "REPLACEMENT" ? "Replacement" : "Return"} Requested
+                                          </span>
+                                        </span>
+                                      )}
+
+                                      {item.returnRequest.status === "APPROVED" && (
+                                        <span
+                                          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] sm:text-xs font-sans font-semibold bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/30 text-center"
+                                        >
+                                          <CheckCircle2 className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                                          <span className="truncate">Pickup Scheduled</span>
+                                        </span>
+                                      )}
+
+                                      {item.returnRequest.status === "ITEM_RECEIVED" && (
+                                        <span className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] sm:text-xs font-sans font-semibold bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 text-center">
+                                          <Package className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                                          <span className="truncate">At Warehouse</span>
+                                        </span>
+                                      )}
+
+                                      {item.returnRequest.status === "REFUND_PROCESSED" && (
+                                        <span className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] sm:text-xs font-sans font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-center">
+                                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                          <span className="truncate">
+                                            Refunded: {formatINR(item.returnRequest.refundDetails?.amount || (item.price * item.quantity))}
+                                          </span>
+                                        </span>
+                                      )}
+
+                                      {item.returnRequest.status === "REPLACEMENT_DISPATCHED" && (
+                                        <span
+                                          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] sm:text-xs font-sans font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-center"
+                                          title={`Tracking: ${item.returnRequest.replacementDetails?.trackingNumber || "N/A"}`}
+                                        >
+                                          <Truck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                          <span className="truncate">Replacement Shipped</span>
+                                        </span>
+                                      )}
+
+                                      {item.returnRequest.status === "REJECTED" && (
+                                        <span
+                                          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] sm:text-xs font-sans font-semibold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/30 text-center"
+                                          title={item.returnRequest.rejectionReason || "Return rejected"}
+                                        >
+                                          <XCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                          <span className="truncate">Return Rejected</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : isReturnEligible ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedReturnOrder(order);
+                                        setSelectedReturnItem(item);
+                                      }}
+                                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-sans font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30 transition-colors cursor-pointer active:scale-95"
+                                    >
+                                      <RotateCcw className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                      <span className="truncate">Return / Replace</span>
+                                    </button>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <div className="w-full sm:w-auto flex items-center justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-white/5 shrink-0">
+                                  <Link
+                                    to={`/orders/${order.orderNumber || order._id}`}
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-sans font-semibold bg-slate-100 dark:bg-white/10 hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 text-slate-700 dark:text-slate-200 transition-colors"
+                                  >
+                                    <span>Track Shipment</span>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  </Link>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -414,7 +577,26 @@ export default function Orders() {
         isOpen={Boolean(selectedReviewItem)}
         onClose={() => setSelectedReviewItem(null)}
         item={selectedReviewItem}
-        onSuccess={() => showToast("Review published successfully! Thank you for your feedback.")}
+        initialRating={reviewInitialRating}
+        onSuccess={() => {
+          showToast("Review published successfully! Thank you for your feedback.");
+          refetch();
+        }}
+      />
+
+      {/* Hardware Return & Replacement Request Modal */}
+      <OrderReturnModal
+        isOpen={Boolean(selectedReturnItem)}
+        onClose={() => {
+          setSelectedReturnItem(null);
+          setSelectedReturnOrder(null);
+        }}
+        order={selectedReturnOrder}
+        item={selectedReturnItem}
+        onSuccess={() => {
+          showToast("Return application submitted to concierge successfully!");
+          refetch();
+        }}
       />
 
       {/* Floating Action Toast Notification */}

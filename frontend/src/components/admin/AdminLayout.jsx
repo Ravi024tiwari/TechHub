@@ -41,7 +41,7 @@ export default function AdminLayout() {
           className={`flex-1 w-full px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-4 pb-24 lg:pb-6 transition-all duration-300 flex flex-col min-h-0 ${
             isProductsPage
               ? "h-[calc(100vh-4rem)] overflow-hidden"
-              : "h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain custom-scrollbar touch-pan-y"
+              : "h-[calc(100vh-4rem)] overflow-y-auto overflow-x-hidden overscroll-contain custom-scrollbar touch-pan-y"
           }`}
         >
           <Outlet context={{ isCollapsed, setIsCollapsed }} />

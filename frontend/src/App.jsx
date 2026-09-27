@@ -35,6 +35,7 @@ const AdminOrderDetail = lazy(() => import("./pages/admin/AdminOrderDetail"));
 const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
 const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminTaxonomy = lazy(() => import("./pages/admin/AdminTaxonomy"));
+const AdminReturns = lazy(() => import("./pages/admin/AdminReturns"));
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
@@ -163,6 +164,7 @@ export default function App() {
             <Route path="orders/:orderId" element={<AdminOrderDetail />} />
             <Route path="customers" element={<AdminCustomers />} />
             <Route path="inventory" element={<AdminInventory />} />
+            <Route path="returns" element={<AdminReturns />} />
           </Route>
 
           {/* 404 Hardware Not Found Catch-All */}

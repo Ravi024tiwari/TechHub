@@ -50,8 +50,8 @@ export default function RatingTelemetrySummary({
   const activeRating = hoverRating || userRating || 0;
 
   return (
-    <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0c0f17] border border-slate-200/90 dark:border-white/10 shadow-xs transition-all duration-200">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
+    <div className="p-3 sm:p-4.5 rounded-xl sm:rounded-2xl bg-white dark:bg-[#0c0f17] border border-slate-200/90 dark:border-white/10 shadow-xs transition-all duration-200">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-6">
         {/* Left: Overall Score & Verified Badge */}
         <div className="flex items-center gap-4 shrink-0">
           <div className="flex items-baseline gap-2.5">

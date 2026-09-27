@@ -44,6 +44,7 @@ export default function CustomerOrderDetail() {
   const [copiedOrderNum, setCopiedOrderNum] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedReviewItem, setSelectedReviewItem] = useState(null);
+  const [reviewInitialRating, setReviewInitialRating] = useState(5);
   const [selectedReturnItem, setSelectedReturnItem] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
 
@@ -410,7 +411,10 @@ export default function CustomerOrderDetail() {
                 {/* 2. Purchased Hardware Items with Direct Detail Redirection */}
                 <OrderItemsCard
                   order={order}
-                  onOpenReviewModal={(item) => setSelectedReviewItem(item)}
+                  onOpenReviewModal={(item, star = 5) => {
+                    setSelectedReviewItem(item);
+                    setReviewInitialRating(star);
+                  }}
                   onOpenReturnModal={(item) => setSelectedReturnItem(item)}
                 />
               </div>
@@ -443,7 +447,11 @@ export default function CustomerOrderDetail() {
         isOpen={Boolean(selectedReviewItem)}
         onClose={() => setSelectedReviewItem(null)}
         item={selectedReviewItem}
-        onSuccess={() => showToast("Review published successfully!")}
+        initialRating={reviewInitialRating}
+        onSuccess={() => {
+          showToast("Review saved successfully! Thank you.");
+          refetch();
+        }}
       />
 
       <OrderReturnModal
@@ -451,7 +459,10 @@ export default function CustomerOrderDetail() {
         onClose={() => setSelectedReturnItem(null)}
         order={order}
         item={selectedReturnItem}
-        onSuccess={() => showToast("Return request submitted to concierge")}
+        onSuccess={() => {
+          showToast("Return request submitted to concierge successfully!");
+          refetch();
+        }}
       />
 
       {/* Floating Action Toast */}

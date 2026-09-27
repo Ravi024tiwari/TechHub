@@ -26,7 +26,9 @@ export function useMyOrdersQuery(params = {}) {
     queryKey: [...ORDER_KEYS.myOrders, params],
     queryFn: () => fetchMyOrdersApi(params),
     enabled: Boolean(isAuthenticated),
-    staleTime: 1000 * 60 * 3, // 3 minutes fresh
+    staleTime: 0, // Always fresh telemetry for review badges and statuses
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -40,7 +42,9 @@ export function useOrderDetailQuery(orderId) {
     queryKey: ORDER_KEYS.detail(orderId),
     queryFn: () => fetchOrderByIdApi(orderId),
     enabled: Boolean(isAuthenticated && orderId),
-    staleTime: 1000 * 60 * 2, // 2 minutes fresh
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -95,6 +99,8 @@ export function useSubmitReviewMutation() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["productReviews", variables.productId] });
       queryClient.invalidateQueries({ queryKey: ["product", variables.productId] });
+      queryClient.invalidateQueries({ queryKey: ORDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ORDER_KEYS.myOrders });
     },
   });
 }
