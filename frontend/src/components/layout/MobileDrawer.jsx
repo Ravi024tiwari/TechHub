@@ -76,7 +76,7 @@ export default function MobileDrawer({ isOpen, onClose }) {
         {/* Header: Brand & Close */}
         <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
           <Link
-            to="/"
+            to={isAuthenticated ? (user?.role === "admin" ? "/admin" : "/products") : "/"}
             onClick={onClose}
             className="flex items-center gap-2.5"
           >
@@ -154,31 +154,18 @@ export default function MobileDrawer({ isOpen, onClose }) {
         {/* Quick Primary Links */}
         <div className="py-3 space-y-1 border-b border-white/[0.08]">
           <Link
-            to="/"
+            to={isAuthenticated ? (user?.role === "admin" ? "/admin" : "/products") : "/"}
             onClick={onClose}
             className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
           >
             <div className="flex items-center gap-3">
               <Home className="h-4 w-4 text-slate-400" />
-              <span>Storefront Home</span>
+              <span>{isAuthenticated ? (user?.role === "admin" ? "Admin Control Center" : "Shop All Hardware") : "Storefront Home"}</span>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
           </Link>
 
-          <Link
-            to="/dashboard"
-            onClick={onClose}
-            className="flex items-center justify-between p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 hover:text-white transition-colors text-xs font-semibold"
-          >
-            <div className="flex items-center gap-3">
-              <LayoutDashboard className="h-4 w-4 text-sky-400" />
-              <span>Customer Dashboard</span>
-            </div>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-500/25 uppercase font-bold text-sky-300">
-              VIP
-            </span>
-          </Link>
-
+          {/* Public Storefront Links */}
           <Link
             to="/products"
             onClick={onClose}
@@ -205,49 +192,68 @@ export default function MobileDrawer({ isOpen, onClose }) {
             </span>
           </Link>
 
-          <Link
-            to="/orders"
-            onClick={onClose}
-            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
-          >
-            <div className="flex items-center gap-3">
-              <Package className="h-4 w-4 text-slate-400" />
-              <span>My Orders & Shipments</span>
-            </div>
-            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
-          </Link>
+          {/* Authenticated Customer Navigation */}
+          {isAuthenticated && (
+            <>
+              <Link
+                to="/dashboard"
+                onClick={onClose}
+                className="flex items-center justify-between p-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 hover:text-white transition-colors text-xs font-semibold"
+              >
+                <div className="flex items-center gap-3">
+                  <LayoutDashboard className="h-4 w-4 text-sky-400" />
+                  <span>Customer Dashboard</span>
+                </div>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-500/25 uppercase font-bold text-sky-300">
+                  VIP
+                </span>
+              </Link>
 
-          <Link
-            to="/wishlist"
-            onClick={onClose}
-            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
-          >
-            <div className="flex items-center gap-3">
-              <Heart className="h-4 w-4 text-slate-400" />
-              <span>Saved Wishlist</span>
-            </div>
-            {wishlistCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-300 font-bold">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
+              <Link
+                to="/orders"
+                onClick={onClose}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
+              >
+                <div className="flex items-center gap-3">
+                  <Package className="h-4 w-4 text-slate-400" />
+                  <span>My Orders & Shipments</span>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+              </Link>
 
-          <Link
-            to="/compare"
-            onClick={onClose}
-            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
-          >
-            <div className="flex items-center gap-3">
-              <ArrowLeftRight className="h-4 w-4 text-orange-400 stroke-[2.2]" />
-              <span>Compare Specs</span>
-            </div>
-            {compareCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-orange-500 text-white font-bold">
-                {compareCount}
-              </span>
-            )}
-          </Link>
+              <Link
+                to="/wishlist"
+                onClick={onClose}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
+              >
+                <div className="flex items-center gap-3">
+                  <Heart className="h-4 w-4 text-slate-400" />
+                  <span>Saved Wishlist</span>
+                </div>
+                {wishlistCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-300 font-bold">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
+              <Link
+                to="/compare"
+                onClick={onClose}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
+              >
+                <div className="flex items-center gap-3">
+                  <ArrowLeftRight className="h-4 w-4 text-orange-400 stroke-[2.2]" />
+                  <span>Compare Specs</span>
+                </div>
+                {compareCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-orange-500 text-white font-bold">
+                    {compareCount}
+                  </span>
+                )}
+              </Link>
+            </>
+          )}
 
           <Link
             to="/cart"
@@ -283,7 +289,7 @@ export default function MobileDrawer({ isOpen, onClose }) {
               return (
                 <Link
                   key={cat.slug}
-                  to={`/category/${cat.slug}`}
+                  to={`/products?category=${cat.slug}`}
                   onClick={onClose}
                   className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.04] text-xs font-medium text-slate-300 hover:text-white transition-colors group"
                 >

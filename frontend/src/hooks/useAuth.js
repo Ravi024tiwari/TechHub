@@ -9,6 +9,7 @@ import {
   changePasswordApi,
 } from "../api/authApi";
 import { useAuthStore } from "../store/useAuthStore";
+import { useWishlistStore } from "../store/useWishlistStore";
 
 export const AUTH_KEYS = {
   currentUser: ["currentUser"],
@@ -60,6 +61,7 @@ export function useRegisterMutation() {
  * Hook to manage User Logout Mutation:
  * - Revokes session on backend.
  * - Clears Zustand state and wipes TanStack Query cache.
+ * - Clears personal wishlist to prevent account data leakage.
  * - Seamlessly redirects customer or admin to landing page '/'.
  */
 export function useLogoutMutation() {
@@ -71,6 +73,7 @@ export function useLogoutMutation() {
     mutationFn: logoutUserApi,
     onSettled: () => {
       logout();
+      useWishlistStore.getState().clearWishlist();
       queryClient.removeQueries({ queryKey: AUTH_KEYS.currentUser });
       queryClient.clear();
       navigate("/", { replace: true });

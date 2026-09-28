@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import CompareButton from "@/components/compare/CompareButton";
 
 /**
@@ -25,6 +26,7 @@ import CompareButton from "@/components/compare/CompareButton";
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
   const [isAdded, setIsAdded] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const addItem = useCartStore((state) => state.addItem);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
   const isInWishlist = useWishlistStore((state) =>
@@ -79,6 +81,10 @@ export default function ProductCard({ product }) {
   const handleToggleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     toggleWishlist(product);
   };
 

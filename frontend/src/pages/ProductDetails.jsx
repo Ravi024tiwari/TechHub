@@ -16,6 +16,7 @@ import {
 import { useProductDetailsQuery, useProductsQuery } from "@/hooks/useProducts";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductShelf from "@/components/home/ProductShelf";
@@ -64,6 +65,7 @@ export default function ProductDetails() {
   });
 
   // Zustand Cart & Wishlist
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const addItem = useCartStore((state) => state.addItem);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
   const isInWishlist = useWishlistStore((state) =>
@@ -346,7 +348,13 @@ export default function ProductDetails() {
                   {/* Wishlist Button (Guaranteed Visible Contrast in Both Modes) */}
                   <button
                     type="button"
-                    onClick={() => toggleWishlist(product)}
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate("/login");
+                        return;
+                      }
+                      toggleWishlist(product);
+                    }}
                     className={`flex-1 h-10 px-3 rounded-xl border-2 flex items-center justify-center gap-1.5 text-xs font-heading font-bold transition-all shadow-sm cursor-pointer ${
                       isInWishlist
                         ? "bg-rose-50 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40 text-rose-600 dark:text-rose-400"

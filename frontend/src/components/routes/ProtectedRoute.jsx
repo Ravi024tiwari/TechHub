@@ -15,7 +15,7 @@ export default function ProtectedRoute({ children, requiredRole, redirectTo = "/
 
   // Role verification (e.g. customer trying to access admin dashboard)
   if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={user.role === "admin" ? "/admin" : "/products"} replace />;
   }
 
   return children;

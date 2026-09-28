@@ -170,35 +170,6 @@ export default function NavUserMenu() {
                 </div>
               </div>
             </div>
-
-            {/* Quick Interactive Stat Tiles */}
-            <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-white/10">
-              {/* Active Orders Tile */}
-              <Link
-                to="/orders"
-                onClick={() => setIsOpen(false)}
-                className="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all text-center group cursor-pointer"
-              >
-                <span className="text-[10px] text-amber-300/80 font-medium block">Active Orders</span>
-                <span className="text-xs font-bold text-amber-300 font-mono flex items-center justify-center gap-1 group-hover:scale-105 transition-transform mt-0.5">
-                  <Package className="h-3 w-3" />
-                  <span>Track Status</span>
-                </span>
-              </Link>
-
-              {/* Wishlist Tile */}
-              <Link
-                to="/wishlist"
-                onClick={() => setIsOpen(false)}
-                className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all text-center group cursor-pointer"
-              >
-                <span className="text-[10px] text-rose-300/80 font-medium block">Saved Wishlist</span>
-                <span className="text-xs font-bold text-rose-300 font-mono flex items-center justify-center gap-1 group-hover:scale-105 transition-transform mt-0.5">
-                  <Heart className="h-3 w-3 fill-rose-400" />
-                  <span>{wishlistCount} Items</span>
-                </span>
-              </Link>
-            </div>
           </div>
 
           {/* Navigation Links with High-Contrast Color Combinations */}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useParams, Link } from "react-router-dom";
+import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/product/ProductCard";
@@ -86,13 +86,19 @@ const CATEGORY_HEADER_CONTENT = {
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { categorySlug: routeCategorySlug } = useParams();
+  const navigate = useNavigate();
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState("grid-4");
 
   // Extract all active filters from URL query parameters
   const currentFilters = useMemo(() => {
-    const rawCategory = routeCategorySlug || searchParams.get("category") || "";
+    // If routeCategorySlug is set and no search param, use route slug; otherwise searchParams takes precedence
+    const rawCategory =
+      searchParams.get("category") !== null
+        ? searchParams.get("category")
+        : routeCategorySlug || "";
+
     return {
       search: searchParams.get("search") || "",
       category: rawCategory,
@@ -172,6 +178,32 @@ export default function Products() {
 
   // Filter updates helper
   const updateFilters = (newParams) => {
+    // If currently on /category/:categorySlug, transition to /products to avoid route param locking
+    if (routeCategorySlug) {
+      const next = new URLSearchParams(searchParams);
+
+      // If category is not explicitly being modified in newParams, preserve the route slug
+      if (!("category" in newParams)) {
+        next.set("category", routeCategorySlug);
+      }
+
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") {
+          next.delete(key);
+        } else {
+          next.set(key, String(value));
+        }
+      });
+
+      if (!("page" in newParams)) {
+        next.delete("page");
+      }
+
+      const qs = next.toString();
+      navigate(`/products${qs ? `?${qs}` : ""}`, { replace: true });
+      return;
+    }
+
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
@@ -191,8 +223,9 @@ export default function Products() {
     );
   };
 
+  // Full reset: Navigate directly to /products with clean slate
   const handleResetFilters = () => {
-    setSearchParams(new URLSearchParams(), { replace: true });
+    navigate("/products", { replace: true });
   };
 
   const handleRemoveFilter = (key, customValue) => {

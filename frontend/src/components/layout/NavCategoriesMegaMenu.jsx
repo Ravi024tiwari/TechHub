@@ -122,7 +122,7 @@ export default function NavCategoriesMegaMenu() {
                   return (
                     <Link
                       key={cat.slug}
-                      to={`/category/${cat.slug}`}
+                      to={`/products?category=${cat.slug}`}
                       onClick={() => setIsOpen(false)}
                       className="group p-2.5 rounded-xl bg-slate-50/70 hover:bg-orange-50/70 dark:bg-white/[0.02] dark:hover:bg-white/[0.08] border border-slate-200/70 hover:border-orange-300 dark:border-transparent dark:hover:border-white/10 transition-all flex items-start gap-3 cursor-pointer"
                     >

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy,useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
@@ -6,6 +6,7 @@ import "./App.css";
 import ScrollToTop from "./components/common/ScrollToTop";
 import PageLoader from "./components/common/PageLoader";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
+import GuestRoute from "./components/routes/GuestRoute";
 
 // Lazy-loaded route components for production performance & code splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -47,7 +48,7 @@ export default function App() {
   }, [initTheme]);
 
   // Production Cross-Tab Sync: If session is cleared in another tab, log out and redirect immediately
-  React.useEffect(() => {
+    useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === "shop_auth") {
         try {
@@ -72,12 +73,26 @@ export default function App() {
       {/* Production Suspense Boundary with Cybernetic Hardware Loader */}
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public Storefront Routes */}
-          <Route path="/" element={<Home />} />
+          {/* Public Storefront Routes - Landing page is Guest-Only (Redirects authenticated customers to /products, admins to /admin) */}
+          <Route
+            path="/"
+            element={
+              <GuestRoute>
+                <Home />
+              </GuestRoute>
+            }
+          />
           <Route path="/products" element={<Products />} />
           <Route path="/deals" element={<Deals />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/wishlist" element={<Wishlist />} />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute redirectTo="/login">
+                <Wishlist />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/compare" element={<Compare />} />
 
           {/* Protected Customer Routes (Redirects to landing page '/' if logged out) */}
@@ -141,10 +156,31 @@ export default function App() {
           <Route path="/category/:categorySlug" element={<Products />} />
           <Route path="/product/:idOrSlug" element={<ProductDetails />} />
 
-          {/* Authentication Routes (Aliases for ease of access) */}
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/register" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          {/* Authentication Routes (Guest-Only: Redirects to /products or /admin if already logged in) */}
+          <Route
+            path="/signup"
+            element={
+              <GuestRoute>
+                <Signup />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <Signup />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <Login />
+              </GuestRoute>
+            }
+          />
 
           {/* Protected Admin Control Center */}
           <Route

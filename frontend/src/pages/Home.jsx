@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import CategoryRail from "@/components/home/CategoryRail";
 import HeroBannerCarousel from "@/components/home/HeroBannerCarousel";
@@ -12,6 +12,21 @@ import { useProductsQuery } from "@/hooks/useProducts";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("all");
+
+  // Dynamic SEO Title and Meta update
+  useEffect(() => {
+    document.title = "TechHub — Authorized Flagship Smartphones, Computing & Electronics";
+    
+    // Update or insert meta description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content =
+      "Shop certified flagship smartphones, M3 MacBooks, RTX 4090 GPUs, and audiophile acoustic gear at TechHub. 100% genuine hardware with official brand warranty & express air delivery.";
+  }, []);
 
   // Query 1: Filtered / Featured products based on active category
   const { data: mainData, isLoading: isMainLoading } = useProductsQuery({
@@ -34,23 +49,27 @@ export default function Home() {
       {/* Universal Desktop & Mobile Header */}
       <Navbar />
 
-      {/* Iconic Quick Category Strip (Flipkart / Meesho pattern) */}
+      {/* Iconic Quick Category Strip */}
       <CategoryRail
         activeCategory={activeCategory}
         onSelectCategory={(catId) => setActiveCategory(catId)}
       />
 
-      <main className="flex-1 w-full space-y-6 sm:space-y-10 z-10 pb-16">
-        {/* 1. Promotional Hero Deals Carousel */}
+      {/* Main Landing Page Content */}
+      <main className="flex-1 w-full space-y-6 sm:space-y-10 lg:space-y-12 z-10 pb-16 relative">
+        {/* Subtle Ambient Radial Lighting Behind Hero */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-orange-500/5 to-transparent dark:from-blue-600/15 dark:via-orange-600/5 pointer-events-none -z-10" />
+
+        {/* 1. Promotional Keynote Deals Hero Carousel */}
         <HeroBannerCarousel />
 
-        {/* 2. 4 Trust Pillars (Delivery, Warranty, Return, Genuine) */}
+        {/* 2. 4 Official Trust Pillars (Delivery, Warranty, Return, Genuine) */}
         <TrustBadges />
 
         {/* 3. Official OEM Brand Partners Scrolling Marquee */}
         <BrandMarqueeRail />
 
-        {/* 4. Active Offers & Flash Deals Spotlight Banner (Click navigates to /deals) */}
+        {/* 4. Active Offers & Flash Deals Spotlight Banner */}
         <OffersSpotlightBanner />
 
         {/* 5. Product Shelf 1: Active Category / Featured Deals */}

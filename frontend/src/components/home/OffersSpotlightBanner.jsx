@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Flame,
   Clock,
   ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  Zap,
   Tag,
   Copy,
   Check,
-  Percent,
 } from "lucide-react";
 import festiveBannerImg from "@/assets/festive-sale-banner.jpg";
 
@@ -63,11 +58,10 @@ export default function OffersSpotlightBanner() {
       {/* Outer Banner Card with Warm Golden Metallic Rim */}
       <div
         onClick={() => navigate("/deals")}
-        className="group relative w-full rounded-2xl sm:rounded-3xl border-2 border-amber-400/50 hover:border-amber-300 bg-[#0f1117] shadow-[0_6px_28px_rgba(245,158,11,0.16)] hover:shadow-[0_10px_38px_rgba(245,158,11,0.25)] transition-all duration-300 cursor-pointer overflow-hidden"
+        className="group relative w-full rounded-2xl sm:rounded-3xl border-2 border-amber-400/60 hover:border-amber-400 bg-white dark:bg-[#0f1117] shadow-md hover:shadow-xl dark:shadow-[0_6px_28px_rgba(245,158,11,0.16)] dark:hover:shadow-[0_10px_38px_rgba(245,158,11,0.25)] transition-all duration-300 cursor-pointer overflow-hidden"
       >
         {/* =========================================================
             1. HERO FESTIVE BANNER ARTWORK
-            Compact, panoramic height across mobile, tablet, and desktop
             ========================================================= */}
         <div className="relative w-full overflow-hidden bg-gradient-to-r from-amber-100 via-amber-50 to-amber-100">
           <img
@@ -79,9 +73,9 @@ export default function OffersSpotlightBanner() {
 
           {/* Floating Subtle Top-Left Status Pill */}
           <div className="absolute top-2.5 left-3 sm:top-3 sm:left-4 z-10 pointer-events-none">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-black/75 border border-amber-400/60 text-amber-300 text-[10px] sm:text-xs font-mono font-black shadow-md backdrop-blur-md">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/85 border border-amber-400/70 text-white text-[10px] sm:text-xs font-mono font-bold shadow-md backdrop-blur-md">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
-              <span>LIVE FESTIVE OFFERS</span>
+              <span className="text-white drop-shadow-xs">LIVE FESTIVE OFFERS</span>
             </div>
           </div>
 
@@ -90,46 +84,46 @@ export default function OffersSpotlightBanner() {
             <button
               onClick={handleCopyCode}
               title="Click to copy coupon code"
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-black/80 hover:bg-black border border-amber-400/70 text-amber-300 text-[10px] sm:text-xs font-mono font-bold shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/85 hover:bg-black border border-amber-400/80 text-white text-[10px] sm:text-xs font-mono font-bold shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <Tag className="h-3 w-3 text-amber-400" />
-              <span>Code: TECHFEST50</span>
+              <Tag className="h-3.5 w-3.5 text-amber-400" />
+              <span className="text-white">Code: TECHFEST50</span>
               {copied ? (
-                <Check className="h-3 w-3 text-emerald-400" />
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
-                <Copy className="h-3 w-3 text-amber-300/80" />
+                <Copy className="h-3.5 w-3.5 text-white/80" />
               )}
             </button>
           </div>
         </div>
 
         {/* =========================================================
-            2. PRODUCTION-GRADE INTERACTIVE BOTTOM ACTION STRIP (Sleek & Compact)
+            2. INTERACTIVE BOTTOM ACTION STRIP (Pure White High Contrast)
             ========================================================= */}
-        <div className="relative z-10 w-full px-3 py-2 sm:px-6 sm:py-2.5 bg-[#0b0e14] border-t border-amber-400/30 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+        <div className="relative z-10 w-full px-3 py-2 sm:px-6 sm:py-2.5 bg-slate-950 dark:bg-[#0b0e14] border-t border-amber-400/30 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           
           {/* Real-Time Flash Countdown Timer */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] sm:text-xs font-mono text-amber-400/90 font-bold uppercase tracking-wider flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs font-mono text-white font-bold uppercase tracking-wider flex items-center gap-1 drop-shadow-xs">
               <Clock className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
               <span className="hidden xs:inline">Sale Ends:</span>
             </span>
             <div className="flex items-center gap-1 font-mono text-xs sm:text-sm font-black">
-              <span className="px-1.5 py-0.5 rounded-md bg-black border border-amber-400/40 text-amber-300 shadow-inner">
+              <span className="px-1.5 py-0.5 rounded-md bg-black border border-amber-400/50 text-white shadow-inner">
                 {formatDigits(timeLeft.hours)}h
               </span>
-              <span className="text-amber-400 font-bold">:</span>
-              <span className="px-1.5 py-0.5 rounded-md bg-black border border-amber-400/40 text-amber-300 shadow-inner">
+              <span className="text-white font-bold">:</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-black border border-amber-400/50 text-white shadow-inner">
                 {formatDigits(timeLeft.minutes)}m
               </span>
-              <span className="text-amber-400 font-bold">:</span>
-              <span className="px-1.5 py-0.5 rounded-md bg-black border border-amber-400/40 text-amber-300 shadow-inner">
+              <span className="text-white font-bold">:</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-black border border-amber-400/50 text-white shadow-inner">
                 {formatDigits(timeLeft.seconds)}s
               </span>
             </div>
           </div>
 
-          {/* Quick Category Deal Shortcut Pills */}
+          {/* Quick Category Deal Shortcut Pills - Pure White Labels */}
           <div
             onClick={(e) => e.stopPropagation()}
             className="hidden md:flex items-center gap-2"
@@ -140,20 +134,20 @@ export default function OffersSpotlightBanner() {
                 const el = document.getElementById("stock-alerts-section");
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-red-500/25 hover:bg-red-500/35 text-white border border-red-400/60 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
               </span>
-              <span>⚡ Low Stock Alerts</span>
+              <span className="text-white">⚡ Low Stock Alerts</span>
             </button>
 
             {quickDeals.map((deal, idx) => (
               <Link
                 key={idx}
                 to={deal.link}
-                className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-semibold bg-white/[0.06] hover:bg-amber-400/20 text-slate-200 hover:text-amber-300 border border-white/10 hover:border-amber-400/50 transition-all whitespace-nowrap cursor-pointer"
+                className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-semibold bg-white/10 hover:bg-amber-400/25 text-white hover:text-white border border-white/20 hover:border-amber-400/60 transition-all whitespace-nowrap cursor-pointer shadow-xs"
               >
                 {deal.label}
               </Link>
@@ -165,10 +159,10 @@ export default function OffersSpotlightBanner() {
             <Link
               to="/deals"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 sm:px-5 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-extrabold text-xs sm:text-sm shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:scale-103 active:scale-97 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 sm:px-5 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-md hover:scale-103 active:scale-97 transition-all cursor-pointer"
             >
               <span>Explore All Deals</span>
-              <ArrowRight className="h-3.5 w-3.5 text-black group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-3.5 w-3.5 text-slate-950 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
