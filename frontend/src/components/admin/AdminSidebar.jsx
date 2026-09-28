@@ -179,10 +179,12 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
             className="flex items-center gap-3 group focus:outline-none"
             onClick={handleNavClick}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 p-[1px] shadow-lg shadow-black/5 dark:shadow-white/5">
-              <div className="w-full h-full rounded-[11px] bg-slate-900 dark:bg-[#0e0f13] flex items-center justify-center">
-                <span className="font-heading font-extrabold text-white text-base tracking-wider">T</span>
-              </div>
+            <div className="w-9 h-9 rounded-xl overflow-hidden border border-slate-200/90 dark:border-white/15 bg-[#0b0e14] shadow-xs shrink-0 flex items-center justify-center p-0.5">
+              <img
+                src="/techhub-logo.jpg"
+                alt="TechHub Logo"
+                className="h-full w-full object-cover rounded-lg"
+              />
             </div>
 
             {!isCollapsed && (

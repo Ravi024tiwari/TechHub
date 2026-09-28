@@ -126,10 +126,10 @@ export default function ActiveFilterBadges({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-2 p-3 sm:p-3.5 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-slate-800/80 rounded-xl transition-all ${className}`}
+      className={`flex flex-wrap items-center gap-2 p-2.5 sm:p-3 bg-white dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/10 rounded-xl shadow-2xs backdrop-blur-xs transition-all ${className}`}
     >
-      <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-tech uppercase tracking-wider pr-1">
-        <SlidersHorizontal className="h-3.5 w-3.5 text-sky-500" />
+      <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-tech uppercase tracking-wider pr-1">
+        <SlidersHorizontal className="h-3.5 w-3.5 text-orange-500" />
         <span>Active Filters:</span>
       </div>
 
@@ -137,13 +137,13 @@ export default function ActiveFilterBadges({
         {chips.map((chip) => (
           <span
             key={chip.id}
-            className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs hover:border-slate-400 transition-colors animate-in fade-in"
+            className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-800 dark:bg-white/10 dark:text-slate-200 border border-orange-500/25 dark:border-white/15 shadow-2xs hover:border-orange-500/50 transition-colors animate-in fade-in"
           >
             <span>{chip.label}</span>
             <button
               type="button"
               onClick={chip.onRemove}
-              className="p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-0.5 rounded-full hover:bg-orange-500/20 dark:hover:bg-slate-700 text-orange-600 dark:text-slate-400 hover:text-orange-950 dark:hover:text-white transition-colors cursor-pointer"
               title="Remove filter"
             >
               <X className="h-3 w-3" />
@@ -154,7 +154,7 @@ export default function ActiveFilterBadges({
         <button
           type="button"
           onClick={onResetFilters}
-          className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline hover:text-rose-700 dark:hover:text-rose-300 ml-1 cursor-pointer"
+          className="text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 ml-1.5 px-2 py-0.5 rounded-md hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
         >
           Clear All
         </button>

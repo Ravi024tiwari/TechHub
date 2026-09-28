@@ -11,13 +11,27 @@ export const placeCodOrderApi = async (orderPayload) => {
   return response.data; // { statusCode, data: { order }, message }
 };
 
-// Initialize Razorpay Order
+// Initialize Razorpay Order (with 10-min stock reservation lock)
 export const createRazorpayOrderApi = async (orderPayload) => {
   const response = await apiClient.post("/orders/checkout/razorpay", orderPayload);
   return response.data;
 };
 
-// Verify Razorpay Payment & place order
+// Cancel active stock reservation and restore inventory
+export const cancelStockReservationApi = async (razorpayOrderId) => {
+  const response = await apiClient.post("/orders/checkout/cancel-reservation", {
+    razorpayOrderId
+  });
+  return response.data;
+};
+
+// Check if current user has an active stock hold
+export const getActiveStockReservationApi = async () => {
+  const response = await apiClient.get("/orders/checkout/active-reservation");
+  return response.data;
+};
+
+// Verify Razorpay Payment & place order (ACID Transaction)
 export const verifyRazorpayPaymentApi = async (paymentPayload) => {
   const response = await apiClient.post("/orders/checkout/verify-payment", paymentPayload);
   return response.data;

@@ -1182,3 +1182,66 @@ export const deleteColorVariant = asyncHandler(async (req, res) => {
     )
   );
 });
+
+/**
+ * @desc    Fetch batch products for side-by-side spec comparison
+ * @route   GET /api/v1/products/compare?ids=id1,id2,id3
+ * @access  Public
+ */
+export const getProductsForComparison = asyncHandler(async (req, res) => {
+  const { ids } = req.query;
+
+  if (!ids || typeof ids !== "string") {
+    throw new ApiError(400, "Please provide product IDs to compare as comma-separated query: ?ids=id1,id2");
+  }
+
+  const idList = ids
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+  if (idList.length === 0) {
+    throw new ApiError(400, "No valid product IDs provided for comparison");
+  }
+
+  // Cap at 4 products for comparison
+  const cappedIds = idList.slice(0, 4);
+
+  const products = await Product.find({
+    _id: { $in: cappedIds },
+    isActive: true
+  })
+    .populate("brand", "name logo slug")
+    .populate("category", "name slug icon");
+
+  // Preserve the order of IDs as requested
+  const orderedProducts = cappedIds
+    .map((id) => products.find((p) => p._id.toString() === id.toString()))
+    .filter(Boolean);
+
+  // Extract all unique spec keys across the products to form a complete matrix
+  const allSpecKeysSet = new Set();
+  orderedProducts.forEach((p) => {
+    if (p.specifications) {
+      if (p.specifications instanceof Map) {
+        for (const key of p.specifications.keys()) {
+          allSpecKeysSet.add(key);
+        }
+      } else if (typeof p.specifications === "object") {
+        Object.keys(p.specifications).forEach((k) => allSpecKeysSet.add(k));
+      }
+    }
+  });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        products: orderedProducts,
+        totalComparing: orderedProducts.length,
+        allSpecKeys: Array.from(allSpecKeysSet)
+      },
+      "Products for comparison retrieved successfully"
+    )
+  );
+});

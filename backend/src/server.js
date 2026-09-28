@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
+import { startStockReservationWorker } from "./utils/stockReservationCleanup.js";
 
 // Load environment variables early
 dotenv.config();
@@ -14,6 +15,9 @@ const startServer = async () => {
   try {
     // Connect to MongoDB Atlas
     await connectDB();
+
+    // Start background stock reservation watchdog (sweeps expired checkout holds every 30s)
+    startStockReservationWorker(30000);
 
     server = app.listen(PORT, () => {
       console.log(`🚀 [Server] ElectronicsShop API running in ${process.env.NODE_ENV || "development"} mode on http://localhost:${PORT}`);

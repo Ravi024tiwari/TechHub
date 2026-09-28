@@ -21,19 +21,23 @@ import {
   Gamepad2,
   Watch,
   LayoutDashboard,
+  ArrowLeftRight,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useCompareStore } from "@/store/useCompareStore";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { useLogoutMutation } from "@/hooks/useAuth";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import ThemeToggle from "../common/ThemeToggle";
 
 export default function MobileDrawer({ isOpen, onClose }) {
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const cartCount = useCartStore((state) => state.getTotalCount());
   const wishlistCount = useWishlistStore((state) => state.getWishlistCount());
+  const compareCount = useCompareStore((state) => state.getCompareCount());
   const logoutMutation = useLogoutMutation();
 
   if (!isOpen) return null;
@@ -76,15 +80,19 @@ export default function MobileDrawer({ isOpen, onClose }) {
             onClick={onClose}
             className="flex items-center gap-2.5"
           >
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-white/30 via-slate-200/20 to-slate-400/10 border-2 border-slate-300/40 flex items-center justify-center shadow-sm">
-              <Cpu className="h-4 w-4 text-white" />
+            <div className="h-8.5 w-8.5 rounded-xl overflow-hidden border border-white/15 bg-[#0b0e14] shadow-xs shrink-0 flex items-center justify-center p-0.5">
+              <img
+                src="/techhub-logo.jpg"
+                alt="TechHub Logo"
+                className="h-full w-full object-cover rounded-lg"
+              />
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-heading font-extrabold text-base tracking-tight text-white leading-none">
-                TECHHUB
+              <span className="font-heading font-black text-base tracking-tight text-white leading-none">
+                TECH<span className="text-orange-400">HUB</span>
               </span>
               <span className="text-[8px] font-tech uppercase tracking-widest text-slate-400 mt-0.5">
-                Precision Electronics
+                Phones & Electronics
               </span>
             </div>
           </Link>
@@ -226,6 +234,22 @@ export default function MobileDrawer({ isOpen, onClose }) {
           </Link>
 
           <Link
+            to="/compare"
+            onClick={onClose}
+            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
+          >
+            <div className="flex items-center gap-3">
+              <ArrowLeftRight className="h-4 w-4 text-orange-400 stroke-[2.2]" />
+              <span>Compare Specs</span>
+            </div>
+            {compareCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-orange-500 text-white font-bold">
+                {compareCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
             to="/cart"
             onClick={onClose}
             className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/[0.05] text-slate-300 hover:text-white transition-colors text-xs font-medium"
@@ -240,6 +264,12 @@ export default function MobileDrawer({ isOpen, onClose }) {
               </span>
             )}
           </Link>
+
+          {/* Quick Theme Switcher inside Mobile Drawer */}
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs">
+            <span className="text-slate-300 font-medium">Appearance & Theme</span>
+            <ThemeToggle compact={true} />
+          </div>
         </div>
 
         {/* Categories Section */}

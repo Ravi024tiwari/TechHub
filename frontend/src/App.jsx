@@ -14,6 +14,7 @@ const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Deals = lazy(() => import("./pages/Deals"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Compare = lazy(() => import("./pages/Compare"));
 const Orders = lazy(() => import("./pages/Orders"));
 const CustomerOrderDetail = lazy(() => import("./pages/CustomerOrderDetail"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -21,6 +22,7 @@ const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./components/common/NotFound"));
+import CompareFloatingBar from "./components/compare/CompareFloatingBar";
 
 import { useThemeStore } from "./store/useThemeStore";
 import { useAuthStore } from "./store/useAuthStore";
@@ -76,6 +78,7 @@ export default function App() {
           <Route path="/deals" element={<Deals />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/compare" element={<Compare />} />
 
           {/* Protected Customer Routes (Redirects to landing page '/' if logged out) */}
           <Route
@@ -171,6 +174,9 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+
+      {/* Global Floating Product Comparison Dock */}
+      <CompareFloatingBar />
     </BrowserRouter>
   );
 }

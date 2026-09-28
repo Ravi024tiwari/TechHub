@@ -9,11 +9,19 @@ import CartPaymentSelector from "@/components/cart/CartPaymentSelector";
 import CartOrderSummary from "@/components/cart/CartOrderSummary";
 import CartEmptyState from "@/components/cart/CartEmptyState";
 import CartOrderSuccess from "@/components/cart/CartOrderSuccess";
+import StockReservationBanner from "@/components/cart/StockReservationBanner";
 import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useAddressesQuery } from "@/hooks/useAddresses";
 import { usePlaceCodOrderMutation } from "@/hooks/useOrders";
 import { syncCartApi, clearCartApi, applyCouponApi } from "@/api/cartApi";
+import {
+  createRazorpayOrderApi,
+  verifyRazorpayPaymentApi,
+  cancelStockReservationApi,
+  getActiveStockReservationApi,
+} from "@/api/orderApi";
+import { loadRazorpayScript } from "@/utils/loadRazorpay";
 import {
   ShoppingBag,
   Trash2,
@@ -28,7 +36,8 @@ import {
  * Production-Grade Shopping Bag & Checkout Page:
  * - Direct architectural sibling of the rest of the customer portal.
  * - Solid Cyber Orange & Emerald palette unified across the storefront.
- * - Modular line items with quantity stepper, stock limits, and 1-click wishlist transfer.
+ * - Concurrency-Safe Two-Phase Stock Reservation with 10-Minute Hold Timer.
+ * - Multi-Document ACID Transaction Order Verification and Placement.
  * - Zero-redirect shipping address management and AddressModal integration.
  * - Interactive voucher engine with instant test suggestions and remove capability.
  * - Robust server-side cart synchronization and COD / Online order placement.
@@ -62,6 +71,23 @@ export default function Cart() {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [placedOrderDetails, setPlacedOrderDetails] = useState(null);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+
+  // Concurrency Stock Reservation state
+  const [activeReservation, setActiveReservation] = useState(null);
+  const [isCancellingReservation, setIsCancellingReservation] = useState(false);
+
+  // Check for active stock hold on mount (e.g. if page was reloaded)
+  useEffect(() => {
+    if (isAuthenticated) {
+      getActiveStockReservationApi()
+        .then((res) => {
+          if (res?.data?.hasActiveReservation) {
+            setActiveReservation(res.data);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated]);
 
   const totalItemsCount = getTotalCount();
   const subtotal = getSubtotal();
@@ -107,6 +133,29 @@ export default function Cart() {
   };
 
   const finalTotal = Math.max(0, subtotal - appliedDiscount);
+
+  // Voluntarily cancel and unlock stock hold
+  const handleCancelReservation = async () => {
+    if (!activeReservation?.razorpayOrderId) return;
+    setIsCancellingReservation(true);
+    try {
+      await cancelStockReservationApi(activeReservation.razorpayOrderId);
+      setActiveReservation(null);
+      setOrderError("");
+    } catch (err) {
+      console.error("Failed to cancel stock reservation:", err);
+    } finally {
+      setIsCancellingReservation(false);
+    }
+  };
+
+  // Stock hold expired handler
+  const handleReservationExpired = () => {
+    setActiveReservation(null);
+    setOrderError(
+      "Your 10-minute stock reservation expired. Inventory has been returned to stock. Click 'Proceed to Checkout' to re-reserve."
+    );
+  };
 
   // Handle Checkout Order Placement with Production Server-Side Cart Synchronization
   const handleProceedCheckout = async () => {
@@ -160,11 +209,86 @@ export default function Cart() {
 
         setIsOrderPlaced(true);
         setPlacedOrderDetails(response?.data?.order || response?.order || null);
+        setActiveReservation(null);
         clearCart();
       } else {
-        alert(
-          "Online Razorpay / Card gateway initialized! In test mode, please switch to 'Cash on Delivery' to test end-to-end order placement."
-        );
+        // Step 4: Online Instant Payment via Razorpay with Two-Phase Stock Reservation
+        const isRzpLoaded = await loadRazorpayScript();
+        if (!isRzpLoaded) {
+          throw new Error(
+            "Unable to connect to Razorpay payment gateway. Please check your network connection and try again."
+          );
+        }
+
+        // Initialize Razorpay order & reserve stock atomically on backend
+        const rzpInitRes = await createRazorpayOrderApi({
+          shippingAddressId: selectedAddressId,
+        });
+
+        const rzpData = rzpInitRes?.data;
+        if (!rzpData?.razorpayOrderId) {
+          throw new Error("Failed to initialize gateway order. Please retry.");
+        }
+
+        // Activate reservation timer banner
+        setActiveReservation(rzpData);
+
+        // Open Razorpay Standard Checkout Modal
+        const options = {
+          key: rzpData.keyId,
+          amount: rzpData.amount,
+          currency: rzpData.currency || "INR",
+          name: "TechHub Electronics",
+          description: `Order Checkout (${totalItemsCount} item${totalItemsCount > 1 ? "s" : ""})`,
+          order_id: rzpData.razorpayOrderId,
+          prefill: {
+            name: selectedAddress?.fullName || user?.fullName || "",
+            email: user?.email || "",
+            contact: selectedAddress?.phone || user?.phone || "",
+          },
+          theme: {
+            color: "#f97316", // Cyber orange brand accent
+          },
+          handler: async (response) => {
+            try {
+              setIsSubmittingOrder(true);
+              const verifyRes = await verifyRazorpayPaymentApi({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                shippingAddressId: selectedAddressId,
+              });
+
+              setIsOrderPlaced(true);
+              setPlacedOrderDetails(verifyRes?.data?.order || null);
+              setActiveReservation(null);
+              clearCart();
+            } catch (verifyErr) {
+              setOrderError(
+                verifyErr?.response?.data?.message ||
+                  verifyErr?.message ||
+                  "Payment verification failed. If your bank account was debited, an automated refund has been initiated."
+              );
+            } finally {
+              setIsSubmittingOrder(false);
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              setOrderError(
+                "Payment window closed. Your items remain held for the remaining time displayed above. Click 'Proceed to Checkout' to complete payment or 'Release Hold' to unlock."
+              );
+            },
+          },
+        };
+
+        const razorpayInstance = new window.Razorpay(options);
+        razorpayInstance.on("payment.failed", (failedRes) => {
+          setOrderError(
+            `Payment declined: ${failedRes.error?.description || "Transaction failed at issuing bank."}`
+          );
+        });
+        razorpayInstance.open();
       }
     } catch (err) {
       setOrderError(
@@ -261,6 +385,17 @@ export default function Cart() {
             </div>
           )}
         </div>
+
+        {/* Active Concurrency Stock Reservation Countdown Banner */}
+        {activeReservation && (
+          <StockReservationBanner
+            remainingSeconds={activeReservation.remainingSeconds}
+            expiresAt={activeReservation.expiresAt}
+            onExpire={handleReservationExpired}
+            onCancelReservation={handleCancelReservation}
+            isCancelling={isCancellingReservation}
+          />
+        )}
 
         {/* Bag Content */}
         {items.length === 0 ? (

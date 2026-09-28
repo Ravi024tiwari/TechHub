@@ -84,10 +84,10 @@ export default function NavUserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-label="User profile menu"
-        className={`flex items-center gap-1.5 xl:gap-2.5 p-0.5 xl:pl-1.5 xl:pr-3 xl:py-1 rounded-full border-2 transition-all cursor-pointer ${
+        className={`flex items-center gap-1.5 xl:gap-2.5 p-0.5 xl:pl-1.5 xl:pr-3 xl:py-1 rounded-full border-2 transition-all cursor-pointer select-none ${
           isOpen
-            ? "bg-white/20 border-white shadow-[0_0_20px_rgba(255,255,255,0.25)]"
-            : "bg-white/[0.05] hover:bg-white/[0.12] border-slate-300 dark:border-white/20 hover:border-white"
+            ? "bg-slate-100 dark:bg-white/20 border-slate-400 dark:border-white shadow-xs"
+            : "bg-slate-50 hover:bg-slate-100 border-slate-300 dark:bg-white/[0.05] dark:hover:bg-white/[0.12] dark:border-white/20 dark:hover:border-white"
         }`}
       >
         {/* Avatar with Metallic Ring & Active Status Dot */}

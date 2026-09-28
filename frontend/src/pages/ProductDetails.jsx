@@ -23,6 +23,7 @@ import ProductShelf from "@/components/home/ProductShelf";
 // Subcomponents for Product Details
 import ProductGallery from "@/components/product-details/ProductGallery";
 import ColorVariantSelector from "@/components/product-details/ColorVariantSelector";
+import CompareButton from "@/components/compare/CompareButton";
 import StockTelemetryBadge from "@/components/product-details/StockTelemetryBadge";
 import SpecsHighlightsTabs from "@/components/product-details/SpecsHighlightsTabs";
 import AdminProductHUD from "@/components/product-details/AdminProductHUD";
@@ -346,15 +347,18 @@ export default function ProductDetails() {
                   <button
                     type="button"
                     onClick={() => toggleWishlist(product)}
-                    className={`flex-1 h-10 px-4 rounded-xl border-2 flex items-center justify-center gap-2 text-xs font-heading font-bold transition-all shadow-sm cursor-pointer ${
+                    className={`flex-1 h-10 px-3 rounded-xl border-2 flex items-center justify-center gap-1.5 text-xs font-heading font-bold transition-all shadow-sm cursor-pointer ${
                       isInWishlist
                         ? "bg-rose-50 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40 text-rose-600 dark:text-rose-400"
                         : "bg-white hover:bg-slate-100 dark:bg-white/[0.05] dark:hover:bg-white/10 border-slate-300 dark:border-white/15 text-slate-800 dark:text-white"
                     }`}
                   >
                     <Heart className={`h-4 w-4 shrink-0 ${isInWishlist ? "fill-rose-500 text-rose-500" : "text-slate-600 dark:text-slate-300"}`} />
-                    <span>{isInWishlist ? "Saved to Wishlist" : "Save for Later"}</span>
+                    <span>{isInWishlist ? "Wishlisted" : "Wishlist"}</span>
                   </button>
+
+                  {/* Compare Specifications Button */}
+                  <CompareButton product={product} variant="full" />
                 </div>
 
                 {/* Primary Action Buttons (High Contrast & High Tactile Feedback) */}

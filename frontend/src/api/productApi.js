@@ -49,3 +49,13 @@ export const fetchFilterMetadata = async (params = {}) => {
     availableSpecs: { ram: [], storage: [], processors: [] },
   };
 };
+
+// Fetch batch products for side-by-side spec comparison
+export const fetchProductsForComparison = async (productIds = []) => {
+  if (!productIds || productIds.length === 0) return { products: [], allSpecKeys: [] };
+  const idsString = Array.isArray(productIds) ? productIds.join(",") : productIds;
+  const response = await apiClient.get("/products/compare", {
+    params: { ids: idsString },
+  });
+  return response.data?.data || { products: [], allSpecKeys: [] };
+};

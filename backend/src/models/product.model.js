@@ -41,6 +41,11 @@ const colorVariantSchema = new mongoose.Schema(
       min: [0, "Stock cannot be negative"],
       default: 0
     },
+    reservedStock: {
+      type: Number,
+      min: [0, "Reserved stock cannot be negative"],
+      default: 0
+    },
     sku: {
       type: String,
       trim: true,
@@ -132,6 +137,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Stock quantity is required"],
       min: [0, "Stock cannot be negative"],
+      default: 0
+    },
+    reservedStock: {
+      type: Number,
+      min: [0, "Reserved stock cannot be negative"],
       default: 0
     },
     lowStockThreshold: {

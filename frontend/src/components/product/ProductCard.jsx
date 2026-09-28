@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
+import CompareButton from "@/components/compare/CompareButton";
 
 /**
  * Production-Grade Interactive Flagship Product Card:
@@ -88,12 +89,12 @@ export default function ProductCard({ product }) {
   return (
     <div
       onClick={handleCardClick}
-      className="group relative rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-slate-400 bg-white shadow-sm hover:shadow-lg dark:border-white/20 dark:sm:border-white/15 dark:hover:border-white/50 dark:active:border-white/60 dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7),_0_0_10px_rgba(255,255,255,0.05)] dark:hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),_0_0_25px_rgba(255,255,255,0.18)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer touch-pan-y select-none"
+      className="group relative rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-orange-500/50 bg-white shadow-2xs hover:shadow-lg dark:border-white/15 dark:hover:border-white/40 dark:bg-gradient-to-b dark:from-[#141824] dark:via-[#0d1017] dark:to-[#080a0e] dark:shadow-[0_4px_20px_rgba(0,0,0,0.7),_0_0_10px_rgba(255,255,255,0.05)] dark:hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),_0_0_25px_rgba(255,255,255,0.18)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer touch-pan-y select-none"
     >
       {/* =========================================================================
           TOP SECTION: Full-Width Image Showcase with Overlays (Admin-Grade)
           ========================================================================= */}
-      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-52 lg:h-56 overflow-hidden bg-slate-100 dark:bg-[#0c0f16] border-b border-slate-200 dark:border-white/15 sm:dark:border-white/10">
+      <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:h-52 lg:h-56 overflow-hidden bg-slate-50 dark:bg-[#0c0f16] border-b border-slate-100 dark:border-white/10">
         {/* Product Image */}
         <img
           src={mainImage}
@@ -102,13 +103,13 @@ export default function ProductCard({ product }) {
           className="w-full h-full object-cover object-center group-hover:scale-106 transition-transform duration-700 ease-out"
         />
 
-        {/* Gradient overlays for cinematic contrast */}
-        <div className="absolute inset-x-0 top-0 h-14 sm:h-20 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-12 sm:h-16 bg-gradient-to-t from-[#080a0e] via-[#080a0e]/60 to-transparent pointer-events-none" />
+        {/* Subtle gradient overlays: soft vignette in light mode, deep obsidian in dark mode */}
+        <div className="absolute inset-x-0 top-0 h-12 sm:h-16 bg-gradient-to-b from-black/25 via-transparent to-transparent dark:from-black/75 dark:via-black/35 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-10 sm:h-14 bg-gradient-to-t from-black/25 via-transparent to-transparent dark:from-[#080a0e] dark:via-[#080a0e]/60 pointer-events-none" />
 
         {/* Top-Left Category & Discount Badge */}
         <div className="absolute top-1.5 left-1.5 sm:top-2.5 sm:left-2.5 flex flex-col gap-1 z-10 max-w-[65%]">
-          <span className="px-1.5 sm:px-2.5 py-0.5 rounded-full text-[8.5px] sm:text-[10px] font-mono font-bold tracking-wider uppercase bg-black/75 text-white backdrop-blur-md border border-white/15 shadow-sm truncate">
+          <span className="px-1.5 sm:px-2.5 py-0.5 rounded-full text-[8.5px] sm:text-[10px] font-mono font-bold tracking-wider uppercase bg-white/95 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-black/75 dark:text-white dark:border-white/15 truncate backdrop-blur-md">
             {product.categoryName || product.category?.name || "Hardware"}
           </span>
 
@@ -120,57 +121,59 @@ export default function ProductCard({ product }) {
           )}
         </div>
 
-        {/* Top-Right Floating Wishlist Toggle */}
-        <div className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 z-10">
+        {/* Top-Right Floating Wishlist & Compare Toggles */}
+        <div className="absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 z-10 flex flex-col gap-1.5">
           <button
             type="button"
             onClick={handleToggleWishlist}
             aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-            className={`h-7 w-7 sm:h-8 sm:w-8 rounded-lg sm:rounded-xl flex items-center justify-center backdrop-blur-md border transition-all duration-200 active:scale-90 cursor-pointer shadow-md ${
+            className={`h-7 w-7 sm:h-8 sm:w-8 rounded-lg sm:rounded-xl flex items-center justify-center backdrop-blur-md border transition-all duration-200 active:scale-90 cursor-pointer shadow-xs ${
               isInWishlist
-                ? "bg-rose-500/30 border-rose-500/60 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.4)]"
-                : "bg-black/75 border-white/15 text-slate-300 hover:text-white hover:bg-white/15"
+                ? "bg-rose-500 text-white border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.35)]"
+                : "bg-white/95 hover:bg-white text-slate-700 hover:text-rose-500 border-slate-200/90 hover:border-rose-300 dark:bg-black/75 dark:hover:bg-white/15 dark:text-slate-300 dark:border-white/15"
             }`}
           >
             <Heart
               className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${
-                isInWishlist ? "fill-rose-500 text-rose-500 scale-110" : ""
+                isInWishlist ? "fill-white text-white scale-110" : ""
               }`}
             />
           </button>
+
+          <CompareButton product={product} variant="compact" />
         </div>
 
         {/* Bottom Bar on Image: Live Stock Badge & Brand Pill */}
         <div className="absolute bottom-1.5 left-1.5 right-1.5 sm:bottom-2.5 sm:left-2.5 sm:right-2.5 flex items-center justify-between gap-1 z-10">
           <span
-            className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[8.5px] sm:text-[10.5px] font-mono font-bold tracking-tight backdrop-blur-md border flex items-center gap-1 shadow-md truncate ${
+            className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[8.5px] sm:text-[10px] font-mono font-bold tracking-tight backdrop-blur-md border flex items-center gap-1 shadow-2xs truncate ${
               isOutOfStock
-                ? "bg-rose-500/25 text-rose-300 border-rose-500/40"
+                ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/25 dark:text-rose-300 dark:border-rose-500/40"
                 : isLowStock
-                ? "bg-amber-500/25 text-amber-300 border-amber-500/40"
-                : "bg-emerald-500/25 text-emerald-300 border-emerald-500/40"
+                  ? "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/25 dark:text-amber-300 dark:border-amber-500/40"
+                  : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/25 dark:text-emerald-300 dark:border-emerald-500/40"
             }`}
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
                 isOutOfStock
-                  ? "bg-rose-400"
+                  ? "bg-rose-500"
                   : isLowStock
-                  ? "bg-amber-400 animate-ping"
-                  : "bg-emerald-400"
+                    ? "bg-amber-500 animate-ping"
+                    : "bg-emerald-500"
               }`}
             />
             <span>
               {isOutOfStock
                 ? "Sold Out"
                 : isLowStock
-                ? `Only ${product.stock} Left`
-                : "In Stock"}
+                  ? `Only ${product.stock} Left`
+                  : "In Stock"}
             </span>
           </span>
 
           {(product.brandName || product.brand?.name) && (
-            <span className="text-[8.5px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-slate-300 bg-black/60 backdrop-blur-md px-1.5 sm:px-2 py-0.5 rounded-md border border-white/10 hidden min-[440px]:inline-block truncate">
+            <span className="text-[8.5px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 bg-white/95 dark:text-slate-300 dark:bg-black/60 backdrop-blur-md px-1.5 sm:px-2 py-0.5 rounded-md border border-slate-200/90 dark:border-white/10 hidden min-[440px]:inline-block truncate shadow-2xs">
               {product.brandName || product.brand?.name}
             </span>
           )}
@@ -246,13 +249,12 @@ export default function ProductCard({ product }) {
               type="button"
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className={`flex-1 h-7.5 sm:h-9 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-200 active:scale-98 shadow-sm ${
-                isOutOfStock
+              className={`flex-1 h-7.5 sm:h-9 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-200 active:scale-98 shadow-sm ${isOutOfStock
                   ? "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-white/5"
                   : isAdded
-                  ? "bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] cursor-pointer"
-                  : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 hover:shadow-md cursor-pointer"
-              }`}
+                    ? "bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] cursor-pointer"
+                    : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 hover:shadow-md cursor-pointer"
+                }`}
             >
               {isOutOfStock ? (
                 <span>Sold Out</span>

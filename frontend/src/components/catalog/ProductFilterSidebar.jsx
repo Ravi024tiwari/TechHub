@@ -163,14 +163,14 @@ export default function ProductFilterSidebar({
       {/* Sidebar Header */}
       <div className="p-4 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-white/[0.02]">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+          <div className="h-7 w-7 rounded-lg bg-orange-500/10 border border-orange-500/25 text-orange-600 dark:text-orange-400 flex items-center justify-center">
             <SlidersHorizontal className="h-3.5 w-3.5" />
           </div>
           <div>
             <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white">
               Filter Catalog
             </h3>
-            <span className="text-[10px] text-slate-400 font-tech">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-tech">
               Hardware Specifications
             </span>
           </div>
@@ -192,7 +192,7 @@ export default function ProductFilterSidebar({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10"
             >
               <X className="h-5 w-5" />
             </button>
@@ -213,7 +213,7 @@ export default function ProductFilterSidebar({
                 <span className="font-heading font-bold text-xs text-slate-900 dark:text-white block">
                   In Stock Only
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">
                   Ready for immediate shipping
                 </span>
               </div>
@@ -239,9 +239,9 @@ export default function ProductFilterSidebar({
           <button
             type="button"
             onClick={() => toggleSection("categories")}
-            className="w-full flex items-center justify-between text-left group"
+            className="w-full flex items-center justify-between text-left group cursor-pointer"
           >
-            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-sky-400 transition-colors">
+            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
               Departments ({uniqueCategories.length})
             </span>
             {openSections.categories ? (
@@ -260,9 +260,9 @@ export default function ProductFilterSidebar({
                     key={cat.slug}
                     type="button"
                     onClick={() => handleToggleArrayItem("category", cat.slug)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-sky-500/15 text-sky-400 font-semibold border border-sky-500/30"
+                        ? "bg-orange-500/10 text-orange-800 dark:text-orange-300 font-semibold border border-orange-500/30"
                         : "hover:bg-slate-100 dark:hover:bg-white/[0.04] text-slate-700 dark:text-slate-300 border border-transparent"
                     }`}
                   >
@@ -270,7 +270,7 @@ export default function ProductFilterSidebar({
                       <div
                         className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 transition-colors ${
                           isSelected
-                            ? "bg-sky-500 border-sky-500 text-white"
+                            ? "bg-orange-500 border-orange-500 text-white"
                             : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
                         }`}
                       >
@@ -279,7 +279,7 @@ export default function ProductFilterSidebar({
                       <span className="truncate text-xs">{cat.name}</span>
                     </div>
                     {cat.count !== undefined && (
-                      <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md">
+                      <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md">
                         {cat.count}
                       </span>
                     )}
@@ -297,9 +297,9 @@ export default function ProductFilterSidebar({
           <button
             type="button"
             onClick={() => toggleSection("brands")}
-            className="w-full flex items-center justify-between text-left group"
+            className="w-full flex items-center justify-between text-left group cursor-pointer"
           >
-            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-sky-400 transition-colors">
+            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
               OEM Brands ({uniqueBrands.length})
             </span>
             {openSections.brands ? (
@@ -319,7 +319,7 @@ export default function ProductFilterSidebar({
                     placeholder="Search brand..."
                     value={brandSearchQuery}
                     onChange={(e) => setBrandSearchQuery(e.target.value)}
-                    className="w-full h-7 pl-8 pr-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-500"
+                    className="w-full h-7 pl-8 pr-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-orange-500"
                   />
                 </div>
               )}
@@ -332,9 +332,9 @@ export default function ProductFilterSidebar({
                       key={b.slug}
                       type="button"
                       onClick={() => handleToggleArrayItem("brand", b.slug)}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all ${
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-sky-500/15 text-sky-400 font-semibold border border-sky-500/30"
+                          ? "bg-orange-500/10 text-orange-800 dark:text-orange-300 font-semibold border border-orange-500/30"
                           : "hover:bg-slate-100 dark:hover:bg-white/[0.04] text-slate-700 dark:text-slate-300 border border-transparent"
                       }`}
                     >
@@ -342,7 +342,7 @@ export default function ProductFilterSidebar({
                         <div
                           className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 transition-colors ${
                             isSelected
-                              ? "bg-sky-500 border-sky-500 text-white"
+                              ? "bg-orange-500 border-orange-500 text-white"
                               : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
                           }`}
                         >
@@ -351,7 +351,7 @@ export default function ProductFilterSidebar({
                         <span className="truncate text-xs">{b.name}</span>
                       </div>
                       {b.count !== undefined && (
-                        <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md">
+                        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md">
                           {b.count}
                         </span>
                       )}
@@ -370,9 +370,9 @@ export default function ProductFilterSidebar({
           <button
             type="button"
             onClick={() => toggleSection("price")}
-            className="w-full flex items-center justify-between text-left group"
+            className="w-full flex items-center justify-between text-left group cursor-pointer"
           >
-            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-sky-400 transition-colors">
+            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
               Price Range
             </span>
             {openSections.price ? (
@@ -389,28 +389,28 @@ export default function ProductFilterSidebar({
                 <button
                   type="button"
                   onClick={() => handlePricePreset(undefined, 25000)}
-                  className="px-2 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-white/10 hover:border-sky-500 text-slate-600 dark:text-slate-300 hover:text-sky-400 transition-colors text-center"
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 dark:border-white/10 hover:border-orange-500 text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-500/10 transition-colors text-center cursor-pointer"
                 >
                   Under ₹25k
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePricePreset(25000, 50000)}
-                  className="px-2 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-white/10 hover:border-sky-500 text-slate-600 dark:text-slate-300 hover:text-sky-400 transition-colors text-center"
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 dark:border-white/10 hover:border-orange-500 text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-500/10 transition-colors text-center cursor-pointer"
                 >
                   ₹25k - ₹50k
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePricePreset(50000, 100000)}
-                  className="px-2 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-white/10 hover:border-sky-500 text-slate-600 dark:text-slate-300 hover:text-sky-400 transition-colors text-center"
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 dark:border-white/10 hover:border-orange-500 text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-500/10 transition-colors text-center cursor-pointer"
                 >
                   ₹50k - ₹1L
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePricePreset(100000, undefined)}
-                  className="px-2 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-white/10 hover:border-sky-500 text-slate-600 dark:text-slate-300 hover:text-sky-400 transition-colors text-center"
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 dark:border-white/10 hover:border-orange-500 text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-500/10 transition-colors text-center cursor-pointer"
                 >
                   Above ₹1L
                 </button>
@@ -428,10 +428,10 @@ export default function ProductFilterSidebar({
                       placeholder="Min"
                       value={localMinPrice}
                       onChange={(e) => setLocalMinPrice(e.target.value)}
-                      className="w-full h-8 pl-6 pr-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-500"
+                      className="w-full h-8 pl-6 pr-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
-                  <span className="text-slate-500 font-bold">-</span>
+                  <span className="text-slate-400 font-bold">-</span>
                   <div className="relative flex-1">
                     <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[11px]">
                       ₹
@@ -441,14 +441,14 @@ export default function ProductFilterSidebar({
                       placeholder="Max"
                       value={localMaxPrice}
                       onChange={(e) => setLocalMaxPrice(e.target.value)}
-                      className="w-full h-8 pl-6 pr-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-500"
+                      className="w-full h-8 pl-6 pr-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-orange-500"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full h-7 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-semibold text-[11px] hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+                  className="w-full h-7.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-semibold text-[11px] hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   Apply Price
                 </button>
@@ -464,11 +464,11 @@ export default function ProductFilterSidebar({
           <button
             type="button"
             onClick={() => toggleSection("specs")}
-            className="w-full flex items-center justify-between text-left group"
+            className="w-full flex items-center justify-between text-left group cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
-              <Cpu className="h-3.5 w-3.5 text-sky-400" />
-              <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-sky-400 transition-colors">
+              <Cpu className="h-3.5 w-3.5 text-orange-500" />
+              <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                 Hardware Specs
               </span>
             </div>
@@ -484,7 +484,7 @@ export default function ProductFilterSidebar({
               {/* RAM Chips */}
               {metadata?.availableSpecs?.ram && metadata.availableSpecs.ram.length > 0 && (
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
                     RAM Memory
                   </span>
                   <div className="flex flex-wrap gap-1">
@@ -499,10 +499,10 @@ export default function ProductFilterSidebar({
                               ram: isSelected ? undefined : ramItem,
                             })
                           }
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-mono border transition-all ${
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-mono border transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-sky-500 text-white border-sky-500 shadow-sm"
-                              : "bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-400"
+                              ? "bg-orange-500 text-white border-orange-500 shadow-2xs"
+                              : "bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-orange-400"
                           }`}
                         >
                           {ramItem}
@@ -516,7 +516,7 @@ export default function ProductFilterSidebar({
               {/* Storage Chips */}
               {metadata?.availableSpecs?.storage && metadata.availableSpecs.storage.length > 0 && (
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
                     Storage Capacity
                   </span>
                   <div className="flex flex-wrap gap-1">
@@ -531,10 +531,10 @@ export default function ProductFilterSidebar({
                               storage: isSelected ? undefined : storageItem,
                             })
                           }
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-mono border transition-all truncate max-w-full ${
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-mono border transition-all truncate max-w-full cursor-pointer ${
                             isSelected
-                              ? "bg-sky-500 text-white border-sky-500 shadow-sm"
-                              : "bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-400"
+                              ? "bg-orange-500 text-white border-orange-500 shadow-2xs"
+                              : "bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-orange-400"
                           }`}
                         >
                           {storageItem.length > 18 ? `${storageItem.slice(0, 18)}...` : storageItem}
@@ -555,9 +555,9 @@ export default function ProductFilterSidebar({
           <button
             type="button"
             onClick={() => toggleSection("rating")}
-            className="w-full flex items-center justify-between text-left group"
+            className="w-full flex items-center justify-between text-left group cursor-pointer"
           >
-            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-sky-400 transition-colors">
+            <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
               Rating
             </span>
             {openSections.rating ? (
@@ -580,21 +580,21 @@ export default function ProductFilterSidebar({
                         rating: isSelected ? undefined : String(stars),
                       })
                     }
-                    className={`w-full flex items-center justify-between px-2.5 py-1 rounded-xl text-left transition-all ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold"
+                        ? "bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 font-semibold"
                         : "hover:bg-slate-100 dark:hover:bg-white/[0.04] text-slate-700 dark:text-slate-300 border border-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-1.5">
-                      <div className="flex items-center text-amber-400">
+                      <div className="flex items-center text-amber-500">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
                             className={`h-3 w-3 ${
                               i < stars
                                 ? "fill-amber-400 text-amber-400"
-                                : "text-slate-600"
+                                : "text-slate-300 dark:text-slate-600"
                             }`}
                           />
                         ))}
@@ -602,7 +602,7 @@ export default function ProductFilterSidebar({
                       <span className="text-xs">& above</span>
                     </div>
                     {isSelected && (
-                      <Check className="h-3 w-3 text-amber-400" />
+                      <Check className="h-3 w-3 text-amber-500" />
                     )}
                   </button>
                 );

@@ -9,6 +9,7 @@ import {
   getLowStockAlerts,
   getSearchSuggestions,
   getFilterMetadata,
+  getProductsForComparison,
   addColorVariant,
   updateColorVariant,
   deleteColorVariant
@@ -27,6 +28,9 @@ productRouter.get("/search/suggestions", searchLimiter, getSearchSuggestions);
 // Dynamic categories & brands filter counts for sidebar
 productRouter.get("/filters", getFilterMetadata);
 productRouter.get("/filters/meta", getFilterMetadata);
+
+// 🔍 Batch Products Comparison Route (Must precede /:idOrSlug)
+productRouter.get("/compare", getProductsForComparison);
 
 // ==========================================
 // 🛡️ Admin Inventory Alerts

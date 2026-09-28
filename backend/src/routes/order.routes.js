@@ -3,6 +3,8 @@ import {
   createRazorpayOrder,
   verifyPaymentAndPlaceOrder,
   placeCodOrder,
+  cancelStockReservation,
+  getActiveStockReservation,
   getMyOrders,
   getOrderById,
   cancelOrder,
@@ -25,6 +27,8 @@ orderRouter.use(verifyJWT);
 orderRouter.post("/checkout/razorpay", checkoutLimiter, createRazorpayOrder);
 orderRouter.post("/checkout/verify-payment", checkoutLimiter, verifyPaymentAndPlaceOrder);
 orderRouter.post("/checkout/cod", checkoutLimiter, placeCodOrder);
+orderRouter.post("/checkout/cancel-reservation", cancelStockReservation);
+orderRouter.get("/checkout/active-reservation", getActiveStockReservation);
 orderRouter.get("/my-orders", getMyOrders);
 orderRouter.get("/:orderId", getOrderById);
 orderRouter.post("/:orderId/cancel", cancelOrder);

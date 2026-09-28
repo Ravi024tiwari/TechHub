@@ -10,7 +10,9 @@ export default function ThemeToggle({ className = "", compact = false }) {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`group relative p-2 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all duration-300 cursor-pointer flex items-center gap-1.5 outline-none select-none active:scale-95 ${
+      className={`group relative ${
+        compact ? "p-1.5 sm:p-2" : "p-2 sm:px-2.5 sm:py-1.5"
+      } rounded-xl border transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 outline-none select-none active:scale-95 ${
         isDark
           ? "bg-white/[0.06] hover:bg-white/12 border-white/15 text-slate-200 hover:text-white hover:border-white/30 hover:shadow-[0_0_15px_rgba(251,191,36,0.25)]"
           : "bg-slate-100 hover:bg-slate-200/80 border-slate-300/80 text-slate-700 hover:text-slate-900 hover:border-slate-400 hover:shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
