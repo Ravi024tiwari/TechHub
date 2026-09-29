@@ -39,47 +39,14 @@ export default function InventoryHealthCard({
   const [filterMode, setFilterMode] = useState("all"); // 'all' | 'critical' | 'depleted'
   const [hoveredSegment, setHoveredSegment] = useState(null);
 
-  const total = summary.totalProducts || 1842;
-  const inStock = summary.activeProducts || 1542;
-  const lowStock = summary.lowStockCount || 182;
-  const outOfStock = summary.outOfStockCount || 118;
+  const total = summary.totalProducts || 0;
+  const inStock = summary.activeProducts || 0;
+  const lowStock = summary.lowStockCount || 0;
+  const outOfStock = summary.outOfStockCount || 0;
 
-  // Fallback demo items if none retrieved from database
+  // Real items from database (no mock fallback items)
   const allItems = useMemo(() => {
-    return lowStockItems && lowStockItems.length > 0
-      ? lowStockItems
-      : [
-          {
-            title: "iPhone 17 Pro 256GB Titanium",
-            stock: 4,
-            status: "Low",
-            category: "Smartphones",
-          },
-          {
-            title: "MacBook Air M4 16GB / 512GB",
-            stock: 2,
-            status: "Critical",
-            category: "Laptops",
-          },
-          {
-            title: "Sony WH-1000XM5 Wireless Headphones",
-            stock: 7,
-            status: "Low",
-            category: "Audio",
-          },
-          {
-            title: "Samsung Odyssey OLED G9 Gaming Monitor",
-            stock: 0,
-            status: "Out of Stock",
-            category: "Monitors",
-          },
-          {
-            title: "PlayStation 5 Pro Digital Edition",
-            stock: 1,
-            status: "Critical",
-            category: "Gaming",
-          },
-        ];
+    return lowStockItems && lowStockItems.length > 0 ? lowStockItems : [];
   }, [lowStockItems]);
 
   // Filtered items based on active tab
@@ -254,33 +221,47 @@ export default function InventoryHealthCard({
 
       {/* Critical Items Watchlist */}
       <div className="relative z-10 space-y-2">
-        {filteredItems.slice(0, 4).map((item, idx) => (
-          <div
-            key={idx}
-            className="flex items-center justify-between p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/10 transition-all gap-2 group/row"
-          >
-            <div className="min-w-0 flex-1">
-              <span className="text-xs font-semibold text-slate-900 dark:text-white truncate block font-sans">
-                {item.title}
-              </span>
-              <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 inline-block" />
-                {getCleanCategoryLabel(item.category)}
-              </span>
+        {filteredItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-5 px-3">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-2">
+              <ShieldCheck className="w-5 h-5" />
             </div>
-
-            <div className="shrink-0 flex items-center gap-2">
-              {getStatusBadge(item.stock ?? 0, item.status)}
-              <Link
-                to="/admin/inventory"
-                className="p-1 text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
-                title="Restock units in Inventory Hub"
-              >
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+            <p className="text-xs font-heading font-bold text-slate-800 dark:text-slate-200">
+              Inventory Levels Healthy
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xs font-sans">
+              No products are currently low or depleted in your catalog.
+            </p>
           </div>
-        ))}
+        ) : (
+          filteredItems.slice(0, 4).map((item, idx) => (
+            <div
+              key={idx}
+              className="flex items-center justify-between p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/10 transition-all gap-2 group/row"
+            >
+              <div className="min-w-0 flex-1">
+                <span className="text-xs font-semibold text-slate-900 dark:text-white truncate block font-sans">
+                  {item.title}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 inline-block" />
+                  {getCleanCategoryLabel(item.category)}
+                </span>
+              </div>
+
+              <div className="shrink-0 flex items-center gap-2">
+                {getStatusBadge(item.stock ?? 0, item.status)}
+                <Link
+                  to="/admin/inventory"
+                  className="p-1 text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                  title="Restock units in Inventory Hub"
+                >
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Footer */}

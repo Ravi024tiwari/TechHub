@@ -139,16 +139,64 @@ export default function AdminDashboard() {
     RETURNED: orders.returnedOrders ?? 0,
   };
 
-  // Sparkline data
+  // Real Sparkline data derived purely from database timeline
   const revenueSparkline =
-    salesAnalytics?.salesTimeline?.length >= 5
-      ? salesAnalytics.salesTimeline.slice(-7).map((d) => d.revenue || 0)
-      : [14, 18, 16, 25, 22, 28, 35];
+    salesAnalytics?.salesTimeline?.length >= 2
+      ? salesAnalytics.salesTimeline.map((d) => d.revenue || 0)
+      : [];
 
   const ordersSparkline =
-    salesAnalytics?.salesTimeline?.length >= 5
-      ? salesAnalytics.salesTimeline.slice(-7).map((d) => d.orders || 0)
-      : [10, 14, 12, 19, 18, 22, 26];
+    salesAnalytics?.salesTimeline?.length >= 2
+      ? salesAnalytics.salesTimeline.map((d) => d.orders || 0)
+      : [];
+
+  // Transform backend recentActivity (orders, users, reviews) into unified chronological feed
+  const formattedActivities = useMemo(() => {
+    const raw = overviewData?.recentActivity || {};
+    const list = [];
+
+    (raw.recentOrders || []).forEach((ord) => {
+      const isDelivered = ord.orderStatus === "DELIVERED";
+      const total = ord.pricing?.grandTotal || 0;
+      const orderNum = ord.orderNumber || `#ORD-${String(ord._id).slice(-4).toUpperCase()}`;
+
+      list.push({
+        id: `ord-${ord._id}`,
+        type: isDelivered ? "delivery" : "order",
+        title: `${ord.user?.name || "Customer"} placed an order`,
+        desc: `${orderNum} • ₹${total.toLocaleString()} • ${ord.orderStatus}`,
+        time: ord.createdAt,
+        timestamp: new Date(ord.createdAt).getTime(),
+        link: `/admin/orders?search=${ord.orderNumber || ord._id}`,
+      });
+    });
+
+    (raw.recentUsers || []).forEach((u) => {
+      list.push({
+        id: `user-${u._id}`,
+        type: "user",
+        title: `${u.name || "Customer"} registered an account`,
+        desc: u.email || "Verified Customer Profile",
+        time: u.createdAt,
+        timestamp: new Date(u.createdAt).getTime(),
+        link: "/admin/customers",
+      });
+    });
+
+    (raw.recentReviews || []).forEach((rev) => {
+      list.push({
+        id: `rev-${rev._id}`,
+        type: "review",
+        title: `${rev.user?.name || "Customer"} rated ${rev.rating || 5}★`,
+        desc: `${rev.product?.title || "Electronics"} • "${rev.title || rev.comment || "Verified review"}"`,
+        time: rev.createdAt,
+        timestamp: new Date(rev.createdAt).getTime(),
+        link: "/admin/products",
+      });
+    });
+
+    return list.sort((a, b) => b.timestamp - a.timestamp);
+  }, [overviewData?.recentActivity]);
 
   return (
     <div className="space-y-5 sm:space-y-8">
@@ -179,7 +227,7 @@ export default function AdminDashboard() {
           <RevenueSplineChart
             timeline={salesAnalytics?.salesTimeline || []}
             headlineTotal={totalGrossRev}
-            growthPercentage={revenue.revenueGrowthPercentage ?? 12.8}
+            growthPercentage={revenue.revenueGrowthPercentage ?? 0}
             currencyFormatter={formatINR}
           />
         </div>
@@ -226,7 +274,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="lg:col-span-4">
-          <RecentActivityFeed />
+          <RecentActivityFeed activities={formattedActivities} />
         </div>
       </div>
     </div>

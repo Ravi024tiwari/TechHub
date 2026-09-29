@@ -80,56 +80,7 @@ export default function RecentOrdersTable({
     }
   };
 
-  const displayOrders =
-    orders && orders.length > 0
-      ? orders
-      : [
-          {
-            _id: "679801",
-            orderNumber: "ORD-921",
-            user: { name: "Rahul Sharma", email: "rahul.s@example.com" },
-            productName: "iPhone 17 Pro Natural Titanium",
-            pricing: { grandTotal: 129999 },
-            orderStatus: "DELIVERED",
-            createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: "679802",
-            orderNumber: "ORD-920",
-            user: { name: "Aman Verma", email: "aman.v@example.com" },
-            productName: "MacBook Air M4 Space Black",
-            pricing: { grandTotal: 114999 },
-            orderStatus: "SHIPPED",
-            createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: "679803",
-            orderNumber: "ORD-919",
-            user: { name: "Priya Singh", email: "priya.s@example.com" },
-            productName: "AirPods Pro (2nd Gen)",
-            pricing: { grandTotal: 24999 },
-            orderStatus: "PROCESSING",
-            createdAt: new Date(Date.now() - 31 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: "679804",
-            orderNumber: "ORD-918",
-            user: { name: "Arjun Mehta", email: "arjun.m@example.com" },
-            productName: "Samsung Galaxy S25 Ultra",
-            pricing: { grandTotal: 124999 },
-            orderStatus: "CONFIRMED",
-            createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-          },
-          {
-            _id: "679805",
-            orderNumber: "ORD-917",
-            user: { name: "Neha Kapoor", email: "neha.k@example.com" },
-            productName: "Sony WH-1000XM5 Silver",
-            pricing: { grandTotal: 29999 },
-            orderStatus: "CANCELLED",
-            createdAt: new Date(Date.now() - 180 * 60 * 1000).toISOString(),
-          },
-        ];
+  const displayOrders = orders && orders.length > 0 ? orders : [];
 
   return (
     <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0c0f17] border border-slate-200/90 dark:border-white/10 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between">
@@ -152,11 +103,24 @@ export default function RecentOrdersTable({
         </Link>
       </div>
 
-      {/* Orders Table */}
-      <div className="overflow-x-auto -mx-5 sm:-mx-6">
+      {/* Orders Table or Empty State */}
+      {displayOrders.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center p-8 my-auto">
+          <div className="p-3 rounded-2xl bg-sky-500/10 text-sky-500 border border-sky-500/20 mb-2 shadow-xs">
+            <ShoppingBag className="w-5 h-5" />
+          </div>
+          <p className="text-sm font-heading font-bold text-slate-800 dark:text-slate-200">
+            No Orders Placed Yet
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs font-sans">
+            New customer purchases will appear here in real-time as they checkout.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto -mx-5 sm:-mx-6">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-slate-100 dark:border-white/10 text-slate-400 dark:text-slate-500 font-mono text-[10px] uppercase tracking-wider">
+            <tr className="border-b border-slate-100 dark:border-white/10 text-slate-500 dark:text-slate-500 font-mono text-[10px] uppercase tracking-wider">
               <th className="py-2.5 px-5 sm:px-6">Order ID</th>
               <th className="py-2.5 px-3">Customer</th>
               <th className="py-2.5 px-3 hidden md:table-cell">Product</th>
@@ -197,7 +161,7 @@ export default function RecentOrdersTable({
                       </span>
                     </div>
                   </td>
-                  <td className="py-3 px-3 text-slate-600 dark:text-slate-300 truncate max-w-[140px] hidden md:table-cell font-sans">
+                  <td className="py-3 px-3 text-slate-700 dark:text-slate-300 truncate max-w-[140px] hidden md:table-cell font-sans">
                     {productTitle}
                   </td>
                   <td className="py-3 px-3 font-mono font-bold text-slate-900 dark:text-white whitespace-nowrap">
@@ -208,7 +172,7 @@ export default function RecentOrdersTable({
                   <td className="py-3 px-3 whitespace-nowrap">
                     {getStatusBadge(order.orderStatus)}
                   </td>
-                  <td className="py-3 px-5 sm:px-6 text-right font-mono text-[11px] text-slate-400 whitespace-nowrap">
+                  <td className="py-3 px-5 sm:px-6 text-right font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                     {formatTimeAgo(order.createdAt)}
                   </td>
                 </tr>
@@ -217,6 +181,7 @@ export default function RecentOrdersTable({
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

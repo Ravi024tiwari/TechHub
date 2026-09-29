@@ -17,9 +17,7 @@ export default function OrderStatusDonut({
       {
         key: "DELIVERED",
         label: "Delivered",
-        count:
-          statusMap["DELIVERED"] ||
-          (totalOrders ? Math.round(totalOrders * 0.65) : 812),
+        count: statusMap["DELIVERED"] || 0,
         color: "#10b981", // emerald
       },
       {
@@ -27,8 +25,7 @@ export default function OrderStatusDonut({
         label: "In Transit",
         count:
           (statusMap["SHIPPED"] || 0) +
-            (statusMap["OUT_FOR_DELIVERY"] || 0) ||
-          (totalOrders ? Math.round(totalOrders * 0.18) : 238),
+          (statusMap["OUT_FOR_DELIVERY"] || 0),
         color: "#38bdf8", // sky
       },
       {
@@ -36,25 +33,20 @@ export default function OrderStatusDonut({
         label: "Processing",
         count:
           (statusMap["PROCESSING"] || 0) +
-            (statusMap["CONFIRMED"] || 0) +
-            (statusMap["PLACED"] || 0) ||
-          (totalOrders ? Math.round(totalOrders * 0.1) : 124),
+          (statusMap["CONFIRMED"] || 0) +
+          (statusMap["PLACED"] || 0),
         color: "#f59e0b", // amber
       },
       {
         key: "RETURNED",
         label: "Returned",
-        count:
-          statusMap["RETURNED"] ||
-          (totalOrders ? Math.round(totalOrders * 0.04) : 62),
+        count: statusMap["RETURNED"] || 0,
         color: "#a855f7", // purple
       },
       {
         key: "CANCELLED",
         label: "Cancelled",
-        count:
-          statusMap["CANCELLED"] ||
-          (totalOrders ? Math.round(totalOrders * 0.03) : 48),
+        count: statusMap["CANCELLED"] || 0,
         color: "#f43f5e", // rose
       },
     ];

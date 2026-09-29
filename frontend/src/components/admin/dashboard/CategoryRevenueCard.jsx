@@ -106,45 +106,7 @@ export default function CategoryRevenueCard({
         theme: categoryThemes[idx % categoryThemes.length],
       }));
     }
-
-    // Default premium realistic catalog breakdown
-    return [
-      {
-        name: "Laptops & Computing",
-        revenue: 984000,
-        unitsSold: 42,
-        percentage: 42,
-        theme: categoryThemes[0],
-      },
-      {
-        name: "Smartphones & Mobile",
-        revenue: 642000,
-        unitsSold: 58,
-        percentage: 28,
-        theme: categoryThemes[1],
-      },
-      {
-        name: "Audio & Acoustics",
-        revenue: 385000,
-        unitsSold: 94,
-        percentage: 16,
-        theme: categoryThemes[2],
-      },
-      {
-        name: "Gaming & Consoles",
-        revenue: 210000,
-        unitsSold: 35,
-        percentage: 9,
-        theme: categoryThemes[3],
-      },
-      {
-        name: "Wearables & Watches",
-        revenue: 115000,
-        unitsSold: 24,
-        percentage: 5,
-        theme: categoryThemes[4],
-      },
-    ];
+    return [];
   }, [categories]);
 
   return (
@@ -194,7 +156,7 @@ export default function CategoryRevenueCard({
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
                 isActive
                   ? "bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Icon className="w-3 h-3" />
@@ -204,107 +166,121 @@ export default function CategoryRevenueCard({
         })}
       </div>
 
-      {/* Interactive Category List */}
+      {/* Interactive Category List or Empty State */}
       <div className="relative z-10 space-y-2.5">
-        {processedCategories.map((cat, idx) => {
-          const Icon = getCategoryIcon(cat.name);
-          const isHovered = hoveredIndex === idx;
-
-          return (
-            <div
-              key={idx}
-              onMouseEnter={() => setHoveredIndex(idx)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              className={`p-2.5 rounded-xl sm:rounded-2xl transition-all duration-200 border cursor-pointer ${
-                isHovered
-                  ? "bg-slate-50 dark:bg-white/[0.04] border-slate-300 dark:border-white/20 shadow-sm translate-x-1"
-                  : "bg-transparent border-transparent hover:border-slate-200 dark:hover:border-white/5"
-              }`}
-            >
-              {/* Row Top Info */}
-              <div className="flex items-center justify-between text-xs mb-1.5 gap-2">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-all ${
-                      cat.theme.bg
-                    } ${isHovered ? "scale-110 shadow-md " + cat.theme.glow : ""}`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="font-semibold text-slate-900 dark:text-white truncate font-sans text-xs sm:text-[13px]">
-                    {cat.name}
-                  </span>
-                </div>
-
-                {/* Right values based on active mode */}
-                <div className="flex items-center gap-2 shrink-0 font-mono text-right">
-                  {activeMode === "share" ? (
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[11px] text-slate-400 font-sans hidden sm:inline">
-                        {currencyFormatter
-                          ? currencyFormatter(cat.revenue)
-                          : `₹${cat.revenue.toLocaleString()}`}
-                      </span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                        {cat.percentage}%
-                      </span>
-                    </div>
-                  ) : activeMode === "revenue" ? (
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] text-slate-400">
-                        ({cat.unitsSold} pcs)
-                      </span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                        {currencyFormatter
-                          ? currencyFormatter(cat.revenue)
-                          : `₹${cat.revenue.toLocaleString()}`}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[11px] text-slate-400 font-sans hidden sm:inline">
-                        {cat.percentage}% share
-                      </span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                        {cat.unitsSold} units
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Progress Track with Shimmer & Head Indicator */}
-              <div className="relative h-2 w-full rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
-                <div
-                  style={{ width: `${cat.percentage}%` }}
-                  className={`relative h-full rounded-full bg-gradient-to-r ${
-                    cat.theme.gradient
-                  } transition-all duration-500 ${
-                    isHovered ? "brightness-110 shadow-sm" : ""
-                  }`}
-                >
-                  {/* Subtle leading pulse dot */}
-                  {isHovered && (
-                    <span className="absolute right-0 top-0 bottom-0 w-1.5 bg-white rounded-full animate-pulse shadow-xs" />
-                  )}
-                </div>
-              </div>
+        {processedCategories.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-7 px-4">
+            <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 mb-2 shadow-xs">
+              <Package className="w-5 h-5" />
             </div>
-          );
-        })}
+            <p className="text-sm font-heading font-bold text-slate-800 dark:text-slate-200">
+              No Category Sales Yet
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs font-sans">
+              As orders arrive across different hardware categories, revenue distribution will appear here.
+            </p>
+          </div>
+        ) : (
+          processedCategories.map((cat, idx) => {
+            const Icon = getCategoryIcon(cat.name);
+            const isHovered = hoveredIndex === idx;
+
+            return (
+              <div
+                key={idx}
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className={`p-2.5 rounded-xl sm:rounded-2xl transition-all duration-200 border cursor-pointer ${
+                  isHovered
+                    ? "bg-slate-50 dark:bg-white/[0.04] border-slate-300 dark:border-white/20 shadow-sm translate-x-1"
+                    : "bg-transparent border-transparent hover:border-slate-200 dark:hover:border-white/5"
+                }`}
+              >
+                {/* Row Top Info */}
+                <div className="flex items-center justify-between text-xs mb-1.5 gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-all ${
+                        cat.theme.bg
+                      } ${isHovered ? "scale-110 shadow-md " + cat.theme.glow : ""}`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="font-semibold text-slate-900 dark:text-white truncate font-sans text-xs sm:text-[13px]">
+                      {cat.name}
+                    </span>
+                  </div>
+
+                  {/* Right values based on active mode */}
+                  <div className="flex items-center gap-2 shrink-0 font-mono text-right">
+                    {activeMode === "share" ? (
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-sans hidden sm:inline">
+                          {currencyFormatter
+                            ? currencyFormatter(cat.revenue)
+                            : `₹${cat.revenue.toLocaleString()}`}
+                        </span>
+                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                          {cat.percentage}%
+                        </span>
+                      </div>
+                    ) : activeMode === "revenue" ? (
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-[10px] text-slate-400">
+                          ({cat.unitsSold} pcs)
+                        </span>
+                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                          {currencyFormatter
+                            ? currencyFormatter(cat.revenue)
+                            : `₹${cat.revenue.toLocaleString()}`}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-sans hidden sm:inline">
+                          {cat.percentage}% share
+                        </span>
+                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                          {cat.unitsSold} units
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress Track with Shimmer & Head Indicator */}
+                <div className="relative h-2 w-full rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
+                  <div
+                    style={{ width: `${cat.percentage}%` }}
+                    className={`relative h-full rounded-full bg-gradient-to-r ${
+                      cat.theme.gradient
+                    } transition-all duration-500 ${
+                      isHovered ? "brightness-110 shadow-sm" : ""
+                    }`}
+                  >
+                    {/* Subtle leading pulse dot */}
+                    {isHovered && (
+                      <span className="absolute right-0 top-0 bottom-0 w-1.5 bg-white rounded-full animate-pulse shadow-xs" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Footer KPI summary */}
-      <div className="relative z-10 mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
-        <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+      <div className="relative z-10 mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-mono">
+        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
           <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
           <span>Top Leader:</span>
           <strong className="text-slate-900 dark:text-white font-semibold">
-            {processedCategories[0]?.name || "Catalog"}
+            {processedCategories[0]?.name || "Catalog Active"}
           </strong>
         </span>
         <span className="font-bold text-orange-600 dark:text-orange-400">
-          {processedCategories[0]?.percentage}% Share
+          {processedCategories.length > 0 ? `${processedCategories[0].percentage}% Share` : "0% Share"}
         </span>
       </div>
     </div>

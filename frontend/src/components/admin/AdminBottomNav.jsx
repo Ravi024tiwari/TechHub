@@ -36,7 +36,7 @@ export default function AdminBottomNav({ setIsMobileOpen }) {
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#08090a]/90 backdrop-blur-2xl border-t border-white/10 px-2 py-1.5 transition-all shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#08090a]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-white/10 px-2 py-1.5 transition-all shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
       <div className="flex items-center justify-around max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -50,23 +50,25 @@ export default function AdminBottomNav({ setIsMobileOpen }) {
               to={item.to}
               className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all duration-200 select-none relative group ${
                 isActive
-                  ? "text-white"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "text-slate-900 dark:text-white"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
               }`}
             >
-              {/* Active Glow Indicator */}
+              {/* Active indicator */}
               {isActive && (
-                <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-5 h-1 rounded-full bg-white shadow-[0_0_10px_#ffffff]" />
+                <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-5 h-1 rounded-full bg-slate-900 dark:bg-white shadow-[0_0_8px_rgba(0,0,0,0.3)] dark:shadow-[0_0_10px_#ffffff]" />
               )}
 
               <Icon
                 className={`w-5 h-5 transition-transform duration-200 ${
-                  isActive ? "scale-110 text-white" : "group-hover:scale-105"
+                  isActive
+                    ? "scale-110 text-slate-900 dark:text-white"
+                    : "group-hover:scale-105"
                 }`}
               />
               <span
                 className={`text-[10px] font-mono tracking-tight mt-1 leading-none ${
-                  isActive ? "font-bold text-white" : "font-medium"
+                  isActive ? "font-bold text-slate-900 dark:text-white" : "font-medium"
                 }`}
               >
                 {item.label}
@@ -79,7 +81,7 @@ export default function AdminBottomNav({ setIsMobileOpen }) {
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
-          className="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-400 hover:text-white transition-all select-none group"
+          className="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-white transition-all select-none group"
           aria-label="Open full admin menu"
         >
           <Menu className="w-5 h-5 transition-transform group-hover:scale-105" />

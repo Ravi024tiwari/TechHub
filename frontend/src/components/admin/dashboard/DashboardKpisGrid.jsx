@@ -31,7 +31,7 @@ export default function DashboardKpisGrid({
 
   return (
     <div className="space-y-2">
-      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 snap-x snap-mandatory no-scrollbar touch-pan-x">
+      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 snap-x snap-mandatory no-scrollbar touch-pan-x">
         {/* Card 1: Total Gross Revenue (Emerald) */}
         <DashboardKpiCard
           icon={DollarSign}
@@ -42,12 +42,18 @@ export default function DashboardKpisGrid({
           sparklineColor="#10b981"
           trendIcon={TrendingUp}
           trendText={
-            revenueData.revenueGrowthPercentage
-              ? `+${revenueData.revenueGrowthPercentage}%`
-              : "+12.8%"
+            typeof revenueData.revenueGrowthPercentage === "number"
+              ? revenueData.revenueGrowthPercentage > 0
+                ? `+${revenueData.revenueGrowthPercentage}%`
+                : `${revenueData.revenueGrowthPercentage}%`
+              : "0%"
           }
-          trendColor="text-emerald-600 dark:text-emerald-400"
-          subText="vs last cycle"
+          trendColor={
+            (revenueData.revenueGrowthPercentage ?? 0) >= 0
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-rose-600 dark:text-rose-400"
+          }
+          subText="Day-over-day"
           glowColor="bg-emerald-500/10"
         />
 
@@ -72,10 +78,10 @@ export default function DashboardKpisGrid({
           iconBg="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
           title="Verified Base"
           value={totalCustCount.toLocaleString()}
-          sparklineData={[12, 15, 18, 20, 25, 29, 34]}
+          sparklineData={[]}
           sparklineColor="#a855f7"
           trendIcon={TrendingUp}
-          trendText="Active Store"
+          trendText={`${totalCustCount} Active`}
           trendColor="text-purple-600 dark:text-purple-400"
           subText="customers"
           glowColor="bg-purple-500/10"
@@ -87,7 +93,7 @@ export default function DashboardKpisGrid({
           iconBg="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
           title="Average Basket"
           value={formattedAov}
-          sparklineData={[15, 16, 14, 20, 19, 23, 25]}
+          sparklineData={[]}
           sparklineColor="#f59e0b"
           trendIcon={TrendingUp}
           trendText="AOV"
@@ -97,14 +103,13 @@ export default function DashboardKpisGrid({
         />
       </div>
 
-      {/* Mobile Swipe Hint */}
-      <div className="flex sm:hidden items-center justify-center gap-1.5 pt-0.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white shadow-[0_0_8px_rgba(0,0,0,0.4)] dark:shadow-[0_0_8px_#ffffff]" />
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-white/25" />
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-white/25" />
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-white/25" />
-        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 ml-1.5">
-          Swipe to view metrics →
+      {/* Mobile Swipe Hint - 2 cards visible at a time */}
+      <div className="flex sm:hidden items-center justify-center gap-1 pt-1">
+        <span className="w-4 h-1 rounded-full bg-slate-900 dark:bg-white" />
+        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-white/25" />
+        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-white/25" />
+        <span className="text-[9px] font-mono text-slate-500 dark:text-slate-400 ml-1.5">
+          Swipe for all 4 KPIs →
         </span>
       </div>
     </div>

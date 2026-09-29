@@ -33,20 +33,20 @@ export default function DashboardHeader({
           <span>Real-Time Command Center</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-          <span>
-            {greeting}, {userName}
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight">
+          {greeting},{" "}
+          <span className="bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
+            {userName}
           </span>
-          <span className="inline-block animate-wave origin-[70%_70%]">👋</span>
         </h1>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5">
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-sans">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-sans">
             Here's what's happening across your hardware storefront today.
           </p>
           <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
           {/* 2-Min Smart Cache Badge */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 text-[10px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 shadow-xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 text-[10px] font-mono font-semibold text-emerald-700 dark:text-emerald-400 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
             <span>{lastSyncText}</span>
           </div>

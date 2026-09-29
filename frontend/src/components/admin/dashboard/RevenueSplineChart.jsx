@@ -19,25 +19,24 @@ export default function RevenueSplineChart({
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const containerRef = useRef(null);
 
-  // Fallback demo data if store has no recent orders yet
+  // Real timeline data derivation (no fake demo curve)
   const chartData = useMemo(() => {
-    if (timeline && timeline.length >= 2) {
-      return timeline;
+    if (!timeline || timeline.length === 0) {
+      return [];
     }
-    // Realistic curve representing 15 days of activity
-    return [
-      { date: "1 Mar", revenue: 42000, orders: 18, aov: 2333 },
-      { date: "3 Mar", revenue: 68000, orders: 26, aov: 2615 },
-      { date: "6 Mar", revenue: 55000, orders: 22, aov: 2500 },
-      { date: "9 Mar", revenue: 95000, orders: 38, aov: 2500 },
-      { date: "12 Mar", revenue: 82000, orders: 31, aov: 2645 },
-      { date: "15 Mar", revenue: 140000, orders: 48, aov: 2916 },
-      { date: "18 Mar", revenue: 125000, orders: 42, aov: 2976 },
-      { date: "21 Mar", revenue: 185000, orders: 60, aov: 3083 },
-      { date: "24 Mar", revenue: 160000, orders: 54, aov: 2962 },
-      { date: "27 Mar", revenue: 220000, orders: 72, aov: 3055 },
-      { date: "30 Mar", revenue: 260000, orders: 85, aov: 3058 },
-    ];
+    // If only one transaction day exists, prepend a clean 0-origin point for a fluid spline
+    if (timeline.length === 1) {
+      return [
+        {
+          date: "Start",
+          revenue: 0,
+          orders: 0,
+          aov: 0,
+        },
+        timeline[0],
+      ];
+    }
+    return timeline;
   }, [timeline]);
 
   // Chart coordinate space
@@ -188,11 +187,21 @@ export default function RevenueSplineChart({
             <span className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
               {formatHeadline()}
             </span>
-            <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 shadow-xs">
+            <span
+              className={`inline-flex items-center gap-1 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border shadow-xs ${
+                growthPercentage >= 0
+                  ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                  : "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20"
+              }`}
+            >
               <TrendingUp className="w-3 h-3" />
-              <span>+{growthPercentage}%</span>
+              <span>
+                {growthPercentage >= 0
+                  ? `+${growthPercentage}%`
+                  : `${growthPercentage}%`}
+              </span>
             </span>
-            {peakPoint && (
+            {peakPoint && rawMax > 0 && (
               <span className="hidden lg:inline-flex items-center gap-1 text-[11px] font-mono text-orange-600 dark:text-orange-400/90 bg-orange-500/10 px-2 py-0.5 rounded-lg border border-orange-500/20">
                 <Sparkles className="w-3 h-3" /> Peak: {formatMetricVal(rawMax)}
               </span>
@@ -232,15 +241,28 @@ export default function RevenueSplineChart({
       {/* Interactive SVG Spline Graphic Container */}
       <div
         ref={containerRef}
-        className="relative w-full h-[220px] select-none cursor-crosshair"
+        className="relative w-full h-[220px] select-none cursor-crosshair flex items-center justify-center"
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHoveredPoint(null)}
       >
-        <svg
-          viewBox={`0 0 100 ${height}`}
-          preserveAspectRatio="none"
-          className="w-full h-full overflow-visible"
-        >
+        {chartData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center p-6">
+            <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-500 border border-orange-500/20 mb-2 shadow-xs">
+              <Activity className="w-5 h-5" />
+            </div>
+            <p className="text-sm font-heading font-bold text-slate-800 dark:text-slate-200">
+              No Sales Activity in this Timeframe
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs font-sans">
+              There are no orders recorded yet. As orders are placed, live revenue and fulfillment curves will plot here in real-time.
+            </p>
+          </div>
+        ) : (
+          <svg
+            viewBox={`0 0 100 ${height}`}
+            preserveAspectRatio="none"
+            className="w-full h-full overflow-visible"
+          >
           <defs>
             {/* Cyber Orange Multi-stop Gradient Fill */}
             <linearGradient id="orange-area-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -359,6 +381,7 @@ export default function RevenueSplineChart({
             </g>
           )}
         </svg>
+        )}
 
         {/* Floating Glassmorphic Interactive Tooltip */}
         {hoveredPoint && (

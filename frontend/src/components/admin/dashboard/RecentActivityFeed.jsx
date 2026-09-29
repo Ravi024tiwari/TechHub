@@ -23,57 +23,23 @@ export default function RecentActivityFeed({ activities = [] }) {
   const [activeFilter, setActiveFilter] = useState("all"); // 'all' | 'order' | 'user' | 'delivery'
   const [hoveredEvent, setHoveredEvent] = useState(null);
 
-  // Fallback realistic activity events if store is new
+  // Relative time formatter for activities
+  const formatEventTime = (time) => {
+    if (!time) return "recently";
+    if (typeof time === "string" && (time.includes("ago") || time.includes("just"))) return time;
+    const date = new Date(time);
+    if (isNaN(date.getTime())) return String(time);
+    const diffMin = Math.floor((Date.now() - date) / (1000 * 60));
+    if (diffMin < 1) return "Just now";
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+  };
+
+  // Real store activities
   const allActivities = useMemo(() => {
-    return activities && activities.length > 0
-      ? activities
-      : [
-          {
-            id: "act-1",
-            type: "order",
-            title: "Rahul Sharma placed an order",
-            desc: "iPhone 17 Pro 256GB Titanium • ₹1,34,900",
-            time: "2m ago",
-            isLive: true,
-            icon: ShoppingBag,
-            link: "/admin/orders",
-            color:
-              "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/10",
-          },
-          {
-            id: "act-2",
-            type: "user",
-            title: "Aman Verma registered a new account",
-            desc: "Verified Customer Profile • Bengaluru, KA",
-            time: "8m ago",
-            icon: UserPlus,
-            link: "/admin/customers",
-            color:
-              "text-sky-600 dark:text-sky-400 bg-sky-500/10 border-sky-500/20 shadow-sky-500/10",
-          },
-          {
-            id: "act-3",
-            type: "review",
-            title: "Priya Singh submitted a 5★ review",
-            desc: "MacBook Air M4 • 'Exceptional performance & build!'",
-            time: "12m ago",
-            icon: Star,
-            link: "/admin/products",
-            color:
-              "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20 shadow-amber-500/10",
-          },
-          {
-            id: "act-4",
-            type: "delivery",
-            title: "Order #ORD-918 delivered successfully",
-            desc: "BlueDart Express (AWB: #TRK-882) • Paid via UPI",
-            time: "1h ago",
-            icon: CheckCircle,
-            link: "/admin/orders",
-            color:
-              "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20 shadow-purple-500/10",
-          },
-        ];
+    return activities && activities.length > 0 ? activities : [];
   }, [activities]);
 
   // Filtered list
@@ -130,7 +96,7 @@ export default function RecentActivityFeed({ activities = [] }) {
               className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer ${
                 isActive
                   ? "bg-slate-900 text-white dark:bg-orange-500 dark:text-white shadow-xs"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               {tab.label}
@@ -139,78 +105,111 @@ export default function RecentActivityFeed({ activities = [] }) {
         })}
       </div>
 
-      {/* Connected Timeline Stream List */}
+      {/* Connected Timeline Stream List or Empty State */}
       <div className="relative z-10 space-y-3">
-        {filteredActivities.map((act, idx) => {
-          const Icon = act.icon || ShoppingBag;
-          const isHovered = hoveredEvent === idx;
+        {filteredActivities.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-7 px-4">
+            <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-2 shadow-xs">
+              <Activity className="w-5 h-5" />
+            </div>
+            <p className="text-sm font-heading font-bold text-slate-800 dark:text-slate-200">
+              No Operational Events
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs font-sans">
+              Store order events, user registrations, and product reviews will stream here in real-time.
+            </p>
+          </div>
+        ) : (
+          filteredActivities.map((act, idx) => {
+            const Icon =
+              act.icon ||
+              (act.type === "user"
+                ? UserPlus
+                : act.type === "review"
+                ? Star
+                : act.type === "delivery"
+                ? CheckCircle
+                : ShoppingBag);
 
-          return (
-            <div
-              key={act.id || idx}
-              onMouseEnter={() => setHoveredEvent(idx)}
-              onMouseLeave={() => setHoveredEvent(null)}
-              className={`relative flex items-start gap-3 p-2 rounded-xl sm:rounded-2xl transition-all duration-200 border ${
-                isHovered
-                  ? "bg-slate-50 dark:bg-white/[0.04] border-slate-300 dark:border-white/20 shadow-sm translate-x-1"
-                  : "bg-transparent border-transparent hover:border-slate-200 dark:hover:border-white/5"
-              }`}
-            >
-              {/* Event Icon with Soft Glow */}
+            const badgeColor =
+              act.color ||
+              (act.type === "user"
+                ? "text-sky-600 dark:text-sky-400 bg-sky-500/10 border-sky-500/20"
+                : act.type === "review"
+                ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20"
+                : act.type === "delivery"
+                ? "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20"
+                : "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20");
+
+            const isHovered = hoveredEvent === idx;
+
+            return (
               <div
-                className={`p-2 rounded-xl shrink-0 border transition-all ${
-                  act.color
-                } ${isHovered ? "scale-110 shadow-md" : ""}`}
+                key={act.id || idx}
+                onMouseEnter={() => setHoveredEvent(idx)}
+                onMouseLeave={() => setHoveredEvent(null)}
+                className={`relative flex items-start gap-3 p-2 rounded-xl sm:rounded-2xl transition-all duration-200 border ${
+                  isHovered
+                    ? "bg-slate-50 dark:bg-white/[0.04] border-slate-300 dark:border-white/20 shadow-sm translate-x-1"
+                    : "bg-transparent border-transparent hover:border-slate-200 dark:hover:border-white/5"
+                }`}
               >
-                <Icon className="w-3.5 h-3.5" />
-              </div>
-
-              {/* Event Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-slate-900 dark:text-white truncate text-xs font-sans">
-                    {act.title}
-                  </span>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {act.isLive && (
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    )}
-                    <span className="text-[10px] font-mono text-slate-400">
-                      {act.time}
-                    </span>
-                  </div>
+                {/* Event Icon with Soft Glow */}
+                <div
+                  className={`p-2 rounded-xl shrink-0 border transition-all ${
+                    badgeColor
+                  } ${isHovered ? "scale-110 shadow-md" : ""}`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
                 </div>
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 font-sans">
-                  {act.desc}
-                </p>
-              </div>
+                {/* Event Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-900 dark:text-white truncate text-xs font-sans">
+                      {act.title}
+                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {act.isLive && (
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      )}
+                      <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                        {formatEventTime(act.time)}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Quick Action Icon on Hover */}
-              <Link
-                to={act.link || "/admin/orders"}
-                className={`p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-opacity ${
-                  isHovered ? "opacity-100" : "opacity-0 sm:opacity-0"
-                }`}
-                title="Inspect event details"
-              >
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          );
-        })}
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5 font-sans">
+                    {act.desc}
+                  </p>
+                </div>
+
+                {/* Quick Action Icon on Hover */}
+                <Link
+                  to={act.link || "/admin/orders"}
+                  className={`p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-opacity ${
+                    isHovered ? "opacity-100" : "opacity-0 sm:opacity-0"
+                  }`}
+                  title="Inspect event details"
+                >
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Footer Status */}
-      <div className="relative z-10 mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
-        <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+      <div className="relative z-10 mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-mono">
+        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
           <Activity className="w-3.5 h-3.5 text-emerald-500" />
           <span>System Status:</span>
           <strong className="text-emerald-600 dark:text-emerald-400 font-semibold">
             All Services Operational
           </strong>
         </span>
-        <span className="text-[10px] font-mono text-slate-400">
+        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
           Sync: Instant
         </span>
       </div>

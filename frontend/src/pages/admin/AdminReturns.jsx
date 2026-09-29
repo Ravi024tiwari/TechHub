@@ -102,34 +102,38 @@ export default function AdminReturns() {
   return (
     <div className="space-y-6 max-w-[1500px] w-full mx-auto pb-12 overflow-x-hidden min-w-0">
       {/* Page Header with Real-Time Telemetry Indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
-        <div className="space-y-1.5 min-w-0">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] sm:text-xs font-heading font-extrabold border border-rose-500/20 max-w-full">
-            <RotateCcw className="w-3 h-3 shrink-0" />
-            <span className="truncate">Hardware Reverse Logistics &amp; RMA Portal</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-white/10">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Reverse Logistics &amp; RMA Portal
+            </span>
           </div>
-          <h1 className="font-heading font-black text-xl sm:text-2xl lg:text-3xl text-slate-900 dark:text-white tracking-tight leading-snug break-words">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-heading font-extrabold text-slate-900 dark:text-white tracking-tight">
             Returns &amp; Replacement Management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-sans leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Inspect customer defect evidence, approve doorstep reverse pickup, process refunds, and dispatch replacement hardware.
           </p>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 pt-1 sm:pt-0 shrink-0">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-sans text-slate-500 dark:text-slate-400">
+        {/* Action Controls */}
+        <div className="flex items-center gap-2 self-start sm:self-auto w-full sm:w-auto">
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 sm:py-2.5 rounded-xl bg-slate-100 dark:bg-[#121622] border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-600 dark:text-slate-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Engine: Live Telemetry</span>
+            <span>Live Telemetry</span>
           </div>
 
           <button
             type="button"
             onClick={() => refetch()}
-            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-heading font-bold bg-white dark:bg-white/5 border border-slate-300 dark:border-white/20 text-slate-800 dark:text-white hover:border-orange-500 dark:hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer shadow-xs active:scale-95"
+            disabled={isLoading}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 dark:bg-[#121622] dark:hover:bg-[#1a2030] dark:text-slate-300 border border-slate-200 dark:border-white/15 transition-all active:scale-95 shadow-xs cursor-pointer disabled:opacity-50"
             title="Refresh returns telemetry"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-orange-500" />
-            <span>Refresh</span>
+            <RotateCcw className={`w-3.5 h-3.5 text-amber-500 ${isLoading ? "animate-spin" : ""}`} />
+            <span>{isLoading ? "Syncing..." : "Sync RMA"}</span>
           </button>
         </div>
       </div>
