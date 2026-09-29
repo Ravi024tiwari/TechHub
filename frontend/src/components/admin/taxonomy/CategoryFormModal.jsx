@@ -211,21 +211,21 @@ export default function CategoryFormModal({
       />
 
       {/* Modal Dialog Container */}
-      <div className="relative w-full max-w-2xl bg-[#0f121a] border border-white/[0.14] rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] z-10 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0f121a] border border-slate-200 dark:border-white/[0.14] rounded-2xl sm:rounded-3xl shadow-2xl z-10 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Ambient Top Glow */}
         <div className="absolute top-0 left-1/4 right-1/4 h-1 bg-gradient-to-r from-transparent via-sky-500/60 to-transparent pointer-events-none" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 bg-[#141724]">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#141724]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-sky-500/15 text-sky-400 border border-sky-500/30 shadow-[0_0_15px_rgba(14,165,233,0.2)]">
+            <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/15 dark:text-sky-400 border border-sky-200 dark:border-sky-500/30 shadow-xs">
               <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h3 className="font-heading font-extrabold text-base sm:text-lg text-white tracking-tight">
+              <h3 className="font-heading font-extrabold text-base sm:text-lg text-slate-900 dark:text-white tracking-tight">
                 {isEdit ? "Edit Category Node" : "Register New Category"}
               </h3>
-              <p className="text-[11px] sm:text-xs font-mono text-slate-400 mt-0.5">
+              <p className="text-[11px] sm:text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
                 {isEdit ? `Updating taxonomy branch for ${category.name}` : "Create an electronics taxonomy department"}
               </p>
             </div>
@@ -234,7 +234,7 @@ export default function CategoryFormModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/10 transition-colors cursor-pointer"
             title="Close modal"
           >
             <X className="w-5 h-5" />
@@ -244,8 +244,8 @@ export default function CategoryFormModal({
         {/* Modal Form Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 custom-scrollbar">
           {error && (
-            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
-              <span className="w-2 h-2 rounded-full bg-rose-400 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-mono flex items-center gap-2 animate-in fade-in">
+              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -253,8 +253,8 @@ export default function CategoryFormModal({
           {/* Name & Slug */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5">
-                Category Name <span className="text-rose-400">*</span>
+              <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                Category Name <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -262,16 +262,16 @@ export default function CategoryFormModal({
                 placeholder="e.g. Gaming Laptops, Audio, Wearables"
                 value={formData.name}
                 onChange={handleNameChange}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-body text-white placeholder-slate-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/[0.06] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-body text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white dark:focus:bg-white/[0.06] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5">
+              <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 URL Slug Identifier
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500 pointer-events-none">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400 pointer-events-none">
                   /
                 </span>
                 <input
@@ -279,7 +279,7 @@ export default function CategoryFormModal({
                   placeholder="e.g. gaming-laptops"
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full pl-6 pr-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/[0.06] transition-all"
+                  className="w-full pl-6 pr-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white dark:focus:bg-white/[0.06] transition-all"
                 />
               </div>
             </div>
@@ -288,13 +288,13 @@ export default function CategoryFormModal({
           {/* Parent Category & Display Order */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5">
+              <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Parent Hierarchy Node
               </label>
               <select
                 value={formData.parent}
                 onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#141724] border border-white/10 text-xs font-body text-white focus:outline-none focus:border-sky-400/60 focus:bg-[#181c2c] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#141724] border border-slate-200 dark:border-white/10 text-xs font-body text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 transition-all cursor-pointer"
               >
                 <option value="">None (Top-Level Root Category)</option>
                 {parentCategories
@@ -308,7 +308,7 @@ export default function CategoryFormModal({
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5">
+              <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Display Order Priority
               </label>
               <input
@@ -318,14 +318,14 @@ export default function CategoryFormModal({
                 onChange={(e) =>
                   setFormData({ ...formData, displayOrder: parseInt(e.target.value, 10) || 0 })
                 }
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-sky-400/60 focus:bg-white/[0.06] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 focus:bg-white dark:focus:bg-white/[0.06] transition-all"
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-mono font-semibold text-slate-200 mb-1.5">
+            <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Category Description
             </label>
             <textarea
@@ -333,20 +333,20 @@ export default function CategoryFormModal({
               placeholder="Electronics category taxonomy branch with dynamic specifications..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-body text-white placeholder-slate-500 focus:outline-none focus:border-sky-400/60 focus:bg-white/[0.06] transition-all resize-none leading-relaxed"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-body text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:bg-white dark:focus:bg-white/[0.06] transition-all resize-none leading-relaxed"
             />
           </div>
 
           {/* Media Section: Icon & Banner with Previews and Cancel Buttons */}
           <div className="space-y-4 pt-1">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.08] pb-2">
               <div className="flex items-center gap-2">
-                <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
-                <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                <ImageIcon className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
+                <span className="text-xs font-mono font-bold text-slate-800 dark:text-white uppercase tracking-wider">
                   Department Graphics & Branding
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">
+              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
                 Supports PNG, SVG, JPG, WEBP
               </span>
             </div>
@@ -355,11 +355,11 @@ export default function CategoryFormModal({
               {/* --- CATEGORY ICON ASSET --- */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-mono font-semibold text-slate-300">
+                  <label className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
                     Category Icon (Optional)
                   </label>
                   {iconPreview && (
-                    <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                    <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       Ready
                     </span>
@@ -382,10 +382,10 @@ export default function CategoryFormModal({
                   onClick={() => iconInputRef.current?.click()}
                   className={`relative group rounded-xl border-2 border-dashed p-3.5 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
                     isDraggingIcon
-                      ? "border-sky-400 bg-sky-500/10 scale-[1.02]"
+                      ? "border-sky-500 bg-sky-50 dark:bg-sky-500/10 scale-[1.02]"
                       : iconPreview
-                      ? "border-sky-500/30 bg-white/[0.02] hover:border-sky-400/50"
-                      : "border-white/10 bg-white/[0.01] hover:border-white/20 hover:bg-white/[0.03]"
+                      ? "border-sky-300 dark:border-sky-500/30 bg-slate-50 dark:bg-white/[0.02] hover:border-sky-400"
+                      : "border-slate-300 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.01] hover:border-slate-400 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                   }`}
                 >
                   <input
@@ -399,10 +399,10 @@ export default function CategoryFormModal({
                     className="hidden"
                   />
 
-                  <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
                     <Upload className="w-4 h-4" />
                   </div>
-                  <p className="text-xs font-mono font-semibold text-slate-200">
+                  <p className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-200">
                     {iconPreview ? "Replace Category Icon" : "Upload Category Icon"}
                   </p>
                   <p className="text-[10px] font-mono text-slate-500 mt-0.5">
@@ -412,25 +412,25 @@ export default function CategoryFormModal({
 
                 {/* Interactive Icon Preview Card Below */}
                 {iconPreview && (
-                  <div className="relative rounded-xl border border-sky-500/30 bg-[#131622] p-3 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+                  <div className="relative rounded-xl border border-sky-200 dark:border-sky-500/30 bg-slate-50 dark:bg-[#131622] p-3 shadow-xs flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
                     <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-12 h-12 rounded-xl bg-black/50 border border-white/15 p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-12 h-12 rounded-xl bg-white dark:bg-black/50 border border-slate-200 dark:border-white/15 p-1.5 flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
                         <img
                           src={iconPreview}
                           alt="Icon Preview"
-                          className="w-full h-full object-contain filter drop-shadow-sm"
+                          className="w-full h-full object-contain filter drop-shadow-xs"
                         />
                       </div>
 
                       <div className="overflow-hidden">
                         <div className="flex items-center gap-1.5">
-                          <FileCheck className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <p className="text-xs font-mono font-bold text-white truncate">
+                          <FileCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <p className="text-xs font-mono font-bold text-slate-800 dark:text-white truncate">
                             {iconFile ? iconFile.name : `${formData.name || "Category"} Icon`}
                           </p>
                         </div>
-                        <p className="text-[10px] font-mono text-slate-400 mt-0.5">
-                              {iconFile ? formatBytes(iconFile.size) : "Current Cloudinary Asset"}
+                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                          {iconFile ? formatBytes(iconFile.size) : "Current Cloudinary Asset"}
                         </p>
                       </div>
                     </div>
@@ -439,7 +439,7 @@ export default function CategoryFormModal({
                     <button
                       type="button"
                       onClick={handleCancelIcon}
-                      className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-all shrink-0"
+                      className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:text-rose-400 dark:hover:bg-rose-500/15 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30 transition-all shrink-0 cursor-pointer"
                       title="Cancel and remove selected icon"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -451,11 +451,11 @@ export default function CategoryFormModal({
               {/* --- CATEGORY BANNER ASSET --- */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-mono font-semibold text-slate-300">
+                  <label className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
                     Department Banner (Optional)
                   </label>
                   {bannerPreview && (
-                    <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                    <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       Ready
                     </span>
@@ -478,10 +478,10 @@ export default function CategoryFormModal({
                   onClick={() => bannerInputRef.current?.click()}
                   className={`relative group rounded-xl border-2 border-dashed p-3.5 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
                     isDraggingBanner
-                      ? "border-sky-400 bg-sky-500/10 scale-[1.02]"
+                      ? "border-sky-500 bg-sky-50 dark:bg-sky-500/10 scale-[1.02]"
                       : bannerPreview
-                      ? "border-sky-500/30 bg-white/[0.02] hover:border-sky-400/50"
-                      : "border-white/10 bg-white/[0.01] hover:border-white/20 hover:bg-white/[0.03]"
+                      ? "border-sky-300 dark:border-sky-500/30 bg-slate-50 dark:bg-white/[0.02] hover:border-sky-400"
+                      : "border-slate-300 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.01] hover:border-slate-400 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                   }`}
                 >
                   <input
@@ -495,10 +495,10 @@ export default function CategoryFormModal({
                     className="hidden"
                   />
 
-                  <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
                     <Upload className="w-4 h-4" />
                   </div>
-                  <p className="text-xs font-mono font-semibold text-slate-200">
+                  <p className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-200">
                     {bannerPreview ? "Replace Banner Graphic" : "Upload Banner Graphic"}
                   </p>
                   <p className="text-[10px] font-mono text-slate-500 mt-0.5">
@@ -508,9 +508,9 @@ export default function CategoryFormModal({
 
                 {/* Interactive Banner Preview Card Below */}
                 {bannerPreview && (
-                  <div className="relative rounded-xl border border-sky-500/30 bg-[#131622] p-3 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+                  <div className="relative rounded-xl border border-sky-200 dark:border-sky-500/30 bg-slate-50 dark:bg-[#131622] p-3 shadow-xs flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
                     <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-16 h-12 rounded-xl bg-black/50 border border-white/15 overflow-hidden shrink-0">
+                      <div className="w-16 h-12 rounded-xl bg-white dark:bg-black/50 border border-slate-200 dark:border-white/15 overflow-hidden shrink-0 shadow-xs">
                         <img
                           src={bannerPreview}
                           alt="Banner Preview"
@@ -520,12 +520,12 @@ export default function CategoryFormModal({
 
                       <div className="overflow-hidden">
                         <div className="flex items-center gap-1.5">
-                          <FileCheck className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <p className="text-xs font-mono font-bold text-white truncate">
+                          <FileCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <p className="text-xs font-mono font-bold text-slate-800 dark:text-white truncate">
                             {bannerFile ? bannerFile.name : `${formData.name || "Category"} Banner`}
                           </p>
                         </div>
-                        <p className="text-[10px] font-mono text-slate-400 mt-0.5">
+                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">
                           {bannerFile ? formatBytes(bannerFile.size) : "Current Cloudinary Asset"}
                         </p>
                       </div>
@@ -535,7 +535,7 @@ export default function CategoryFormModal({
                     <button
                       type="button"
                       onClick={handleCancelBanner}
-                      className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-all shrink-0"
+                      className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:text-rose-400 dark:hover:bg-rose-500/15 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30 transition-all shrink-0 cursor-pointer"
                       title="Cancel and remove selected banner"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -548,14 +548,14 @@ export default function CategoryFormModal({
 
           {/* Active Toggle */}
           <div className="pt-1">
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/15 transition-all">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/15 transition-all">
               <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-lg ${formData.isActive ? "bg-emerald-500/15 text-emerald-400" : "bg-white/5 text-slate-500"}`}>
-                  <span className={`block w-2.5 h-2.5 rounded-full ${formData.isActive ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`} />
+                <div className={`p-2 rounded-lg ${formData.isActive ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400" : "bg-slate-200 text-slate-500 dark:bg-white/5"}`}>
+                  <span className={`block w-2.5 h-2.5 rounded-full ${formData.isActive ? "bg-emerald-500 dark:bg-emerald-400 animate-pulse" : "bg-slate-400 dark:bg-slate-500"}`} />
                 </div>
                 <div>
-                  <span className="text-xs font-mono font-bold text-white block">Active Catalog Node</span>
-                  <p className="text-[10px] text-slate-400">
+                  <span className="text-xs font-mono font-bold text-slate-800 dark:text-white block">Active Catalog Node</span>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
                     {formData.isActive ? "Visible in mega menus & product filters" : "Hidden in draft taxonomy"}
                   </p>
                 </div>
@@ -563,8 +563,8 @@ export default function CategoryFormModal({
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center ${
-                  formData.isActive ? "bg-sky-500" : "bg-slate-700"
+                className={`w-11 h-6 rounded-full p-1 transition-colors flex items-center cursor-pointer ${
+                  formData.isActive ? "bg-sky-500" : "bg-slate-300 dark:bg-slate-700"
                 }`}
               >
                 <div
@@ -577,19 +577,19 @@ export default function CategoryFormModal({
           </div>
 
           {/* Modal Footer Controls */}
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="py-2.5 px-4 rounded-xl text-xs font-mono font-semibold text-slate-300 hover:text-white bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] transition-all"
+              className="py-2.5 px-4 rounded-xl text-xs font-mono font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 dark:hover:bg-white/[0.08] transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="py-2.5 px-5 rounded-xl text-xs font-mono font-bold text-black bg-white hover:bg-slate-200 shadow-lg shadow-white/10 disabled:opacity-50 flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="py-2.5 px-5 rounded-xl text-xs font-mono font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 shadow-md disabled:opacity-50 flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>{isEdit ? "Save Category Node" : "Publish Category"}</span>

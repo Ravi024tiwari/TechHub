@@ -14,11 +14,14 @@ import {
   Package,
   ChevronDown,
   LayoutDashboard,
-  UserCheck
+  UserCheck,
+  Camera,
+  X
 } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
 import { logoutUserApi } from "../../api/authApi";
 import ThemeToggle from "../common/ThemeToggle";
+import AdminProfilePhotoModal from "./AdminProfilePhotoModal";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -38,6 +41,22 @@ export default function AdminHeader({
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const mobileSearchInputRef = React.useRef(null);
+
+  const avatarUrl =
+    typeof user?.avatar === "object" ? user?.avatar?.url : user?.avatar;
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "A";
 
   const handleLogout = () => {
     logoutUserApi().catch(() => {});
@@ -45,14 +64,59 @@ export default function AdminHeader({
     navigate("/", { replace: true });
   };
 
+  const handleOpenMobileSearch = () => {
+    setIsMobileSearchOpen(true);
+    setTimeout(() => {
+      mobileSearchInputRef.current?.focus();
+    }, 60);
+  };
+
   // Shared button style: visible in both light & dark
   const iconBtnCls =
     "p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-white/[0.07] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-colors";
 
   return (
-    <header className="h-16 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 bg-white/90 dark:bg-[#08090a]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 transition-colors">
+    <header className="h-16 sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6 bg-white/90 dark:bg-[#08090a]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 transition-colors relative">
+      {/* Mobile Full-Width Search Input (Renders when user taps lens on small screen) */}
+      {isMobileSearchOpen && (
+        <div className="md:hidden absolute inset-0 z-40 flex items-center gap-2 px-3 bg-white dark:bg-[#0c0f17] border-b border-slate-200 dark:border-white/15 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-amber-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              ref={mobileSearchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setIsMobileSearchOpen(false);
+              }}
+              placeholder="Search orders, products, customers..."
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-100 dark:bg-white/[0.06] border border-slate-300 dark:border-white/15 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-amber-500 font-sans transition-colors"
+              autoFocus
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-0.5 cursor-pointer"
+                title="Clear text"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsMobileSearchOpen(false)}
+            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
       {/* Left section: Sidebar Toggles & Search */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-xl">
         {/* Mobile Hamburger toggle */}
         <button
           type="button"
@@ -78,17 +142,41 @@ export default function AdminHeader({
           )}
         </button>
 
-        {/* Global Admin Search Bar */}
-        <div className="flex-1 max-w-md relative group">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-orange-500 transition-colors" />
+        {/* Small Screen: Only Lens Icon */}
+        <button
+          type="button"
+          onClick={handleOpenMobileSearch}
+          className={`md:hidden ${iconBtnCls}`}
+          title="Search admin portal"
+          aria-label="Open search input"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+
+        {/* Desktop & Tablet Global Admin Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-md relative group">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-amber-500 transition-colors" />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search orders, products, customers..."
-            className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200/60 dark:hover:bg-white/[0.06] border border-slate-300 dark:border-white/10 hover:border-slate-400 dark:hover:border-white/20 focus:border-orange-500 dark:focus:border-orange-400 text-xs font-sans font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:bg-white dark:focus:bg-[#0c0f17] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-xs"
+            className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200/60 dark:hover:bg-white/[0.06] border border-slate-300 dark:border-white/10 hover:border-slate-400 dark:hover:border-white/20 focus:border-amber-500 dark:focus:border-amber-400 text-xs font-sans font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:bg-white dark:focus:bg-[#0c0f17] focus:ring-2 focus:ring-amber-500/20 transition-all shadow-xs"
           />
-          <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-white/10 shadow-xs">
-            ⌘K
-          </kbd>
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-0.5 cursor-pointer"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-white/10 shadow-xs">
+              ⌘K
+            </kbd>
+          )}
         </div>
       </div>
 
@@ -142,8 +230,16 @@ export default function AdminHeader({
                 aria-label="Open profile navigation menu"
               >
                 {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-700 via-slate-600 to-slate-400 flex items-center justify-center text-white font-bold text-xs border border-white/25 shadow-[0_0_12px_rgba(0,0,0,0.15)] group-hover:scale-105 transition-transform shrink-0">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-xs border border-white/25 shadow-[0_0_12px_rgba(0,0,0,0.15)] group-hover:scale-105 transition-transform shrink-0">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={user?.name || "Admin"}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
                 </div>
 
                 <div className="hidden xl:flex flex-col text-left">
@@ -164,9 +260,27 @@ export default function AdminHeader({
               {/* Profile Card Header */}
               <DropdownMenuLabel className="p-2 normal-case font-normal">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-md border border-white/20 shrink-0">
-                    {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
+                  <div
+                    onClick={() => setIsPhotoModalOpen(true)}
+                    className="relative group/avatar cursor-pointer shrink-0"
+                    title="Click to update profile photo"
+                  >
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-sm shadow-md border border-white/20">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={user?.name || "Admin"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{initials}</span>
+                      )}
+                    </div>
+                    <div className="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <Camera className="w-4 h-4" />
+                    </div>
                   </div>
+
                   <div className="overflow-hidden">
                     <div className="flex items-center gap-1.5">
                       <p className="text-xs font-heading font-bold text-slate-900 dark:text-white truncate">
@@ -177,12 +291,25 @@ export default function AdminHeader({
                     <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
                       {user?.email || "admin@techhaven.dev"}
                     </p>
-                    <span className="inline-block mt-1 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-400/30 dark:border-purple-500/30">
+                    <span className="inline-block mt-1 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                       Role: {user?.role || "admin"}
                     </span>
                   </div>
                 </div>
               </DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              {/* Update Profile Photo Action */}
+              <DropdownMenuItem
+                onClick={() => setIsPhotoModalOpen(true)}
+                className="cursor-pointer font-medium"
+              >
+                <Camera className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                <span className="text-slate-800 dark:text-slate-200">
+                  Update Profile Photo
+                </span>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
@@ -238,6 +365,13 @@ export default function AdminHeader({
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Admin Profile Photo Modal */}
+      <AdminProfilePhotoModal
+        isOpen={isPhotoModalOpen}
+        onClose={() => setIsPhotoModalOpen(false)}
+        user={user}
+      />
     </header>
   );
 }

@@ -85,6 +85,17 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
   const navigate = useNavigate();
   const location = useLocation();
 
+  const avatarUrl =
+    typeof user?.avatar === "object" ? user?.avatar?.url : user?.avatar;
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "A";
+
   const asideRef = useRef(null);
   const navScrollRef = useRef(null);
 
@@ -297,8 +308,16 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
         <div className="p-3.5 bg-slate-50 dark:bg-[#0b0c10] border-t border-slate-200 dark:border-white/10 shrink-0 space-y-3">
           {/* User Profile Card */}
           <div className={`flex items-center gap-2.5 ${isCollapsed ? "justify-center" : ""}`}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-slate-500 flex items-center justify-center text-white font-bold text-xs shrink-0 border border-white/20 shadow-md">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
+            <div className="w-9 h-9 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-xs shrink-0 border border-white/20 shadow-md">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={user?.name || "Admin"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{initials}</span>
+              )}
             </div>
 
             {!isCollapsed && (
