@@ -78,20 +78,27 @@ export default function MobileDrawer({ isOpen, onClose }) {
           <Link
             to={isAuthenticated ? (user?.role === "admin" ? "/admin" : "/products") : "/"}
             onClick={onClose}
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2.5 group select-none relative focus:outline-hidden"
           >
-            <div className="h-8.5 w-8.5 rounded-xl overflow-hidden border border-white/15 bg-[#0b0e14] shadow-xs shrink-0 flex items-center justify-center p-0.5">
-              <img
-                src="/techhub-logo.jpg"
-                alt="TechHub Logo"
-                className="h-full w-full object-cover rounded-lg"
-              />
+            <div className="relative shrink-0">
+              <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/15 bg-gradient-to-br from-[#11131a] via-[#0c0e14] to-[#07080c] shadow-xs flex items-center justify-center p-0.5">
+                <img
+                  src="/techhub-logo.jpg"
+                  alt="TechHub Logo"
+                  className="h-full w-full object-cover rounded-lg"
+                />
+              </div>
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-heading font-black text-base tracking-tight text-white leading-none">
-                TECH<span className="text-orange-400">HUB</span>
-              </span>
-              <span className="text-[8px] font-tech uppercase tracking-widest text-slate-400 mt-0.5">
+              <div className="flex items-center">
+                <span className="font-heading font-black text-lg tracking-tight text-white leading-none">
+                  TECH
+                  <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-300 bg-clip-text text-transparent drop-shadow-[0_1px_8px_rgba(249,115,22,0.35)]">
+                    HUB
+                  </span>
+                </span>
+              </div>
+              <span className="text-[9px] font-mono font-semibold uppercase tracking-[0.2em] text-slate-400 mt-0.5">
                 Phones & Electronics
               </span>
             </div>

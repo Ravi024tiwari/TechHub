@@ -359,12 +359,12 @@ export default function AdminProducts() {
           <button
             type="button"
             onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-medium text-slate-200"
+            className="lg:hidden flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
           >
-            <Filter className="w-3.5 h-3.5 text-sky-400" />
+            <Filter className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-sky-500 text-black font-bold text-[10px] flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-sky-500 text-white dark:text-black font-bold text-[10px] flex items-center justify-center">
                 {activeFiltersCount}
               </span>
             )}
@@ -377,13 +377,13 @@ export default function AdminProducts() {
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, sort: e.target.value }))
               }
-              className="w-full sm:w-auto px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono font-medium text-slate-200 focus:outline-none cursor-pointer"
+              className="w-full sm:w-auto px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/10 text-xs font-mono font-medium text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
             >
-              <option value="newest" className="bg-[#121316] text-white">Newest First</option>
-              <option value="price_asc" className="bg-[#121316] text-white">Price: Low to High</option>
-              <option value="price_desc" className="bg-[#121316] text-white">Price: High to Low</option>
-              <option value="stock_asc" className="bg-[#121316] text-white">Stock: Restock First</option>
-              <option value="rating" className="bg-[#121316] text-white">Top Rated</option>
+              <option value="newest" className="bg-white dark:bg-[#121316] text-slate-900 dark:text-white">Newest First</option>
+              <option value="price_asc" className="bg-white dark:bg-[#121316] text-slate-900 dark:text-white">Price: Low to High</option>
+              <option value="price_desc" className="bg-white dark:bg-[#121316] text-slate-900 dark:text-white">Price: High to Low</option>
+              <option value="stock_asc" className="bg-white dark:bg-[#121316] text-slate-900 dark:text-white">Stock: Restock First</option>
+              <option value="rating" className="bg-white dark:bg-[#121316] text-slate-900 dark:text-white">Top Rated</option>
             </select>
           </div>
         </div>
@@ -392,14 +392,14 @@ export default function AdminProducts() {
       {/* Active Filter Badges */}
       {activeFiltersCount > 0 && (
         <div className="shrink-0 flex flex-wrap items-center gap-2 pt-0.5">
-          <span className="text-[11px] font-mono text-slate-500">Active Filters:</span>
+          <span className="text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-400">Active Filters:</span>
 
           {filters.stockStatus && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-white/[0.06] border border-white/10 text-white">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-slate-100 dark:bg-white/[0.06] border border-slate-300 dark:border-white/10 text-slate-800 dark:text-white">
               Stock: {filters.stockStatus}
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, stockStatus: "" }))}
-                className="hover:text-rose-400"
+                className="hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -410,7 +410,7 @@ export default function AdminProducts() {
             filters.category.split(",").map((c) => (
               <span
                 key={c}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 text-sky-700 dark:text-sky-300"
               >
                 {c}
                 <button
@@ -420,7 +420,7 @@ export default function AdminProducts() {
                       .filter((item) => item !== c);
                     setFilters((prev) => ({ ...prev, category: updated.join(",") }));
                   }}
-                  className="hover:text-white"
+                  className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -431,7 +431,7 @@ export default function AdminProducts() {
             filters.brand.split(",").map((b) => (
               <span
                 key={b}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-purple-500/10 border border-purple-500/20 text-purple-300"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 text-purple-700 dark:text-purple-300"
               >
                 {b}
                 <button
@@ -441,7 +441,7 @@ export default function AdminProducts() {
                       .filter((item) => item !== b);
                     setFilters((prev) => ({ ...prev, brand: updated.join(",") }));
                   }}
-                  className="hover:text-white"
+                  className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -449,13 +449,13 @@ export default function AdminProducts() {
             ))}
 
           {(filters.minPrice || filters.maxPrice) && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-amber-500/10 border border-amber-500/20 text-amber-300">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300">
               ₹{filters.minPrice || 0} - ₹{filters.maxPrice || "Max"}
               <button
                 onClick={() =>
                   setFilters((prev) => ({ ...prev, minPrice: "", maxPrice: "" }))
                 }
-                className="hover:text-white"
+                className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -463,11 +463,11 @@ export default function AdminProducts() {
           )}
 
           {filters.rating && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-yellow-500/10 border border-yellow-500/20 text-yellow-300">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 text-yellow-800 dark:text-yellow-300">
               Rating: {filters.rating}★+
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, rating: "" }))}
-                className="hover:text-white"
+                className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -475,11 +475,11 @@ export default function AdminProducts() {
           )}
 
           {filters.ram && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
               RAM: {filters.ram}
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, ram: "" }))}
-                className="hover:text-white"
+                className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -487,11 +487,11 @@ export default function AdminProducts() {
           )}
 
           {filters.storage && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 text-cyan-800 dark:text-cyan-300">
               SSD: {filters.storage}
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, storage: "" }))}
-                className="hover:text-white"
+                className="hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -501,7 +501,7 @@ export default function AdminProducts() {
           <button
             type="button"
             onClick={handleResetFilters}
-            className="text-[11px] font-mono text-slate-400 hover:text-white underline underline-offset-2 ml-1"
+            className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline underline-offset-2 ml-1 cursor-pointer"
           >
             Clear all
           </button>

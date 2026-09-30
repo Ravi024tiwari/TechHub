@@ -190,23 +190,27 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen, isCollapse
             className="flex items-center gap-3 group focus:outline-none"
             onClick={handleNavClick}
           >
-            <div className="w-9 h-9 rounded-xl overflow-hidden border border-slate-200/90 dark:border-white/15 bg-[#0b0e14] shadow-xs shrink-0 flex items-center justify-center p-0.5">
-              <img
-                src="/techhub-logo.jpg"
-                alt="TechHub Logo"
-                className="h-full w-full object-cover rounded-lg"
-              />
+            <div className="relative shrink-0">
+              <div className="w-9 h-9 rounded-xl overflow-hidden border border-slate-200/90 dark:border-white/15 bg-gradient-to-br from-white via-slate-50 to-slate-100/90 dark:from-[#11131a] dark:via-[#0c0e14] dark:to-[#07080c] shadow-xs group-hover:scale-105 group-hover:border-orange-500/40 dark:group-hover:border-orange-400/50 transition-all duration-300 flex items-center justify-center p-0.5">
+                <img
+                  src="/techhub-logo.jpg"
+                  alt="TechHub Logo"
+                  className="h-full w-full object-cover rounded-lg"
+                />
+              </div>
             </div>
 
             {!isCollapsed && (
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-heading font-bold text-slate-900 dark:text-white text-base tracking-tight">TechHub</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white/90 border border-slate-300 dark:border-white/15">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-heading font-black text-base tracking-tight text-slate-900 dark:text-white leading-none">
+                    TECH<span className="bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">HUB</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                     Admin
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 -mt-0.5">Control Center</span>
+                <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">Control Center</span>
               </div>
             )}
           </NavLink>

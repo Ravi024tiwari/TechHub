@@ -430,7 +430,7 @@ export default function Signup() {
                   className="mt-0.5 h-4 w-4 rounded bg-white/5 border-white/20 text-white focus:ring-0 focus:ring-offset-0 cursor-pointer accent-white"
                 />
                 <label htmlFor="agreeTerms" className="text-xs text-slate-400 leading-tight cursor-pointer">
-                  I agree to TechHaven's{" "}
+                  I agree to TechHub's{" "}
                   <a href="#terms" className="text-white underline underline-offset-2 hover:text-slate-200">
                     Terms of Service
                   </a>{" "}
@@ -464,17 +464,20 @@ export default function Signup() {
               </div>
             </form>
 
-            {/* Bottom Switcher */}
+            {/* Bottom Switcher: Direct gateway for already registered customers */}
             <div className="mt-6 pt-5 border-t border-white/[0.08] text-center">
-              <p className="text-xs text-slate-400">
-                Already registered with TechHaven?{" "}
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 flex flex-col sm:flex-row items-center justify-center gap-2">
+                <span className="text-xs text-slate-300">
+                  Already registered with TechHub?
+                </span>
                 <Link
                   to="/login"
-                  className="text-white font-semibold hover:text-slate-200 underline underline-offset-4 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
                 >
-                  Sign In to Account
+                  <span>Sign In to Account</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-              </p>
+              </div>
             </div>
           </div>
         </div>

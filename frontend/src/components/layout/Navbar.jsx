@@ -73,41 +73,67 @@ export default function Navbar() {
           />
 
           {/* Full width container with edge-to-edge breathing room */}
-          <div className="w-full px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-14 sm:h-20 flex items-center justify-between gap-2 sm:gap-6 relative">
+          <div className="w-full px-2.5 xs:px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-14 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-6 relative">
           
           {/* =========================================================
               LEFT: Hamburger (Mobile), Brand Logo & Mega Menu
               ========================================================= */}
-          <div className="flex items-center gap-2 sm:gap-5 shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-5 shrink-0">
             {/* Hamburger Trigger (Mobile & Tablet < 1024px) */}
             <button
               type="button"
               onClick={() => setIsDrawerOpen(true)}
               aria-label="Open mobile navigation"
-              className="lg:hidden p-1.5 sm:p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              className="lg:hidden p-1.5 sm:p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
             >
               <Menu className="h-5 w-5" />
             </button>
 
-            {/* Brand Logo with Smartphone & Circuit Emblem */}
+            {/* Production-Grade Interactive Brand Logo & Title */}
             <Link
               to={isAuthenticated ? (user?.role === "admin" ? "/admin" : "/products") : "/"}
-              className="flex items-center gap-2.5 sm:gap-3 group select-none"
+              className="flex items-center gap-2 sm:gap-3.5 group select-none relative focus:outline-hidden shrink-0"
+              aria-label="TechHub Homepage"
             >
-              <div className="h-8.5 w-8.5 sm:h-10 sm:w-10 rounded-xl overflow-hidden border border-slate-200/90 dark:border-white/15 bg-[#0b0e14] shadow-xs group-hover:scale-105 transition-transform duration-200 shrink-0 flex items-center justify-center p-0.5">
-                <img
-                  src="/techhub-logo.jpg"
-                  alt="TechHub Smartphone & Electronics"
-                  className="h-full w-full object-cover rounded-lg"
-                />
+              {/* Interactive Logo Container with Ambient Bloom & Glint */}
+              <div className="relative shrink-0">
+                {/* Dynamic Ambient Glow Behind Logo */}
+                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-orange-500/30 via-amber-400/20 to-sky-400/20 opacity-0 group-hover:opacity-100 blur-md transition-all duration-500 group-hover:scale-110 pointer-events-none" />
+
+                {/* Main Logo Card */}
+                <div className="relative h-8 w-8 xs:h-9 xs:w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-2xl overflow-hidden border border-slate-200/90 dark:border-white/15 bg-gradient-to-br from-white via-slate-50 to-slate-100/90 dark:from-[#11131a] dark:via-[#0c0e14] dark:to-[#07080c] shadow-xs group-hover:shadow-lg group-hover:shadow-orange-500/15 group-hover:border-orange-500/40 dark:group-hover:border-orange-400/50 transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-[1.03] flex items-center justify-center p-0.5">
+                  <img
+                    src="/techhub-logo.jpg"
+                    alt="TechHub Smartphone & Electronics"
+                    className="h-full w-full object-cover rounded-md sm:rounded-xl transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {/* Sheen Glint Sweep Effect on Hover */}
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 dark:via-white/20 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none" />
+                </div>
               </div>
+
+              {/* Brand Typography */}
               <div className="flex flex-col text-left">
-                <span className="font-heading font-black text-base sm:text-xl tracking-tight text-slate-950 dark:text-white leading-none group-hover:text-orange-500 transition-colors">
-                  TECH<span className="text-orange-500">HUB</span>
-                </span>
-                <span className="text-[9px] font-tech uppercase tracking-widest text-slate-500 dark:text-slate-400 hidden xl:block mt-0.5 font-medium">
-                  Phones & Electronics
-                </span>
+                <div className="flex items-center">
+                  <span className="font-heading font-black text-base xs:text-lg sm:text-2xl tracking-tight leading-none transition-all duration-300">
+                    <span className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent group-hover:from-slate-900 group-hover:to-slate-700 dark:group-hover:from-white dark:group-hover:to-slate-100">
+                      TECH
+                    </span>
+                    <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent drop-shadow-[0_1px_8px_rgba(249,115,22,0.35)] group-hover:drop-shadow-[0_2px_14px_rgba(249,115,22,0.6)] transition-all">
+                      HUB
+                    </span>
+                  </span>
+                </div>
+
+                {/* Subtitle & Tagline Badge (Hidden on compact mobile screens to keep navbar spacious & avoid overflowing) */}
+                <div className="hidden sm:flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-mono font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                    Phones & Electronics
+                  </span>
+                  <span className="hidden sm:inline-block px-1 py-0.2 rounded text-[8px] font-mono font-bold uppercase tracking-wider bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 group-hover:bg-orange-500/20 transition-colors">
+                    HQ
+                  </span>
+                </div>
               </div>
             </Link>
 
@@ -212,20 +238,14 @@ export default function Navbar() {
             {/* Interactive Mini-Cart Popover */}
             <NavMiniCartPopover />
 
-            {/* User Account Section: Interactive Avatar Dropdown or Sign In */}
+            {/* User Account Section: Interactive Avatar Dropdown (Auth) or Direct Sign Up Link (Guest) */}
             {isAuthenticated && user ? (
               <NavUserMenu />
             ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Link
-                  to="/login"
-                  className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-heading font-extrabold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 border border-slate-900 dark:border-white shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  Sign In
-                </Link>
+              <div className="flex items-center shrink-0">
                 <Link
                   to="/signup"
-                  className="hidden sm:inline-block px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-heading font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 border border-slate-300 dark:border-white/15 transition-all active:scale-95 cursor-pointer"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-heading font-extrabold bg-slate-950 !text-white hover:bg-slate-800 dark:bg-white dark:!text-slate-950 dark:hover:bg-slate-100 border border-slate-900 dark:border-white shadow-xs transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
                 >
                   Sign Up
                 </Link>

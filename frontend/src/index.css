@@ -296,24 +296,44 @@ samp {
   );
 }
 
-/* Custom Minimalist Dark Scrollbar */
+/* Custom Minimalist Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar-track {
-  background: #08090a;
+  background: #f1f5f9;
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f2127;
+  background: #cbd5e1;
   border-radius: 4px;
-  border: 2px solid #08090a;
+  border: 2px solid #f1f5f9;
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  cursor: pointer;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #08090a;
+  cursor: pointer;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1f2127;
+  border: 2px solid #08090a;
+  cursor: pointer;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #333640;
+  cursor: pointer;
 }
 
 /* ==========================================================================
@@ -422,16 +442,20 @@ samp {
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
+  cursor: pointer;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+  cursor: pointer;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.18);
+  background: rgba(15, 23, 42, 0.22);
   border-radius: 9999px;
+  cursor: pointer;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.35);
+  background: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
 }
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -439,12 +463,25 @@ samp {
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
 }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.38);
+  cursor: pointer;
 }
 .dark .custom-scrollbar {
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
+
+/* GPU Hardware-Accelerated Hero Carousel Progress Animation */
+@keyframes heroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 

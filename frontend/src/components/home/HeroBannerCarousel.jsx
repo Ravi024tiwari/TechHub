@@ -113,76 +113,89 @@ const AUTO_SLIDE_DURATION = 5500; // 5.5 seconds per slide
 export default function HeroBannerCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const progressIntervalRef = useRef(null);
-
-  // Touch coordinates for mobile swipe
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchDeltaX = useRef(0);
+  const isHorizontalSwipe = useRef(null);
 
-  // Auto-progress bar and slide transition
+  // Auto slide transition (fires once per slide duration, ZERO unnecessary re-renders)
   useEffect(() => {
-    if (isPaused) {
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-      return;
-    }
+    if (isPaused || isDragging) return;
 
-    const intervalStep = 50; // update every 50ms
-    const totalSteps = AUTO_SLIDE_DURATION / intervalStep;
-    let stepCount = 0;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % BANNERS.length);
+    }, AUTO_SLIDE_DURATION);
 
-    setProgress(0);
-
-    progressIntervalRef.current = setInterval(() => {
-      stepCount += 1;
-      const currentPct = Math.min(100, (stepCount / totalSteps) * 100);
-      setProgress(currentPct);
-
-      if (stepCount >= totalSteps) {
-        clearInterval(progressIntervalRef.current);
-        setCurrentSlide((prev) => (prev + 1) % BANNERS.length);
-        setProgress(0);
-      }
-    }, intervalStep);
-
-    return () => {
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-    };
-  }, [currentSlide, isPaused]);
+    return () => clearInterval(timer);
+  }, [currentSlide, isPaused, isDragging]);
 
   const handlePrev = () => {
-    setProgress(0);
     setCurrentSlide((prev) => (prev === 0 ? BANNERS.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setProgress(0);
     setCurrentSlide((prev) => (prev + 1) % BANNERS.length);
   };
 
   const handleSelectSlide = (index) => {
-    setProgress(0);
     setCurrentSlide(index);
   };
 
+  // Fluid touch swipe & drag handling with real-time translation and snap
   const handleTouchStart = (e) => {
-    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchDeltaX.current = 0;
+    isHorizontalSwipe.current = null;
+    setIsDragging(true);
+    setIsPaused(true);
   };
 
   const handleTouchMove = (e) => {
-    touchEndX.current = e.targetTouches[0].clientX;
+    if (!touchStartX.current) return;
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = currentX - touchStartX.current;
+    const diffY = currentY - touchStartY.current;
+
+    // Detect gesture axis on early touch movement (prevent blocking vertical page scrolling)
+    if (isHorizontalSwipe.current === null && (Math.abs(diffX) > 7 || Math.abs(diffY) > 7)) {
+      isHorizontalSwipe.current = Math.abs(diffX) > Math.abs(diffY);
+    }
+
+    if (isHorizontalSwipe.current) {
+      touchDeltaX.current = diffX;
+      // Damped overscroll at carousel edges
+      let offset = diffX;
+      if (
+        (currentSlide === 0 && diffX > 0) ||
+        (currentSlide === BANNERS.length - 1 && diffX < 0)
+      ) {
+        offset = diffX * 0.3;
+      }
+      setDragOffset(offset);
+    }
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const diff = touchStartX.current - touchEndX.current;
-    if (diff > 50) {
-      handleNext();
-    } else if (diff < -50) {
-      handlePrev();
+    if (isHorizontalSwipe.current && Math.abs(touchDeltaX.current) > 35) {
+      if (touchDeltaX.current < -35) {
+        // Swiped left -> advance to next slide
+        handleNext();
+      } else if (touchDeltaX.current > 35) {
+        // Swiped right -> return to previous slide
+        handlePrev();
+      }
     }
+    setDragOffset(0);
+    setIsDragging(false);
+    setIsPaused(false);
     touchStartX.current = 0;
-    touchEndX.current = 0;
+    touchStartY.current = 0;
+    touchDeltaX.current = 0;
+    isHorizontalSwipe.current = null;
   };
 
   return (
@@ -193,158 +206,166 @@ export default function HeroBannerCarousel() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-2 sm:py-3"
+      className="relative w-full px-2.5 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-2 sm:py-3 select-none"
     >
-      {/* Outer Banner Frame with Adaptive Titanium Bevel */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl border border-slate-300/80 dark:border-slate-800 bg-[#07090e] shadow-[0_12px_45px_rgba(0,0,0,0.18)] dark:shadow-[0_16px_60px_rgba(0,0,0,0.95)] overflow-hidden min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex items-center transition-all duration-300 group">
+      {/* Outer Banner Frame with Crisp Grey Border in Light Mode & Slate in Dark Mode */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl border-2 border-slate-300 dark:border-slate-800 bg-white dark:bg-[#07090e] shadow-[0_12px_44px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_70px_rgba(0,0,0,0.95)] overflow-hidden min-h-[550px] xs:min-h-[530px] sm:min-h-[510px] md:min-h-[520px] lg:min-h-[560px] flex items-center transition-all duration-300 group">
         
         {/* =========================================================
-            SLIDES CAROUSEL
+            HORIZONTAL SLIDING TRACK: Fluid left-to-right swipe & slide
             ========================================================= */}
-        {BANNERS.map((banner, index) => {
-          const isActive = index === currentSlide;
-          return (
-            <div
-              key={banner.id}
-              className={`absolute inset-0 transition-opacity duration-700 ease-in-out flex items-center ${
-                isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-              }`}
-            >
-              {/* Dynamic Hardware Color Accent Glow */}
+        <div
+          className="w-full flex h-full will-change-transform"
+          style={{
+            transform: `translateX(calc(-${currentSlide * 100}% + ${dragOffset}px))`,
+            transition: isDragging ? "none" : "transform 500ms cubic-bezier(0.2, 1, 0.3, 1)",
+            touchAction: "pan-y",
+          }}
+        >
+          {BANNERS.map((banner, index) => {
+            return (
               <div
-                className={`absolute inset-0 bg-gradient-to-r ${banner.accent} pointer-events-none`}
-              />
+                key={banner.id}
+                className="w-full shrink-0 min-w-full relative flex flex-col md:flex-row md:items-center min-h-[550px] xs:min-h-[530px] sm:min-h-[510px] md:min-h-[520px] lg:min-h-[560px] p-3 xs:p-4 sm:p-5 md:p-8 lg:p-10 gap-3 sm:gap-4 md:gap-8"
+              >
+                {/* =========================================================
+                    PRODUCT HARDWARE SHOWCASE: Framed Studio Stage with Dynamic Glow & Zoom
+                    ========================================================= */}
+                <div className="order-1 md:order-2 relative w-full md:w-[50%] lg:w-[52%] h-56 xs:h-64 sm:h-72 md:h-[380px] lg:h-[440px] shrink-0">
+                  <div className="relative w-full h-full rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-white/10 overflow-hidden bg-gradient-to-b from-[#141824] via-[#0c0e15] to-[#06080c] shadow-md dark:shadow-2xl flex items-center justify-center group/showcase">
+                    
+                    {/* Dynamic Hardware Color Accent Glow */}
+                    <div
+                      className="absolute inset-0 pointer-events-none opacity-40 group-hover/showcase:opacity-65 transition-opacity duration-700 blur-2xl"
+                      style={{
+                        background: `radial-gradient(circle at 50% 50%, ${banner.glowColor}, transparent 65%)`,
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-radial from-transparent via-transparent to-black/70 pointer-events-none" />
 
-              {/* Background Product Image with Studio Lighting */}
-              <div className="absolute inset-0 z-0">
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className={`w-full h-full object-cover object-center sm:object-right transition-transform duration-1000 ease-out ${
-                    isActive ? "scale-100 opacity-90 sm:opacity-100" : "scale-105 opacity-0"
-                  }`}
-                  loading={index === 0 ? "eager" : "lazy"}
-                />
-                
-                {/* Precision Left Vignette: Protects typography legibility while keeping the product brilliant on the right */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#06080d] via-[#06080d]/85 sm:via-[#06080d]/65 sm:to-transparent to-[#06080d]/60 pointer-events-none" />
-                
-                {/* Bottom Vignette for seamless bottom tabs blending */}
-                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#06080d] via-[#06080d]/70 to-transparent pointer-events-none" />
-              </div>
+                    {/* Floating Showcase Badges (Top Left & Top Right with safe insets) */}
+                    <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 text-white/95 border border-white/20 text-[9px] xs:text-[10px] sm:text-xs font-mono font-bold tracking-wider backdrop-blur-md shadow-xs truncate max-w-[62%]">
+                        <Sparkles className="h-3 w-3 text-amber-400 shrink-0 animate-pulse" />
+                        <span className="truncate">{banner.badge}</span>
+                      </div>
 
-              {/* Banner Left Content Column - PURE WHITE TYPOGRAPHY */}
-              <div className="relative z-10 w-full max-w-2xl sm:max-w-3xl p-4 sm:p-8 md:p-12 lg:p-16 text-left space-y-2.5 sm:space-y-4">
-                
-                {/* Top Keynote Badge & Savings Pill */}
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-black/60 border border-white/30 text-[10px] sm:text-xs font-mono font-bold tracking-wider text-white backdrop-blur-md shadow-xs">
-                    <Sparkles className="h-3 w-3 text-amber-300 animate-pulse" />
-                    <span className="text-white drop-shadow-sm">{banner.badge}</span>
-                  </div>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 text-[9px] xs:text-[10px] sm:text-xs font-mono font-bold shadow-xs shrink-0 backdrop-blur-md">
+                        <Flame className="h-3 w-3 fill-emerald-400 text-emerald-400 shrink-0" />
+                        <span>{banner.discountBadge}</span>
+                      </div>
+                    </div>
 
-                  <div className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400/50 text-white text-[10px] sm:text-xs font-mono font-bold shadow-xs">
-                    <Flame className="h-3 w-3 fill-emerald-300 text-emerald-300" />
-                    <span className="text-white drop-shadow-sm">{banner.discountBadge}</span>
+                    {/* Interactive Studio Badge (Bottom Right) */}
+                    <div className="absolute bottom-2.5 right-3 px-2 py-0.5 rounded-full bg-black/60 border border-white/15 backdrop-blur-md text-[9px] font-mono text-white/70 flex items-center gap-1 pointer-events-none">
+                      <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="hidden xs:inline">Interactive Studio</span>
+                      <span className="xs:hidden">Studio 4K</span>
+                    </div>
+
+                    {/* Clean, High-Definition Product Image with Interactive Hover Zoom */}
+                    <img
+                      src={banner.image}
+                      alt={banner.title}
+                      className="w-full h-full object-contain p-2 xs:p-4 sm:p-6 transition-transform duration-700 ease-out group-hover/showcase:scale-105 select-none pointer-events-none"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      draggable={false}
+                    />
                   </div>
                 </div>
 
-                {/* Banner Heading - Crisp Brilliant Pure White Always */}
-                <h1
-                  style={{ color: "#ffffff" }}
-                  className="font-heading text-xl xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold !text-white tracking-tight leading-[1.15] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)]"
-                >
-                  {banner.title}
-                </h1>
+                {/* =========================================================
+                    KEYNOTE TYPOGRAPHY & ACTIONS: High Contrast Light & Dark
+                    ========================================================= */}
+                <div className="order-2 md:order-1 relative z-10 w-full md:w-[50%] lg:w-[48%] flex flex-col justify-center text-left space-y-2 xs:space-y-2.5 sm:space-y-4 pb-12 md:pb-14">
+                  
+                  {/* Banner Heading - Deep Black in Light Mode, Crisp White in Dark Mode */}
+                  <h2 className="font-heading text-lg xs:text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-950 dark:text-white tracking-tight leading-[1.15]">
+                    {banner.title}
+                  </h2>
 
-                {/* Tagline / Specs Overview - Pure White High Contrast */}
-                <p
-                  style={{ color: "#ffffff" }}
-                  className="font-body text-xs sm:text-sm md:text-base !text-white font-medium line-clamp-2 sm:line-clamp-3 max-w-xl leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
-                >
-                  {banner.tagline}
-                </p>
+                  {/* Tagline / Specs Overview */}
+                  <p className="font-body text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 font-normal line-clamp-2 sm:line-clamp-3 leading-relaxed">
+                    {banner.tagline}
+                  </p>
 
-                {/* Hardware Spec Chips - Compact and Responsive */}
-                <div className="hidden xs:flex flex-wrap gap-1.5 sm:gap-2 pt-0.5">
-                  {banner.specs.map((spec, sIdx) => (
-                    <span
-                      key={sIdx}
-                      style={{ color: "#ffffff" }}
-                      className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-black/60 border border-white/25 text-[10px] sm:text-[11px] font-mono !text-white font-semibold backdrop-blur-md shadow-xs drop-shadow-sm"
-                    >
-                      {spec}
+                  {/* Hardware Spec Chips */}
+                  <div className="hidden xs:flex flex-wrap gap-1.5 sm:gap-2 pt-0.5">
+                    {banner.specs.map((spec, sIdx) => (
+                      <span
+                        key={sIdx}
+                        className="px-2.5 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/90 font-semibold dark:bg-white/10 dark:text-white dark:border-white/15 text-[10px] sm:text-xs font-mono shadow-2xs"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Price Display */}
+                  <div className="flex flex-wrap items-baseline gap-2 pt-0.5">
+                    <span className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-black text-slate-950 dark:text-white font-mono tracking-tight">
+                      {banner.priceHighlight}
                     </span>
-                  ))}
-                </div>
+                    <span className="text-xs sm:text-sm text-slate-400 dark:text-slate-400 line-through font-mono">
+                      {banner.regularPrice}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-white/80 font-medium font-tech hidden md:inline-block">
+                      • {banner.secondaryPerk}
+                    </span>
+                  </div>
 
-                {/* Price Display - Pure White Typography */}
-                <div className="flex flex-wrap items-baseline gap-2 pt-0.5">
-                  <span
-                    style={{ color: "#ffffff" }}
-                    className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-extrabold !text-white font-mono tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
-                  >
-                    {banner.priceHighlight}
-                  </span>
-                  <span className="text-xs sm:text-sm text-white/85 line-through font-mono drop-shadow-sm">
-                    {banner.regularPrice}
-                  </span>
-                  <span className="text-[11px] text-white font-medium font-tech hidden md:inline-block drop-shadow-sm">
-                    • {banner.secondaryPerk}
-                  </span>
-                </div>
+                  {/* Action CTA Buttons */}
+                  <div className="pt-1 sm:pt-2 flex flex-wrap items-center gap-2 sm:gap-3">
+                    <Link
+                      to={banner.link}
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 xs:px-5 xs:py-3 sm:px-6 sm:py-3.5 rounded-xl bg-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    >
+                      <span>{banner.ctaText}</span>
+                      <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    </Link>
 
-                {/* Action CTA Buttons */}
-                <div className="pt-1.5 sm:pt-4 flex flex-wrap items-center gap-2.5 sm:gap-3">
-                  <Link
-                    to={banner.link}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-6 sm:py-3.5 rounded-xl bg-white text-slate-950 font-extrabold text-xs sm:text-sm hover:bg-slate-100 shadow-[0_0_25px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                  >
-                    <span>{banner.ctaText}</span>
-                    <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  </Link>
-
-                  <Link
-                    to={banner.link}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-3.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/35 text-white font-bold text-xs sm:text-sm backdrop-blur-md transition-all shadow-xs"
-                  >
-                    <span>{banner.secondaryCta}</span>
-                  </Link>
+                    <Link
+                      to={banner.link}
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 xs:px-4 xs:py-3 sm:px-5 sm:py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-slate-300 dark:bg-white/10 dark:hover:bg-white/20 dark:border-white/25 dark:text-white font-bold text-xs sm:text-sm shadow-2xs transition-all cursor-pointer"
+                    >
+                      <span>{banner.secondaryCta}</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
 
         {/* =========================================================
-            CHEVRON CONTROLS (Desktop & Tablet only - Mobile uses touch swipe)
+            CHEVRON CONTROLS: Adaptive Light/Dark Glass Buttons
             ========================================================= */}
         <button
           type="button"
           onClick={handlePrev}
           aria-label="Previous Slide"
-          className="hidden md:flex absolute left-3 lg:left-4 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/60 hover:bg-black/90 border border-white/30 text-white items-center justify-center backdrop-blur-md transition-all active:scale-90 hover:scale-105 shadow-xl cursor-pointer"
+          className="flex absolute top-32 xs:top-36 sm:top-40 md:top-1/2 -translate-y-1/2 left-2 xs:left-3 sm:left-4 lg:left-6 z-30 size-8 xs:size-9 sm:size-10 lg:size-12 rounded-full bg-white/95 hover:bg-white text-slate-900 border-2 border-slate-200 hover:border-slate-300 shadow-md hover:shadow-lg dark:bg-black/70 dark:hover:bg-black/90 dark:border-white/25 dark:text-white items-center justify-center backdrop-blur-md transition-all active:scale-90 hover:scale-105 cursor-pointer"
         >
-          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+          <ChevronLeft className="size-4 sm:size-5 lg:size-6" />
         </button>
 
         <button
           type="button"
           onClick={handleNext}
           aria-label="Next Slide"
-          className="hidden md:flex absolute right-3 lg:right-4 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/60 hover:bg-black/90 border border-white/30 text-white items-center justify-center backdrop-blur-md transition-all active:scale-90 hover:scale-105 shadow-xl cursor-pointer"
+          className="flex absolute top-32 xs:top-36 sm:top-40 md:top-1/2 -translate-y-1/2 right-2 xs:right-3 sm:right-4 lg:right-6 z-30 size-8 xs:size-9 sm:size-10 lg:size-12 rounded-full bg-white/95 hover:bg-white text-slate-900 border-2 border-slate-200 hover:border-slate-300 shadow-md hover:shadow-lg dark:bg-black/70 dark:hover:bg-black/90 dark:border-white/25 dark:text-white items-center justify-center backdrop-blur-md transition-all active:scale-90 hover:scale-105 cursor-pointer"
         >
-          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+          <ChevronRight className="size-4 sm:size-5 lg:size-6" />
         </button>
 
         {/* =========================================================
             BOTTOM INTERACTIVE TABS & PROGRESS BAR
             ========================================================= */}
-        <div className="absolute bottom-3 sm:bottom-4 left-0 right-0 z-20 px-4 sm:px-8">
+        <div className="absolute bottom-2.5 sm:bottom-3.5 left-0 right-0 z-20 px-3 sm:px-8 pointer-events-none">
           <div className="flex items-center justify-between gap-4">
             
-            {/* Interactive Tab Strip (Desktop & Tablet) - Pure White Text */}
-            <div className="hidden md:flex flex-1 items-center gap-2 lg:gap-3 bg-[#080b12]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-white/20 max-w-4xl mx-auto shadow-2xl">
+            {/* Interactive Tab Strip (Desktop & Tablet) */}
+            <div className="hidden md:flex flex-1 items-center gap-2 lg:gap-3 bg-white/95 border-2 border-slate-200/90 shadow-xl dark:bg-[#080b12]/90 dark:border-white/20 backdrop-blur-xl p-1.5 rounded-2xl max-w-4xl mx-auto pointer-events-auto">
               {BANNERS.map((banner, index) => {
                 const isActive = index === currentSlide;
                 return (
@@ -354,20 +375,25 @@ export default function HeroBannerCarousel() {
                     onClick={() => handleSelectSlide(index)}
                     className={`flex-1 relative py-2 px-3 rounded-xl text-xs transition-all text-left overflow-hidden cursor-pointer ${
                       isActive
-                        ? "text-white bg-white/20 shadow-inner font-extrabold"
-                        : "text-white/85 hover:text-white hover:bg-white/10 font-medium"
+                        ? "text-slate-950 bg-slate-100 font-extrabold shadow-inner border border-slate-300/80 dark:text-white dark:bg-white/20 dark:border-white/10"
+                        : "text-slate-600 hover:text-slate-950 hover:bg-slate-50 font-medium dark:text-white/85 dark:hover:text-white dark:hover:bg-white/10"
                     }`}
                   >
-                    <span className="block truncate font-mono text-[11px] text-white drop-shadow-xs">
+                    <span className="block truncate font-mono text-[11px] drop-shadow-xs">
                       {banner.tabLabel}
                     </span>
 
-                    {/* Active Timer Progress Bar */}
+                    {/* Active Timer Progress Bar - Hardware Accelerated Pure GPU CSS */}
                     {isActive && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/25 overflow-hidden rounded-full">
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-200 dark:bg-white/25 overflow-hidden rounded-full">
                         <div
-                          className="h-full bg-gradient-to-r from-orange-400 via-amber-300 to-white transition-all ease-linear"
-                          style={{ width: `${progress}%` }}
+                          key={`prog-${currentSlide}-${isPaused}`}
+                          className="h-full w-full bg-slate-900 dark:bg-white rounded-full will-change-transform"
+                          style={{
+                            transformOrigin: "left",
+                            animation: `heroProgress ${AUTO_SLIDE_DURATION}ms linear forwards`,
+                            animationPlayState: isPaused ? "paused" : "running",
+                          }}
                         />
                       </div>
                     )}
@@ -376,8 +402,8 @@ export default function HeroBannerCarousel() {
               })}
             </div>
 
-            {/* Mobile Compact Dot Indicators */}
-            <div className="flex md:hidden items-center justify-center gap-2 mx-auto bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
+            {/* Mobile Compact Dot Indicators with active pill and slide count */}
+            <div className="flex md:hidden items-center justify-center gap-1.5 mx-auto bg-white/95 border-2 border-slate-200 text-slate-800 shadow-md dark:bg-black/85 dark:border-white/20 dark:text-white backdrop-blur-md px-3.5 py-1.5 rounded-full pointer-events-auto">
               {BANNERS.map((_, index) => (
                 <button
                   key={index}
@@ -386,11 +412,14 @@ export default function HeroBannerCarousel() {
                   aria-label={`Slide ${index + 1}`}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentSlide
-                      ? "w-7 bg-white"
-                      : "w-2 bg-white/50 hover:bg-white/80"
+                      ? "w-6 bg-slate-950 dark:bg-white shadow-[0_0_8px_rgba(0,0,0,0.3)] dark:shadow-[0_0_8px_rgba(255,255,255,0.7)]"
+                      : "w-2 bg-slate-300 hover:bg-slate-400 dark:bg-white/40 dark:hover:bg-white/80"
                   }`}
                 />
               ))}
+              <span className="text-[10px] font-mono font-semibold text-slate-600 dark:text-white/70 ml-1 pl-1.5 border-l border-slate-300 dark:border-white/20">
+                {currentSlide + 1}/{BANNERS.length}
+              </span>
             </div>
 
             {/* Play / Pause Toggle Button */}
@@ -399,9 +428,9 @@ export default function HeroBannerCarousel() {
               onClick={() => setIsPaused(!isPaused)}
               title={isPaused ? "Play Auto Carousel" : "Pause Auto Carousel"}
               aria-label={isPaused ? "Play Carousel" : "Pause Carousel"}
-              className="hidden lg:flex items-center justify-center size-8 rounded-full bg-black/60 hover:bg-black/90 border border-white/30 text-white backdrop-blur-md transition-all shrink-0 cursor-pointer shadow-md"
+              className="hidden lg:flex items-center justify-center size-8 rounded-full bg-white/95 hover:bg-white text-slate-900 border-2 border-slate-200 hover:border-slate-300 dark:bg-black/60 dark:hover:bg-black/90 dark:border-white/30 dark:text-white backdrop-blur-md transition-all shrink-0 cursor-pointer shadow-md pointer-events-auto"
             >
-              {isPaused ? <Play className="size-3.5 fill-current text-white" /> : <Pause className="size-3.5 fill-current text-white" />}
+              {isPaused ? <Play className="size-3.5 fill-current text-slate-900 dark:text-white" /> : <Pause className="size-3.5 fill-current text-slate-900 dark:text-white" />}
             </button>
           </div>
         </div>
