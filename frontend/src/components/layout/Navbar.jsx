@@ -9,6 +9,7 @@ import {
   Search,
   LayoutDashboard,
   ArrowLeftRight,
+  Ticket,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
@@ -73,12 +74,12 @@ export default function Navbar() {
           />
 
           {/* Full width container with edge-to-edge breathing room */}
-          <div className="w-full px-2.5 xs:px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-14 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-6 relative">
+          <div className="w-full px-2.5 xs:px-3 sm:px-5 md:px-6 lg:px-8 xl:px-8 2xl:px-10 h-14 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-2.5 lg:gap-3 relative max-w-full">
           
           {/* =========================================================
               LEFT: Hamburger (Mobile), Brand Logo & Mega Menu
               ========================================================= */}
-          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-5 shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3.5 lg:gap-4 shrink-0">
             {/* Hamburger Trigger (Mobile & Tablet < 1024px) */}
             <button
               type="button"
@@ -92,7 +93,7 @@ export default function Navbar() {
             {/* Production-Grade Interactive Brand Logo & Title */}
             <Link
               to={isAuthenticated ? (user?.role === "admin" ? "/admin" : "/products") : "/"}
-              className="flex items-center gap-2 sm:gap-3.5 group select-none relative focus:outline-hidden shrink-0"
+              className="flex items-center gap-2 sm:gap-3 group select-none relative focus:outline-hidden shrink-0"
               aria-label="TechHub Homepage"
             >
               {/* Interactive Logo Container with Ambient Bloom & Glint */}
@@ -142,32 +143,44 @@ export default function Navbar() {
               <NavCategoriesMegaMenu />
             </div>
 
-            {/* Deals Direct Link (Ultra-Wide Screens) */}
+            {/* Deals Direct Link */}
             <Link
               to="/products?deal=hot"
-              className="hidden min-[1600px]:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-500 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 hover:bg-amber-400/10 border border-amber-400/30 transition-all"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-500 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 hover:bg-amber-400/10 border border-amber-400/30 transition-all shrink-0"
             >
               <Flame className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               <span>Deals</span>
+            </Link>
+
+            {/* Coupons & Offers Direct Link */}
+            <Link
+              to="/coupons"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/30 transition-all shrink-0"
+            >
+              <Ticket className="h-3.5 w-3.5" />
+              <span>Offers</span>
+              <span className="text-[9px] font-mono font-bold px-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 uppercase">
+                New
+              </span>
             </Link>
           </div>
 
           {/* =========================================================
               CENTER: Live Search Autocomplete (Dominant Visual Anchor)
               ========================================================= */}
-          <div className="hidden md:flex flex-1 min-w-[260px] lg:min-w-[340px] max-w-xl xl:max-w-2xl mx-2 sm:mx-4 lg:mx-6 justify-center">
+          <div className="hidden md:flex flex-1 min-w-[180px] sm:min-w-[200px] lg:min-w-[220px] max-w-md xl:max-w-lg mx-1.5 sm:mx-2.5 lg:mx-3 justify-center shrink">
             <NavSearchAutocomplete />
           </div>
 
           {/* =========================================================
               RIGHT: Dashboard, Orders, Wishlist, Theme, Mini Cart & User
               ========================================================= */}
-          <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 lg:gap-3 shrink-0">
+          <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 lg:gap-2.5 shrink-0">
             {/* Customer Dashboard VIP Pill (Ultra-Wide Screens - Authenticated Only) */}
             {isAuthenticated && (
               <Link
                 to="/dashboard"
-                className="hidden min-[1680px]:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-white bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 transition-all shadow-xs"
+                className="hidden min-[1680px]:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-white bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 transition-all shadow-xs shrink-0"
               >
                 <LayoutDashboard className="h-3.5 w-3.5 text-sky-500" />
                 <span>Dashboard</span>
@@ -181,7 +194,7 @@ export default function Navbar() {
             {isAuthenticated && (
               <Link
                 to="/orders"
-                className="hidden min-[1536px]:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+                className="hidden min-[1680px]:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors shrink-0"
               >
                 <Package className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                 <span>Orders</span>

@@ -15,6 +15,7 @@ import {
   Sparkles,
   Layers,
   RotateCcw,
+  Ticket,
 } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
 import { logoutUserApi } from "../../api/authApi";
@@ -74,6 +75,17 @@ const navSections = [
         label: "Returns & RMA",
         to: "/admin/returns",
         icon: RotateCcw,
+      },
+    ],
+  },
+  {
+    title: "MARKETING & OFFERS",
+    items: [
+      {
+        label: "Coupons & Offers",
+        to: "/admin/coupons",
+        icon: Ticket,
+        badge: "Promo",
       },
     ],
   },

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AddressModal from "@/components/profile/AddressModal";
@@ -15,6 +15,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useAddressesQuery } from "@/hooks/useAddresses";
 import { usePlaceCodOrderMutation } from "@/hooks/useOrders";
 import { syncCartApi, clearCartApi, applyCouponApi } from "@/api/cartApi";
+import { fetchActiveCouponsApi } from "@/api/couponApi";
 import {
   createRazorpayOrderApi,
   verifyRazorpayPaymentApi,
@@ -67,6 +68,8 @@ export default function Cart() {
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [searchParams] = useSearchParams();
   const [orderError, setOrderError] = useState("");
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [placedOrderDetails, setPlacedOrderDetails] = useState(null);
@@ -75,6 +78,13 @@ export default function Cart() {
   // Concurrency Stock Reservation state
   const [activeReservation, setActiveReservation] = useState(null);
   const [isCancellingReservation, setIsCancellingReservation] = useState(false);
+
+  // Load available promotional coupons from backend
+  useEffect(() => {
+    fetchActiveCouponsApi()
+      .then((data) => setAvailableCoupons(data || []))
+      .catch((err) => console.error("Error loading coupons:", err));
+  }, []);
 
   // Check for active stock hold on mount (e.g. if page was reloaded)
   useEffect(() => {
@@ -103,27 +113,58 @@ export default function Cart() {
   const selectedAddress =
     addresses.find((a) => a._id === selectedAddressId) || addresses[0];
 
-  // Handle Coupon Application
-  const handleApplyCoupon = (e) => {
-    if (e?.preventDefault) e.preventDefault();
-    setCouponError("");
-    setCouponSuccess("");
+  // Handle Dynamic Coupon Application
+  const handleApplyCoupon = useCallback(
+    (e, codeOverride = null) => {
+      if (e?.preventDefault) e.preventDefault();
+      setCouponError("");
+      setCouponSuccess("");
 
-    const code = couponCode.trim().toUpperCase();
-    if (!code) return;
+      const codeToApply = (codeOverride || couponCode || "").trim().toUpperCase();
+      if (!codeToApply) return;
 
-    if (code === "TECH10") {
-      const discount = Math.round(subtotal * 0.1);
+      const coupon = availableCoupons.find(
+        (c) => c.code.toUpperCase() === codeToApply
+      );
+
+      if (!coupon) {
+        setCouponError(`Promo code '${codeToApply}' is invalid or expired.`);
+        return;
+      }
+
+      if (subtotal < (coupon.minOrderValue || 0)) {
+        setCouponError(
+          `Minimum order value of ₹${(coupon.minOrderValue || 0).toLocaleString("en-IN")} required for '${codeToApply}'.`
+        );
+        return;
+      }
+
+      let discount = 0;
+      if (coupon.discountType === "PERCENTAGE") {
+        discount = Math.round((subtotal * coupon.discountValue) / 100);
+        if (coupon.maxDiscountAmount) {
+          discount = Math.min(discount, coupon.maxDiscountAmount);
+        }
+      } else {
+        discount = Math.min(coupon.discountValue, subtotal);
+      }
+
+      setCouponCode(codeToApply);
       setAppliedDiscount(discount);
-      setCouponSuccess("10% TechHub member discount applied!");
-    } else if (code === "PRO2000") {
-      const discount = Math.min(2000, subtotal);
-      setAppliedDiscount(discount);
-      setCouponSuccess("₹2,000 Flat voucher discount applied!");
-    } else {
-      setCouponError("Invalid promo code. Try TECH10 or PRO2000.");
+      setCouponSuccess(
+        `'${coupon.code}' applied! You saved ₹${discount.toLocaleString("en-IN")}`
+      );
+    },
+    [availableCoupons, couponCode, subtotal]
+  );
+
+  // Automatically apply coupon if passed via URL param (?coupon=CODE)
+  useEffect(() => {
+    const urlCoupon = searchParams.get("coupon");
+    if (urlCoupon && availableCoupons.length > 0 && subtotal > 0 && !couponSuccess) {
+      handleApplyCoupon(null, urlCoupon);
     }
-  };
+  }, [searchParams, availableCoupons, subtotal, couponSuccess, handleApplyCoupon]);
 
   const handleRemoveCoupon = () => {
     setCouponCode("");
@@ -461,6 +502,8 @@ export default function Cart() {
                 couponError={couponError}
                 onApplyCoupon={handleApplyCoupon}
                 onRemoveCoupon={handleRemoveCoupon}
+                availableCoupons={availableCoupons}
+                onSelectCoupon={(code) => handleApplyCoupon(null, code)}
                 selectedAddress={selectedAddress}
                 paymentMethod={paymentMethod}
                 isSubmittingOrder={isSubmittingOrder}

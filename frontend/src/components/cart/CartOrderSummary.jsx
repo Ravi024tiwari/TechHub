@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Truck,
   Tag,
@@ -10,8 +10,9 @@ import {
   AlertCircle,
   X,
   Sparkles,
+  Ticket,
 } from "lucide-react";
-
+import AvailableCouponsModal from "./AvailableCouponsModal";
 
 export default function CartOrderSummary({
   subtotal = 0,
@@ -24,12 +25,15 @@ export default function CartOrderSummary({
   couponError = "",
   onApplyCoupon,
   onRemoveCoupon,
+  availableCoupons = [],
+  onSelectCoupon,
   selectedAddress,
   paymentMethod = "COD",
   isSubmittingOrder = false,
   orderError = "",
   onProceedCheckout,
 }) {
+  const [isCouponsModalOpen, setIsCouponsModalOpen] = useState(false);
   const formatINR = (val) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -111,44 +115,76 @@ export default function CartOrderSummary({
           </div>
         ) : (
           <form onSubmit={onApplyCoupon} className="space-y-2">
+            {/* Trigger Available Coupons Modal */}
+            {availableCoupons.length > 0 && (
+              <div className="flex items-center justify-between pb-0.5">
+                <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                  Have a promo voucher?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsCouponsModalOpen(true)}
+                  className="inline-flex items-center gap-1 text-xs font-mono font-bold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors cursor-pointer"
+                >
+                  <Ticket className="size-3.5 text-amber-500" />
+                  <span className="underline decoration-dotted underline-offset-2">
+                    View Offers ({availableCoupons.length})
+                  </span>
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="PROMO CODE (e.g. TECH10)"
+                  placeholder="PROMO CODE (e.g. FLASH15)"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  className="w-full h-9 pl-9 pr-3 text-xs uppercase font-mono rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  className="w-full h-9 pl-9 pr-3 text-xs uppercase font-mono rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-slate-900 dark:focus:border-white focus:ring-1 focus:ring-slate-900 dark:focus:ring-white"
                 />
               </div>
               <button
                 type="submit"
-                className="h-9 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs hover:bg-orange-600 dark:hover:bg-orange-500 dark:hover:text-white transition-all cursor-pointer"
+                className="h-9 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all cursor-pointer"
               >
                 Apply
               </button>
             </div>
 
             {/* Quick Suggestion Chips */}
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400">
-              <Sparkles className="h-3 w-3 text-orange-500 shrink-0" />
-              <span>Try:</span>
-              <button
-                type="button"
-                onClick={() => setCouponCode("TECH10")}
-                className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.05] hover:bg-orange-500/10 hover:text-orange-500 border border-slate-200 dark:border-white/10 transition-colors cursor-pointer"
-              >
-                TECH10 (10% OFF)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCouponCode("PRO2000")}
-                className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.05] hover:bg-orange-500/10 hover:text-orange-500 border border-slate-200 dark:border-white/10 transition-colors cursor-pointer"
-              >
-                PRO2000 (₹2K Flat)
-              </button>
-            </div>
+            {availableCoupons.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-0.5">
+                <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />
+                <span>Quick:</span>
+                {availableCoupons.slice(0, 2).map((c) => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => {
+                      setCouponCode(c.code);
+                      if (onSelectCoupon) onSelectCoupon(c.code);
+                    }}
+                    className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 transition-colors cursor-pointer"
+                  >
+                    {c.code} ({c.discountType === "PERCENTAGE" ? `${c.discountValue}% OFF` : `₹${c.discountValue} OFF`})
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />
+                <span>Try:</span>
+                <button
+                  type="button"
+                  onClick={() => setCouponCode("TECH10")}
+                  className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 border border-slate-200 dark:border-white/10 transition-colors cursor-pointer"
+                >
+                  TECH10 (10% OFF)
+                </button>
+              </div>
+            )}
 
             {couponError && (
               <p className="text-[11px] text-rose-500 font-medium font-sans">
@@ -157,6 +193,19 @@ export default function CartOrderSummary({
             )}
           </form>
         )}
+
+        {/* Modal for browsing all available coupons */}
+        <AvailableCouponsModal
+          isOpen={isCouponsModalOpen}
+          onClose={() => setIsCouponsModalOpen(false)}
+          coupons={availableCoupons}
+          currentCartTotal={subtotal}
+          appliedCouponCode={couponCode}
+          onSelectCoupon={(code) => {
+            if (onSelectCoupon) onSelectCoupon(code);
+            setIsCouponsModalOpen(false);
+          }}
+        />
       </div>
 
       {/* Selected Delivery Destination Preview */}

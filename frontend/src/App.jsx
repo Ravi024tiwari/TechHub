@@ -22,6 +22,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
+const CustomerCoupons = lazy(() => import("./pages/CustomerCoupons"));
 const NotFound = lazy(() => import("./components/common/NotFound"));
 import CompareFloatingBar from "./components/compare/CompareFloatingBar";
 
@@ -39,6 +40,7 @@ const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
 const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminTaxonomy = lazy(() => import("./pages/admin/AdminTaxonomy"));
 const AdminReturns = lazy(() => import("./pages/admin/AdminReturns"));
+const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
@@ -84,6 +86,8 @@ export default function App() {
           />
           <Route path="/products" element={<Products />} />
           <Route path="/deals" element={<Deals />} />
+          <Route path="/coupons" element={<CustomerCoupons />} />
+          <Route path="/offers" element={<CustomerCoupons />} />
           <Route path="/cart" element={<Cart />} />
           <Route
             path="/wishlist"
@@ -204,6 +208,7 @@ export default function App() {
             <Route path="customers" element={<AdminCustomers />} />
             <Route path="inventory" element={<AdminInventory />} />
             <Route path="returns" element={<AdminReturns />} />
+            <Route path="coupons" element={<AdminCoupons />} />
           </Route>
 
           {/* 404 Hardware Not Found Catch-All */}

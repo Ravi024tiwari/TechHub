@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Sparkles, ShieldCheck, Truck, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sparkles, ShieldCheck, Truck, X, Ticket } from "lucide-react";
 
 export default function TopAnnouncementBar() {
   const [isVisible, setIsVisible] = useState(true);
@@ -20,14 +21,17 @@ export default function TopAnnouncementBar() {
 
         {/* Center rotating or combined banner */}
         <div className="flex-1 min-w-0 flex items-center justify-center gap-2 sm:gap-6 text-center">
-          <span className="flex items-center gap-1.5 text-white font-medium text-[10px] sm:text-xs truncate">
+          <Link
+            to="/coupons"
+            className="flex items-center gap-1.5 text-white font-medium text-[10px] sm:text-xs truncate hover:text-amber-200 transition-colors"
+          >
             <Sparkles className="h-3 w-3 text-amber-300 shrink-0" />
             <span className="truncate">
-              <span className="hidden sm:inline">Launch Offer: Get up to ₹10,000 instant cashback with code </span>
-              <span className="sm:hidden">Cashback up to ₹10k with code </span>
-              <strong className="text-amber-200 font-mono font-bold tracking-wider">TECHPRO</strong>
+              <span className="hidden sm:inline">Active Offers: Save up to 15% instant discount across cart </span>
+              <span className="sm:hidden">Exclusive Offers Active </span>
+              <span className="underline decoration-dotted ml-1 text-amber-300 font-bold">View Coupons →</span>
             </span>
-          </span>
+          </Link>
           <span className="hidden lg:inline-flex text-white/20">•</span>
           <span className="hidden lg:inline-flex items-center gap-1.5 text-slate-300">
             <Truck className="h-3.5 w-3.5 text-cyan-400 shrink-0" />

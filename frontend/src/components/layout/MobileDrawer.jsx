@@ -22,6 +22,7 @@ import {
   Watch,
   LayoutDashboard,
   ArrowLeftRight,
+  Ticket,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCompareStore } from "@/store/useCompareStore";
@@ -196,6 +197,20 @@ export default function MobileDrawer({ isOpen, onClose }) {
             </div>
             <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-400/20 uppercase">
               Save 25%
+            </span>
+          </Link>
+
+          <Link
+            to="/coupons"
+            onClick={onClose}
+            className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-colors text-xs font-semibold"
+          >
+            <div className="flex items-center gap-3">
+              <Ticket className="h-4 w-4" />
+              <span>Promotions & Vouchers</span>
+            </div>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 uppercase font-bold text-emerald-300">
+              New
             </span>
           </Link>
 
