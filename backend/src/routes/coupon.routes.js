@@ -8,22 +8,25 @@ import {
   deleteCoupon,
   getActiveCouponsForCustomer
 } from "../controllers/coupon.controller.js";
-import { verifyJWT, authorizeRoles } from "../middlewares/auth.middleware.js";
+import {
+  verifyJWT,
+  authorizeRoles,
+  optionalAuth
+} from "../middlewares/auth.middleware.js";
 
 const couponRouter = Router();
 
-// Secure all coupon endpoints with JWT
-couponRouter.use(verifyJWT);
+// Customer endpoints (Optional authentication: shows active coupons to guests, checks per-user limit if logged in)
+couponRouter.get("/active", optionalAuth, getActiveCouponsForCustomer);
 
-// Customer endpoints
-couponRouter.get("/active", getActiveCouponsForCustomer);
+// Admin-only management endpoints (Strictly protected with JWT and Admin role)
+couponRouter.use("/admin", verifyJWT, authorizeRoles("admin"));
 
-// Admin-only management endpoints
-couponRouter.post("/admin", authorizeRoles("admin"), createCoupon);
-couponRouter.get("/admin/all", authorizeRoles("admin"), getAllCouponsAdmin);
-couponRouter.get("/admin/:couponId", authorizeRoles("admin"), getCouponByIdAdmin);
-couponRouter.put("/admin/:couponId", authorizeRoles("admin"), updateCoupon);
-couponRouter.patch("/admin/:couponId/toggle", authorizeRoles("admin"), toggleCouponStatus);
-couponRouter.delete("/admin/:couponId", authorizeRoles("admin"), deleteCoupon);
+couponRouter.post("/admin", createCoupon);
+couponRouter.get("/admin/all", getAllCouponsAdmin);
+couponRouter.get("/admin/:couponId", getCouponByIdAdmin);
+couponRouter.put("/admin/:couponId", updateCoupon);
+couponRouter.patch("/admin/:couponId/toggle", toggleCouponStatus);
+couponRouter.delete("/admin/:couponId", deleteCoupon);
 
 export default couponRouter;

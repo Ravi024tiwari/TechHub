@@ -550,7 +550,10 @@ export const getAvailableCoupons = asyncHandler(async (req, res) => {
       discountValue: coupon.discountValue,
       maxDiscountAmount: coupon.maxDiscountAmount,
       minOrderValue: coupon.minOrderValue,
-      expiryDate: coupon.expiryDate
+      expiryDate: coupon.expiryDate,
+      icon: coupon.icon || "percent",
+      badgeText: coupon.badgeText || "",
+      imageUrl: coupon.imageUrl || ""
     }));
 
   return res.status(200).json(

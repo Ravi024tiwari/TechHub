@@ -23,6 +23,9 @@ export const createCoupon = asyncHandler(async (req, res) => {
     usageLimit,
     usageLimitPerUser = 1,
     applicableCategories = [],
+    icon = "percent",
+    badgeText = "",
+    imageUrl = "",
     isActive = true
   } = req.body;
 
@@ -74,6 +77,9 @@ export const createCoupon = asyncHandler(async (req, res) => {
     applicableCategories: Array.isArray(applicableCategories)
       ? applicableCategories.map((cat) => cat.toLowerCase().trim())
       : [],
+    icon: icon || "percent",
+    badgeText: badgeText ? badgeText.trim() : "",
+    imageUrl: imageUrl ? imageUrl.trim() : "",
     isActive: Boolean(isActive),
     createdBy: req.user._id
   });
@@ -122,13 +128,26 @@ export const getAllCouponsAdmin = asyncHandler(async (req, res) => {
   const limitNumber = Math.min(50, Math.max(1, parseInt(limit, 10)));
   const skip = (pageNumber - 1) * limitNumber;
 
-  const [coupons, totalCoupons] = await Promise.all([
+  const [coupons, totalCoupons, stats] = await Promise.all([
     Coupon.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber)
       .populate("createdBy", "name email"),
-    Coupon.countDocuments(query)
+    Coupon.countDocuments(query),
+    Promise.all([
+      Coupon.countDocuments(),
+      Coupon.countDocuments({ isActive: true, startDate: { $lte: now }, expiryDate: { $gt: now } }),
+      Coupon.countDocuments({ expiryDate: { $lte: now } }),
+      Coupon.aggregate([
+        { $group: { _id: null, totalRedemptions: { $sum: "$usedCount" } } }
+      ])
+    ]).then(([totalAll, activeCount, expiredCount, totalRedemptionsAgg]) => ({
+      totalAll,
+      activeCount,
+      expiredCount,
+      totalRedemptions: totalRedemptionsAgg[0]?.totalRedemptions || 0
+    }))
   ]);
 
   return res.status(200).json(
@@ -136,6 +155,7 @@ export const getAllCouponsAdmin = asyncHandler(async (req, res) => {
       200,
       {
         coupons,
+        stats,
         pagination: {
           totalCoupons,
           currentPage: pageNumber,
@@ -291,7 +311,7 @@ export const deleteCoupon = asyncHandler(async (req, res) => {
 
 export const getActiveCouponsForCustomer = asyncHandler(async (req, res) => {
   const now = new Date();
-  const userId = req.user._id;
+  const userId = req.user?._id;
 
   // Find all coupons currently running
   const coupons = await Coupon.find({
@@ -306,11 +326,13 @@ export const getActiveCouponsForCustomer = asyncHandler(async (req, res) => {
       if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
         return false;
       }
-      const userRecord = coupon.usersUsed.find(
-        (record) => record.user.toString() === userId.toString()
-      );
-      if (userRecord && userRecord.usedCount >= coupon.usageLimitPerUser) {
-        return false;
+      if (userId) {
+        const userRecord = coupon.usersUsed.find(
+          (record) => record.user.toString() === userId.toString()
+        );
+        if (userRecord && userRecord.usedCount >= coupon.usageLimitPerUser) {
+          return false;
+        }
       }
       return true;
     })
@@ -322,7 +344,10 @@ export const getActiveCouponsForCustomer = asyncHandler(async (req, res) => {
       discountValue: coupon.discountValue,
       maxDiscountAmount: coupon.maxDiscountAmount,
       minOrderValue: coupon.minOrderValue,
-      expiryDate: coupon.expiryDate
+      expiryDate: coupon.expiryDate,
+      icon: coupon.icon || "percent",
+      badgeText: coupon.badgeText || "",
+      imageUrl: coupon.imageUrl || ""
     }));
 
   return res.status(200).json(

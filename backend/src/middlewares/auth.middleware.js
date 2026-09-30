@@ -72,3 +72,30 @@ export const authorizeRoles = (...allowedRoles) => {
     next();
   };
 };
+
+/**
+ * Optional Authentication: Populates req.user if a valid token is provided,
+ * but allows guest requests to proceed without throwing 401.
+ */
+export const optionalAuth = asyncHandler(async (req, res, next) => {
+  const token =
+    req.cookies?.accessToken ||
+    req.headers.authorization?.replace("Bearer ", "").trim();
+
+  if (!token) return next();
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const user = await User.findById(decodedToken?._id).select(
+      "-password -refreshToken"
+    );
+
+    if (user && !user.isBlocked && !user.changedPasswordAfter(decodedToken.iat)) {
+      req.user = user;
+    }
+  } catch (error) {
+  }
+
+  next();
+});
+

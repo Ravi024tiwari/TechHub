@@ -115,6 +115,28 @@ const couponSchema = new mongoose.Schema(
       trim: true,
       default: []
     },
+    // Visual branding: Preset icon key (percent, sparkles, zap, gift, crown, tag, shield-check, flame)
+    icon: {
+      type: String,
+      enum: {
+        values: ["percent", "sparkles", "zap", "gift", "crown", "tag", "shield-check", "flame"],
+        message: "Icon must be a supported preset key"
+      },
+      default: "percent"
+    },
+    // Optional promotional badge ribbon (e.g. 'WELCOME', 'LIMITED TIME', 'BEST VALUE')
+    badgeText: {
+      type: String,
+      trim: true,
+      maxlength: [30, "Badge text cannot exceed 30 characters"],
+      default: ""
+    },
+    // Optional custom image/logo URL
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: ""
+    },
     isActive: {
       type: Boolean,
       default: true,
