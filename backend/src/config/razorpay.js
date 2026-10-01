@@ -7,9 +7,14 @@ if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
   console.warn(
     "Warning: RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not set in environment variables."
   );
+} else {
+  console.log(
+    `💳 Razorpay SDK initialized [Mode: ${process.env.RAZORPAY_KEY_ID.startsWith("rzp_test_") ? "TEST MODE" : "LIVE"}] Key: ${process.env.RAZORPAY_KEY_ID.slice(0, 12)}...`
+  );
 }
 
 export const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || "",
   key_secret: process.env.RAZORPAY_KEY_SECRET || ""
 });
+

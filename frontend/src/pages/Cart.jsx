@@ -301,7 +301,7 @@ export default function Cart() {
               });
 
               setIsOrderPlaced(true);
-              setPlacedOrderDetails(verifyRes?.data?.order || null);
+              setPlacedOrderDetails(verifyRes?.data?.order || verifyRes?.order || null);
               setActiveReservation(null);
               clearCart();
             } catch (verifyErr) {
