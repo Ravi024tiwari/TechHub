@@ -86,8 +86,23 @@ export default function App() {
           />
           <Route path="/products" element={<Products />} />
           <Route path="/deals" element={<Deals />} />
-          <Route path="/coupons" element={<CustomerCoupons />} />
-          <Route path="/offers" element={<CustomerCoupons />} />
+          {/* Protected Customer Routes - Offers & Coupons (Redirects to /login?redirect=/offers if unauthenticated) */}
+          <Route
+            path="/coupons"
+            element={
+              <ProtectedRoute redirectTo="/login?redirect=/offers">
+                <CustomerCoupons />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/offers"
+            element={
+              <ProtectedRoute redirectTo="/login?redirect=/offers">
+                <CustomerCoupons />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/cart" element={<Cart />} />
           <Route
             path="/wishlist"

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, ShieldCheck, Truck, X, Ticket } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function TopAnnouncementBar() {
   const [isVisible, setIsVisible] = useState(true);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (!isVisible) return null;
 
@@ -22,14 +24,16 @@ export default function TopAnnouncementBar() {
         {/* Center rotating or combined banner */}
         <div className="flex-1 min-w-0 flex items-center justify-center gap-2 sm:gap-6 text-center">
           <Link
-            to="/coupons"
+            to={isAuthenticated ? "/offers" : "/login?redirect=/offers"}
             className="flex items-center gap-1.5 text-white font-medium text-[10px] sm:text-xs truncate hover:text-amber-200 transition-colors"
           >
             <Sparkles className="h-3 w-3 text-amber-300 shrink-0" />
             <span className="truncate">
               <span className="hidden sm:inline">Active Offers: Save up to 15% instant discount across cart </span>
               <span className="sm:hidden">Exclusive Offers Active </span>
-              <span className="underline decoration-dotted ml-1 text-amber-300 font-bold">View Coupons →</span>
+              <span className="underline decoration-dotted ml-1 text-amber-300 font-bold">
+                {isAuthenticated ? "View Offers →" : "Sign In to View Offers →"}
+              </span>
             </span>
           </Link>
           <span className="hidden lg:inline-flex text-white/20">•</span>

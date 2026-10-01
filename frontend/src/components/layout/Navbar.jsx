@@ -152,17 +152,19 @@ export default function Navbar() {
               <span>Deals</span>
             </Link>
 
-            {/* Coupons & Offers Direct Link */}
-            <Link
-              to="/coupons"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/30 transition-all shrink-0"
-            >
-              <Ticket className="h-3.5 w-3.5" />
-              <span>Offers</span>
-              <span className="text-[9px] font-mono font-bold px-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 uppercase">
-                New
-              </span>
-            </Link>
+            {/* Coupons & Offers Direct Link - Only visible when Authenticated */}
+            {isAuthenticated && (
+              <Link
+                to="/offers"
+                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/30 transition-all shrink-0"
+              >
+                <Ticket className="h-3.5 w-3.5" />
+                <span>Offers</span>
+                <span className="text-[9px] font-mono font-bold px-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 uppercase">
+                  New
+                </span>
+              </Link>
+            )}
           </div>
 
           {/* =========================================================

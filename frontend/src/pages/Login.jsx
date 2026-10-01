@@ -119,6 +119,7 @@ export default function Login() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="alex@tech.dev"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -147,6 +148,7 @@ export default function Login() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -206,7 +208,7 @@ export default function Login() {
             <p className="text-xs text-slate-400">
               New to TechHaven?{" "}
               <Link
-                to="/signup"
+                to={redirectPath && redirectPath !== "/" ? `/signup?redirect=${encodeURIComponent(redirectPath)}` : "/signup"}
                 className="text-white font-semibold hover:text-slate-200 underline underline-offset-4 transition-colors"
               >
                 Create an Account

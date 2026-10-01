@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,8 @@ import { useRegisterMutation } from "@/hooks/useAuth";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "/";
   const registerMutation = useRegisterMutation();
 
   const [formData, setFormData] = useState({
@@ -108,9 +110,13 @@ export default function Signup() {
             response.message ||
               "Welcome to TechHaven! Your account has been initialized successfully."
           );
-          // Seamlessly redirect to home/storefront after showing success badge
+          // Seamlessly redirect to intended destination (or products catalog) after showing success badge
           setTimeout(() => {
-            navigate("/products", { replace: true });
+            if (redirectPath && redirectPath !== "/") {
+              navigate(redirectPath, { replace: true });
+            } else {
+              navigate("/products", { replace: true });
+            }
           }, 1200);
         },
         onError: (err) => {
@@ -269,6 +275,7 @@ export default function Signup() {
                     id="name"
                     name="name"
                     type="text"
+                    autoComplete="name"
                     placeholder="e.g. Ravi Tiwari"
                     value={formData.name}
                     onChange={handleChange}
@@ -292,6 +299,7 @@ export default function Signup() {
                       id="email"
                       name="email"
                       type="email"
+                      autoComplete="email"
                       placeholder="alex@tech.dev"
                       value={formData.email}
                       onChange={handleChange}
@@ -313,6 +321,7 @@ export default function Signup() {
                       id="phone"
                       name="phone"
                       type="tel"
+                      autoComplete="tel"
                       placeholder="+91 98765 43210"
                       value={formData.phone}
                       onChange={handleChange}
@@ -334,6 +343,7 @@ export default function Signup() {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     placeholder="Min. 8 chars with mixed case & digits"
                     value={formData.password}
                     onChange={handleChange}
@@ -395,6 +405,7 @@ export default function Signup() {
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     placeholder="Repeat your chosen password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -471,7 +482,7 @@ export default function Signup() {
                   Already registered with TechHub?
                 </span>
                 <Link
-                  to="/login"
+                  to={redirectPath && redirectPath !== "/" ? `/login?redirect=${encodeURIComponent(redirectPath)}` : "/login"}
                   className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
                 >
                   <span>Sign In to Account</span>

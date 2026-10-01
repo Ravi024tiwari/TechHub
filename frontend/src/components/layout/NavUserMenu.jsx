@@ -13,6 +13,7 @@ import {
   Layers,
   ArrowRight,
   LayoutDashboard,
+  Ticket,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -265,7 +266,27 @@ export default function NavUserMenu() {
               )}
             </Link>
 
-            {/* 4. Hardware Bag & Checkout */}
+            {/* 4. Exclusive Offers & Promo Vouchers */}
+            <Link
+              to="/offers"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-between p-2.5 rounded-xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/25 text-xs font-medium text-slate-200 hover:text-white transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 group-hover:scale-110 transition-transform">
+                  <Ticket className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block font-semibold text-white">Exclusive Offers</span>
+                  <span className="text-[10px] text-slate-400 block">Instant vouchers & discounts</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
+                Active
+              </span>
+            </Link>
+
+            {/* 5. Hardware Bag & Checkout */}
             <Link
               to="/cart"
               onClick={() => setIsOpen(false)}

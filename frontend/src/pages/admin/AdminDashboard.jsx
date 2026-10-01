@@ -73,6 +73,54 @@ export default function AdminDashboard() {
     return `${mins}m ago (Cached)`;
   }, [dataUpdatedAt, isManualRefreshing]);
 
+  // Transform backend recentActivity (orders, users, reviews) into unified chronological feed
+  const formattedActivities = useMemo(() => {
+    const raw = overviewData?.recentActivity || {};
+    const list = [];
+
+    (raw.recentOrders || []).forEach((ord) => {
+      const isDelivered = ord.orderStatus === "DELIVERED";
+      const total = ord.pricing?.grandTotal || 0;
+      const orderNum = ord.orderNumber || `#ORD-${String(ord._id).slice(-4).toUpperCase()}`;
+
+      list.push({
+        id: `ord-${ord._id}`,
+        type: isDelivered ? "delivery" : "order",
+        title: `${ord.user?.name || "Customer"} placed an order`,
+        desc: `${orderNum} • ₹${total.toLocaleString()} • ${ord.orderStatus}`,
+        time: ord.createdAt,
+        timestamp: new Date(ord.createdAt).getTime(),
+        link: `/admin/orders?search=${ord.orderNumber || ord._id}`,
+      });
+    });
+
+    (raw.recentUsers || []).forEach((u) => {
+      list.push({
+        id: `user-${u._id}`,
+        type: "user",
+        title: `${u.name || "Customer"} registered an account`,
+        desc: u.email || "Verified Customer Profile",
+        time: u.createdAt,
+        timestamp: new Date(u.createdAt).getTime(),
+        link: "/admin/customers",
+      });
+    });
+
+    (raw.recentReviews || []).forEach((rev) => {
+      list.push({
+        id: `rev-${rev._id}`,
+        type: "review",
+        title: `${rev.user?.name || "Customer"} rated ${rev.rating || 5}★`,
+        desc: `${rev.product?.title || "Electronics"} • "${rev.title || rev.comment || "Verified review"}"`,
+        time: rev.createdAt,
+        timestamp: new Date(rev.createdAt).getTime(),
+        link: "/admin/products",
+      });
+    });
+
+    return list.sort((a, b) => b.timestamp - a.timestamp);
+  }, [overviewData?.recentActivity]);
+
   // Export Executive Report as CSV
   const handleExportReport = () => {
     const revenue = overviewData?.kpis?.revenue || {};
@@ -149,54 +197,6 @@ export default function AdminDashboard() {
     salesAnalytics?.salesTimeline?.length >= 2
       ? salesAnalytics.salesTimeline.map((d) => d.orders || 0)
       : [];
-
-  // Transform backend recentActivity (orders, users, reviews) into unified chronological feed
-  const formattedActivities = useMemo(() => {
-    const raw = overviewData?.recentActivity || {};
-    const list = [];
-
-    (raw.recentOrders || []).forEach((ord) => {
-      const isDelivered = ord.orderStatus === "DELIVERED";
-      const total = ord.pricing?.grandTotal || 0;
-      const orderNum = ord.orderNumber || `#ORD-${String(ord._id).slice(-4).toUpperCase()}`;
-
-      list.push({
-        id: `ord-${ord._id}`,
-        type: isDelivered ? "delivery" : "order",
-        title: `${ord.user?.name || "Customer"} placed an order`,
-        desc: `${orderNum} • ₹${total.toLocaleString()} • ${ord.orderStatus}`,
-        time: ord.createdAt,
-        timestamp: new Date(ord.createdAt).getTime(),
-        link: `/admin/orders?search=${ord.orderNumber || ord._id}`,
-      });
-    });
-
-    (raw.recentUsers || []).forEach((u) => {
-      list.push({
-        id: `user-${u._id}`,
-        type: "user",
-        title: `${u.name || "Customer"} registered an account`,
-        desc: u.email || "Verified Customer Profile",
-        time: u.createdAt,
-        timestamp: new Date(u.createdAt).getTime(),
-        link: "/admin/customers",
-      });
-    });
-
-    (raw.recentReviews || []).forEach((rev) => {
-      list.push({
-        id: `rev-${rev._id}`,
-        type: "review",
-        title: `${rev.user?.name || "Customer"} rated ${rev.rating || 5}★`,
-        desc: `${rev.product?.title || "Electronics"} • "${rev.title || rev.comment || "Verified review"}"`,
-        time: rev.createdAt,
-        timestamp: new Date(rev.createdAt).getTime(),
-        link: "/admin/products",
-      });
-    });
-
-    return list.sort((a, b) => b.timestamp - a.timestamp);
-  }, [overviewData?.recentActivity]);
 
   return (
     <div className="space-y-5 sm:space-y-8">

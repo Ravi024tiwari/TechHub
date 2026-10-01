@@ -8,9 +8,13 @@ export default function ProtectedRoute({ children, requiredRole, redirectTo = "/
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Not logged in -> redirect to landing page
+  // Not logged in -> redirect to landing or login
   if (!isAuthenticated || !user) {
-    return <Navigate to={redirectTo} replace />;
+    let target = redirectTo;
+    if (redirectTo === "/login" && location.pathname && location.pathname !== "/") {
+      target = `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+    }
+    return <Navigate to={target} replace state={{ from: location }} />;
   }
 
   // Role verification (e.g. customer trying to access admin dashboard)

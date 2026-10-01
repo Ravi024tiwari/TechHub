@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import {
   Ticket,
   Sparkles,
@@ -23,11 +24,16 @@ import { useCartStore } from "@/store/useCartStore";
 
 export default function CustomerCoupons() {
   const navigate = useNavigate();
-  const [coupons, setCoupons] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // 'all' | 'percentage' | 'flat' | 'eligible'
   const [toastMessage, setToastMessage] = useState(null);
+
+  // TanStack Query: Auto-caching & request deduplication across renders
+  const { data: coupons = [], isLoading: loading } = useQuery({
+    queryKey: ["activeCoupons"],
+    queryFn: fetchActiveCouponsApi,
+    staleTime: 2 * 60 * 1000,
+  });
 
   // Cart state from Zustand store
   const cartSubtotal = useCartStore((state) => state.getSubtotal());
@@ -38,22 +44,6 @@ export default function CustomerCoupons() {
     setToastMessage({ message, type });
     setTimeout(() => setToastMessage(null), 4000);
   };
-
-  // Fetch active coupons on mount
-  useEffect(() => {
-    const loadCoupons = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchActiveCouponsApi();
-        setCoupons(data || []);
-      } catch (err) {
-        console.error("Error loading customer coupons:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadCoupons();
-  }, []);
 
   // Format currency
   const formatINR = (val) =>
