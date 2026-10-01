@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/product/ProductCard";
+import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import WishlistListItem from "@/components/wishlist/WishlistListItem";
 import WishlistToolbar from "@/components/wishlist/WishlistToolbar";
 import WishlistClearModal from "@/components/wishlist/WishlistClearModal";
@@ -24,8 +25,13 @@ import {
 } from "lucide-react";
 
 export default function Wishlist() {
-  const { items, clearWishlist } = useWishlistStore();
+  const { items, clearWishlist, fetchWishlist, isLoading } = useWishlistStore();
   const addItem = useCartStore((state) => state.addItem);
+
+  // Sync latest customer wishlist from server on mount
+  useEffect(() => {
+    fetchWishlist();
+  }, [fetchWishlist]);
 
   // View mode (grid vs list), stored in localStorage for customer preference
   const [viewMode, setViewMode] = useState(() => {
@@ -239,7 +245,13 @@ export default function Wishlist() {
         )}
 
         {/* Wishlist Body */}
-        {items.length === 0 ? (
+        {isLoading && items.length === 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 py-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
           /* Entire Wishlist Empty State */
           <div className="py-20 text-center max-w-md mx-auto">
             <div className="h-24 w-24 rounded-3xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center mx-auto mb-6 shadow-xl relative">
