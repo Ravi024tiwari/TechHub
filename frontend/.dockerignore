@@ -1,0 +1,28 @@
+# Dependencies and build outputs
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and secrets
+.env
+.env.local
+.env.production
+.env.development
+
+# Version control and IDE files
+.git
+.gitignore
+.github/
+.vscode/
+.idea/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Docker files
+Dockerfile*
+.dockerignore
+README.md

@@ -1,0 +1,29 @@
+# Node modules and build output
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and secrets (CRITICAL: Do not leak .env into image)
+.env
+.env.*
+!.env.example
+
+# Version control & IDEs
+.git
+.gitignore
+.github/
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation & dockerfiles
+Dockerfile*
+docker-compose*
+.dockerignore
+README.md
