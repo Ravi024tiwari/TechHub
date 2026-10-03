@@ -104,7 +104,9 @@ jobs:
         run: |
           if [ -n "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}" ]; then
             echo "🚀 Triggering Render Backend Deployment..."
-            curl -s -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
+            RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}")
+            echo "Render Response:"
+            echo "$RESPONSE"
             echo "✅ Backend deploy signal sent successfully!"
           else
             echo "⚠️ RENDER_BACKEND_DEPLOY_HOOK secret is not configured yet. Skipping trigger."
@@ -114,7 +116,9 @@ jobs:
         run: |
           if [ -n "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}" ]; then
             echo "🚀 Triggering Render Frontend Deployment..."
-            curl -s -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"
+            RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}")
+            echo "Render Response:"
+            echo "$RESPONSE"
             echo "✅ Frontend deploy signal sent successfully!"
           else
             echo "⚠️ RENDER_FRONTEND_DEPLOY_HOOK secret is not configured yet. Skipping trigger."
