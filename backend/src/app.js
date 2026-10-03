@@ -15,19 +15,41 @@ app.set("trust proxy", 1);
 
 app.use(helmet());
 
+const clientUrls = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((url) => url.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://localhost:5173",
-  "http://localhost:3000"
+  ...clientUrls,
+  "http://localhost:5173",
+  "http://localhost:3000",
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman) or from allowedOrigins
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+
+      const cleanOrigin = origin.replace(/\/$/, "");
+      let isAllowed = false;
+
+      try {
+        const hostname = new URL(origin).hostname;
+        isAllowed =
+          process.env.CLIENT_URL === "*" ||
+          allowedOrigins.includes(cleanOrigin) ||
+          hostname.endsWith(".onrender.com") ||
+          hostname === "localhost";
+      } catch {
+        isAllowed = allowedOrigins.includes(cleanOrigin);
+      }
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error("Blocked by CORS policy"));
+        callback(new Error(`Blocked by CORS policy for origin: ${origin}`));
       }
     },
     credentials: true,

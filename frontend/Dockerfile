@@ -15,8 +15,8 @@ RUN npm ci
 
 COPY . .
 
-# Build-time environment variable for backend API URL (defaults to relative /api/v1 for reverse proxy)
-ARG VITE_API_BASE_URL=/api/v1
+# Build-time environment variable for backend API URL
+ARG VITE_API_BASE_URL=https://techhub-backend-vbts.onrender.com/api/v1
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 # Compile and optimize production build into /app/dist
